@@ -158,7 +158,7 @@ export default function Layout({ children }) {
             {/* Main Content Area */}
             <main
                 className={`
-                    flex-1 transition-all duration-300 ease-in-out p-4 md:p-8
+                    flex-1 transition-all duration-300 ease-in-out p-4 md:p-8 overflow-x-hidden overflow-x-hidden
                     ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'}
                     ml-20
                 `}
