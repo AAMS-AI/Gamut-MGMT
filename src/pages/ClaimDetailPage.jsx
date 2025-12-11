@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, addDoc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { useFirestoreComments } from '../hooks/useFirestore';
+import { useFirestoreComments, useFirestoreUsers } from '../hooks/useFirestore';
 import ClaimStatusBadge from '../components/ClaimStatusBadge';
 import LineItemRow from '../components/LineItemRow';
 import ApprovalActions from '../components/ApprovalActions';
@@ -25,6 +25,7 @@ export default function ClaimDetailPage() {
     const [team, setTeam] = useState(null);
     const [loading, setLoading] = useState(true);
     const { comments, loading: commentsLoading } = useFirestoreComments(id);
+    const { users } = useFirestoreUsers(user);
     const [comment, setComment] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
 
@@ -326,6 +327,18 @@ export default function ClaimDetailPage() {
                                     </div>
 
                                     <div className="flex items-center gap-3">
+                                        <div className="bg-indigo-500/20 p-2 rounded-lg">
+                                            <User className="text-indigo-400" size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">Submitted By</p>
+                                            <p className="font-semibold text-gray-100">
+                                                {users.find(u => u.id === claim.submittedBy)?.displayName || 'Unknown'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
                                         <div className="bg-green-500/20 p-2 rounded-lg">
                                             <Calendar className="text-green-400" size={20} />
                                         </div>
@@ -435,221 +448,224 @@ export default function ClaimDetailPage() {
                     </div>
 
                     {/* Full Width Estimate Table */}
-                    {(claim.aiAnalysis || claim.lineItems?.length > 0) && (
-                        <div className="card space-y-6 print:shadow-none print:border-none print:p-0">
-                            <h2 className="text-xl font-semibold text-gray-100 flex items-center gap-2 print:text-black">
-                                <ClipboardList size={20} />
-                                Damage Assessment & Estimate
-                            </h2>
+                    {
+                        (claim.aiAnalysis || claim.lineItems?.length > 0) && (
+                            <div className="card space-y-6 print:shadow-none print:border-none print:p-0">
+                                <h2 className="text-xl font-semibold text-gray-100 flex items-center gap-2 print:text-black">
+                                    <ClipboardList size={20} />
+                                    Damage Assessment & Estimate
+                                </h2>
 
-                            {/* AI Analysis */}
-                            {claim.aiAnalysis && (
-                                <div className="bg-slate-800/50 rounded-lg p-4 space-y-4 print:bg-gray-50 print:border print:border-gray-200">
-                                    <div className="flex items-start justify-between">
-                                        <h3 className="font-medium text-gray-100 flex items-center gap-2 print:text-black">
-                                            <FileText size={18} className="text-blue-400 print:text-blue-600" />
-                                            AI Restoration Analysis
-                                        </h3>
-                                        <div className="flex items-center gap-1 text-sm bg-blue-500/20 text-blue-300 px-2 py-1 rounded print:bg-blue-100 print:text-blue-800">
-                                            <span>Confidence:</span>
-                                            <span className="font-semibold">{Math.round(claim.aiAnalysis.confidenceScore * 100)}%</span>
+                                {/* AI Analysis */}
+                                {claim.aiAnalysis && (
+                                    <div className="bg-slate-800/50 rounded-lg p-4 space-y-4 print:bg-gray-50 print:border print:border-gray-200">
+                                        <div className="flex items-start justify-between">
+                                            <h3 className="font-medium text-gray-100 flex items-center gap-2 print:text-black">
+                                                <FileText size={18} className="text-blue-400 print:text-blue-600" />
+                                                AI Restoration Analysis
+                                            </h3>
+                                            <div className="flex items-center gap-1 text-sm bg-blue-500/20 text-blue-300 px-2 py-1 rounded print:bg-blue-100 print:text-blue-800">
+                                                <span>Confidence:</span>
+                                                <span className="font-semibold">{Math.round(claim.aiAnalysis.confidenceScore * 100)}%</span>
+                                            </div>
                                         </div>
+
+                                        <p className="text-gray-300 text-sm leading-relaxed print:text-gray-700">
+                                            {claim.aiAnalysis.summary}
+                                        </p>
+
+                                        {claim.aiAnalysis.restorationInstructions?.length > 0 && (
+                                            <div className="space-y-2">
+                                                <p className="text-sm font-medium text-gray-400 print:text-gray-600">Suggested Actions:</p>
+                                                <ul className="space-y-1">
+                                                    {claim.aiAnalysis.restorationInstructions.map((instruction, idx) => (
+                                                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-300 print:text-gray-700">
+                                                            <CheckCircle2 size={16} className="text-green-500 mt-0.5 shrink-0 print:text-green-700" />
+                                                            {instruction}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
+                                )}
 
-                                    <p className="text-gray-300 text-sm leading-relaxed print:text-gray-700">
-                                        {claim.aiAnalysis.summary}
-                                    </p>
-
-                                    {claim.aiAnalysis.restorationInstructions?.length > 0 && (
-                                        <div className="space-y-2">
-                                            <p className="text-sm font-medium text-gray-400 print:text-gray-600">Suggested Actions:</p>
-                                            <ul className="space-y-1">
-                                                {claim.aiAnalysis.restorationInstructions.map((instruction, idx) => (
-                                                    <li key={idx} className="flex items-start gap-2 text-sm text-gray-300 print:text-gray-700">
-                                                        <CheckCircle2 size={16} className="text-green-500 mt-0.5 shrink-0 print:text-green-700" />
-                                                        {instruction}
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                {/* Line Items Table */}
+                                {claim.lineItems?.length > 0 && (
+                                    <div>
+                                        <div className="font-medium text-gray-100 mb-4 flex items-center justify-between print:hidden">
+                                            <div className="flex items-center gap-2">
+                                                <DollarSign size={18} className="text-green-400" />
+                                                Estimate Line Items
+                                            </div>
+                                            <button
+                                                onClick={handleAddItem}
+                                                className="btn btn-sm btn-primary flex items-center gap-1 text-xs"
+                                            >
+                                                <Plus size={14} />
+                                                Add Item
+                                            </button>
                                         </div>
-                                    )}
-                                </div>
-                            )}
 
-                            {/* Line Items Table */}
-                            {claim.lineItems?.length > 0 && (
-                                <div>
-                                    <div className="font-medium text-gray-100 mb-4 flex items-center justify-between print:hidden">
-                                        <div className="flex items-center gap-2">
-                                            <DollarSign size={18} className="text-green-400" />
-                                            Estimate Line Items
+                                        {/* Grouping Toggle */}
+                                        <div className="flex items-center gap-2 mb-4 bg-slate-800/50 p-1 rounded-lg w-fit print:hidden">
+                                            <button
+                                                onClick={() => setGroupBy('category')}
+                                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${groupBy === 'category'
+                                                    ? 'bg-blue-600 text-white shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-200 hover:bg-slate-700'
+                                                    }`}
+                                            >
+                                                Standard View
+                                            </button>
+                                            <button
+                                                onClick={() => setGroupBy('room')}
+                                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${groupBy === 'room'
+                                                    ? 'bg-blue-600 text-white shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-200 hover:bg-slate-700'
+                                                    }`}
+                                            >
+                                                By Room
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={handleAddItem}
-                                            className="btn btn-sm btn-primary flex items-center gap-1 text-xs"
-                                        >
-                                            <Plus size={14} />
-                                            Add Item
-                                        </button>
-                                    </div>
 
-                                    {/* Grouping Toggle */}
-                                    <div className="flex items-center gap-2 mb-4 bg-slate-800/50 p-1 rounded-lg w-fit print:hidden">
-                                        <button
-                                            onClick={() => setGroupBy('category')}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${groupBy === 'category'
-                                                ? 'bg-blue-600 text-white shadow-sm'
-                                                : 'text-gray-400 hover:text-gray-200 hover:bg-slate-700'
-                                                }`}
-                                        >
-                                            Standard View
-                                        </button>
-                                        <button
-                                            onClick={() => setGroupBy('room')}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${groupBy === 'room'
-                                                ? 'bg-blue-600 text-white shadow-sm'
-                                                : 'text-gray-400 hover:text-gray-200 hover:bg-slate-700'
-                                                }`}
-                                        >
-                                            By Room
-                                        </button>
-                                    </div>
+                                        {(() => {
+                                            // Prepare items with their original index
+                                            const itemsWithIndex = claim.lineItems.map((item, index) => ({ ...item, originalIndex: index }));
 
-                                    {(() => {
-                                        // Prepare items with their original index
-                                        const itemsWithIndex = claim.lineItems.map((item, index) => ({ ...item, originalIndex: index }));
+                                            if (groupBy === 'room') {
+                                                // Group items
+                                                const groups = itemsWithIndex.reduce((acc, item) => {
+                                                    const room = item.room || 'Unassigned';
+                                                    if (!acc[room]) acc[room] = [];
+                                                    acc[room].push(item);
+                                                    return acc;
+                                                }, {});
 
-                                        if (groupBy === 'room') {
-                                            // Group items
-                                            const groups = itemsWithIndex.reduce((acc, item) => {
-                                                const room = item.room || 'Unassigned';
-                                                if (!acc[room]) acc[room] = [];
-                                                acc[room].push(item);
-                                                return acc;
-                                            }, {});
+                                                const sortedRooms = Object.keys(groups).sort((a, b) => {
+                                                    if (a === 'Unassigned') return 1;
+                                                    if (b === 'Unassigned') return -1;
+                                                    return a.localeCompare(b);
+                                                });
 
-                                            const sortedRooms = Object.keys(groups).sort((a, b) => {
-                                                if (a === 'Unassigned') return 1;
-                                                if (b === 'Unassigned') return -1;
-                                                return a.localeCompare(b);
-                                            });
+                                                return (
+                                                    <div className="space-y-8">
+                                                        {sortedRooms.map(room => {
+                                                            const items = groups[room];
+                                                            const roomTotal = items.reduce((acc, item) => acc + item.total, 0);
 
-                                            return (
-                                                <div className="space-y-8">
-                                                    {sortedRooms.map(room => {
-                                                        const items = groups[room];
-                                                        const roomTotal = items.reduce((acc, item) => acc + item.total, 0);
-
-                                                        return (
-                                                            <div key={room} className="bg-slate-800/30 rounded-xl overflow-hidden border border-slate-700/50 print:bg-white print:border-gray-200">
-                                                                <div className="bg-slate-800/80 px-4 py-3 border-b border-slate-700 flex justify-between items-center print:bg-gray-100 print:border-gray-300">
-                                                                    <h4 className="font-semibold text-gray-100 flex items-center gap-2 uppercase tracking-wide text-xs print:text-black">
-                                                                        <MapPin size={14} className="text-blue-400 print:text-blue-600" />
-                                                                        {room}
-                                                                    </h4>
-                                                                    <div className="text-sm font-medium text-gray-300 print:text-gray-800">
-                                                                        Subtotal: <span className="text-green-400 ml-1 print:text-green-700">${roomTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                            return (
+                                                                <div key={room} className="bg-slate-800/30 rounded-xl overflow-hidden border border-slate-700/50 print:bg-white print:border-gray-200">
+                                                                    <div className="bg-slate-800/80 px-4 py-3 border-b border-slate-700 flex justify-between items-center print:bg-gray-100 print:border-gray-300">
+                                                                        <h4 className="font-semibold text-gray-100 flex items-center gap-2 uppercase tracking-wide text-xs print:text-black">
+                                                                            <MapPin size={14} className="text-blue-400 print:text-blue-600" />
+                                                                            {room}
+                                                                        </h4>
+                                                                        <div className="text-sm font-medium text-gray-300 print:text-gray-800">
+                                                                            Subtotal: <span className="text-green-400 ml-1 print:text-green-700">${roomTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="overflow-x-auto">
+                                                                        <table className="w-full text-sm text-left">
+                                                                            <thead className="bg-slate-900/50 text-gray-400 uppercase text-xs print:bg-gray-50 print:text-gray-600">
+                                                                                <tr>
+                                                                                    <th className="px-4 py-3 text-left">Code</th>
+                                                                                    <th className="px-4 py-3 text-left w-1/2">Description & Evidence</th>
+                                                                                    <th className="px-4 py-3 text-right">Qty</th>
+                                                                                    <th className="px-4 py-3 text-right">Unit Price</th>
+                                                                                    <th className="px-4 py-3 text-right">Total</th>
+                                                                                    <th className="px-2 py-3"></th>                              <th className="px-4 py-3 text-center whitespace-nowrap w-24 print:hidden">Actions</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody className="divide-y divide-slate-700/50 print:divide-gray-200">
+                                                                                {items.map(item => (
+                                                                                    <LineItemRow
+                                                                                        key={item.originalIndex}
+                                                                                        item={item}
+                                                                                        idx={item.originalIndex}
+                                                                                        editingItemIndex={editingItemIndex}
+                                                                                        editedItemData={editedItemData}
+                                                                                        setEditedItemData={setEditedItemData}
+                                                                                        handleEditItem={handleEditItem}
+                                                                                        handleDeleteItem={handleDeleteItem}
+                                                                                        handleSaveItem={handleSaveItem}
+                                                                                        handleCancelEdit={handleCancelEdit}
+                                                                                        setSelectedImage={setSelectedImage}
+                                                                                        claim={claim}
+                                                                                        groupBy={groupBy}
+                                                                                    />
+                                                                                ))}
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
                                                                 </div>
-                                                                <div className="overflow-x-auto">
-                                                                    <table className="w-full text-sm text-left">
-                                                                        <thead className="bg-slate-900/50 text-gray-400 uppercase text-xs print:bg-gray-50 print:text-gray-600">
-                                                                            <tr>
-                                                                                <th className="px-4 py-3 text-left">Code</th>
-                                                                                <th className="px-4 py-3 text-left w-1/2">Description & Evidence</th>
-                                                                                <th className="px-4 py-3 text-right">Qty</th>
-                                                                                <th className="px-4 py-3 text-right">Unit Price</th>
-                                                                                <th className="px-4 py-3 text-right">Total</th>
-                                                                                <th className="px-2 py-3"></th>                              <th className="px-4 py-3 text-center whitespace-nowrap w-24 print:hidden">Actions</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody className="divide-y divide-slate-700/50 print:divide-gray-200">
-                                                                            {items.map(item => (
-                                                                                <LineItemRow
-                                                                                    key={item.originalIndex}
-                                                                                    item={item}
-                                                                                    idx={item.originalIndex}
-                                                                                    editingItemIndex={editingItemIndex}
-                                                                                    editedItemData={editedItemData}
-                                                                                    setEditedItemData={setEditedItemData}
-                                                                                    handleEditItem={handleEditItem}
-                                                                                    handleDeleteItem={handleDeleteItem}
-                                                                                    handleSaveItem={handleSaveItem}
-                                                                                    handleCancelEdit={handleCancelEdit}
-                                                                                    setSelectedImage={setSelectedImage}
-                                                                                    claim={claim}
-                                                                                    groupBy={groupBy}
-                                                                                />
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
+                                                            );
+                                                        })}
 
-                                                    {/* Grand Total Footer for Room View */}
-                                                    <div className="flex justify-end items-center gap-4 bg-slate-800/80 p-4 rounded-xl border border-slate-700 print:bg-white print:border-t-2 print:border-black print:rounded-none">
-                                                        <span className="text-gray-400 text-sm uppercase tracking-wider font-semibold print:text-black">Grand Total</span>
-                                                        <span className="text-2xl font-bold text-green-400 print:text-black">
-                                                            ${claim.lineItems.reduce((acc, item) => acc + item.total, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                        </span>
+                                                        {/* Grand Total Footer for Room View */}
+                                                        <div className="flex justify-end items-center gap-4 bg-slate-800/80 p-4 rounded-xl border border-slate-700 print:bg-white print:border-t-2 print:border-black print:rounded-none">
+                                                            <span className="text-gray-400 text-sm uppercase tracking-wider font-semibold print:text-black">Grand Total</span>
+                                                            <span className="text-2xl font-bold text-green-400 print:text-black">
+                                                                ${claim.lineItems.reduce((acc, item) => acc + item.total, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        } else {
-                                            // STANDARD VIEW
-                                            return (
-                                                <div className="overflow-x-auto bg-slate-800/30 rounded-xl border border-slate-700/50 print:bg-white print:border-gray-200">
-                                                    <table className="w-full text-sm text-left">
-                                                        <thead className="bg-slate-800 text-gray-400 uppercase text-xs print:bg-gray-100 print:text-black">
-                                                            <tr>
-                                                                <th className="px-4 py-3 rounded-tl-lg whitespace-nowrap">Category</th>
-                                                                <th className="px-4 py-3 w-1/2 min-w-[300px]">Description & Context</th>
-                                                                <th className="px-4 py-3 whitespace-nowrap">Evidence</th>
-                                                                <th className="px-4 py-3 text-right whitespace-nowrap">Qty</th>
-                                                                <th className="px-4 py-3 text-right whitespace-nowrap">Unit Price</th>
-                                                                <th className="px-4 py-3 text-right whitespace-nowrap">Total</th>
-                                                                <th className="px-4 py-3 rounded-tr-lg text-center whitespace-nowrap w-24 print:hidden">Actions</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-slate-700 print:divide-gray-200">
-                                                            {itemsWithIndex.map(item => (
-                                                                <LineItemRow
-                                                                    key={item.originalIndex}
-                                                                    item={item}
-                                                                    idx={item.originalIndex}
-                                                                    editingItemIndex={editingItemIndex}
-                                                                    editedItemData={editedItemData}
-                                                                    setEditedItemData={setEditedItemData}
-                                                                    handleEditItem={handleEditItem}
-                                                                    handleDeleteItem={handleDeleteItem}
-                                                                    handleSaveItem={handleSaveItem}
-                                                                    handleCancelEdit={handleCancelEdit}
-                                                                    setSelectedImage={setSelectedImage}
-                                                                    claim={claim}
-                                                                    groupBy={groupBy}
-                                                                />
-                                                            ))}
-                                                            <tr className="bg-slate-800/80 font-semibold text-gray-100 print:bg-white print:text-black print:border-t-2 print:border-black">
-                                                                <td colSpan="6" className="px-4 py-3 text-right">Grand Total</td>
-                                                                <td className="px-4 py-3 text-right text-lg">
-                                                                    ${claim.lineItems.reduce((acc, item) => acc + item.total, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                                </td>
-                                                                <td className="print:hidden"></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            );
-                                        }
-                                    })()}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                                );
+                                            } else {
+                                                // STANDARD VIEW
+                                                return (
+                                                    <div className="overflow-x-auto bg-slate-800/30 rounded-xl border border-slate-700/50 print:bg-white print:border-gray-200">
+                                                        <table className="w-full text-sm text-left">
+                                                            <thead className="bg-slate-800 text-gray-400 uppercase text-xs print:bg-gray-100 print:text-black">
+                                                                <tr>
+                                                                    <th className="px-4 py-3 rounded-tl-lg whitespace-nowrap">Category</th>
+                                                                    <th className="px-4 py-3 w-1/2 min-w-[300px]">Description & Context</th>
+                                                                    <th className="px-4 py-3 whitespace-nowrap">Evidence</th>
+                                                                    <th className="px-4 py-3 text-right whitespace-nowrap">Qty</th>
+                                                                    <th className="px-4 py-3 text-right whitespace-nowrap">Unit Price</th>
+                                                                    <th className="px-4 py-3 text-right whitespace-nowrap">Total</th>
+                                                                    <th className="px-4 py-3 rounded-tr-lg text-center whitespace-nowrap w-24 print:hidden">Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-slate-700 print:divide-gray-200">
+                                                                {itemsWithIndex.map(item => (
+                                                                    <LineItemRow
+                                                                        key={item.originalIndex}
+                                                                        item={item}
+                                                                        idx={item.originalIndex}
+                                                                        editingItemIndex={editingItemIndex}
+                                                                        editedItemData={editedItemData}
+                                                                        setEditedItemData={setEditedItemData}
+                                                                        handleEditItem={handleEditItem}
+                                                                        handleDeleteItem={handleDeleteItem}
+                                                                        handleSaveItem={handleSaveItem}
+                                                                        handleCancelEdit={handleCancelEdit}
+                                                                        setSelectedImage={setSelectedImage}
+                                                                        claim={claim}
+                                                                        groupBy={groupBy}
+                                                                    />
+                                                                ))}
+                                                                <tr className="bg-slate-800/80 font-semibold text-gray-100 print:bg-white print:text-black print:border-t-2 print:border-black">
+                                                                    <td colSpan="6" className="px-4 py-3 text-right">Grand Total</td>
+                                                                    <td className="px-4 py-3 text-right text-lg">
+                                                                        ${claim.lineItems.reduce((acc, item) => acc + item.total, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                                    </td>
+                                                                    <td className="print:hidden"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            }
+                                        })()}
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    }
                 </>
-            )}
+            )
+            }
 
 
 
@@ -718,6 +734,6 @@ export default function ClaimDetailPage() {
                     </div>
                 )
             }
-        </div>
+        </div >
     );
 }

@@ -96,10 +96,10 @@ export default function LoginPage() {
                     <div className="mt-6 p-4 bg-slate-800/50 border border-slate-700 rounded-lg">
                         <p className="text-xs font-medium text-gray-300 mb-2">Demo Credentials:</p>
                         <div className="space-y-1 text-xs text-gray-400">
-                            <p><strong className="text-primary-400">Org Owner:</strong> owner@gamut.com / owner123 (All Teams)</p>
-                            <p><strong className="text-accent-400">Manager:</strong> manager1@gamut.com / manager123 (Team 1 Only)</p>
-                            <p><strong className="text-accent-400">Manager (Admin):</strong> manager2@gamut.com / manager123 (All Teams)</p>
-                            <p><strong className="text-gray-400">Member:</strong> member@gamut.com / member123 (Own Info)</p>
+                            <p><strong className="text-primary-400">Org Owner:</strong> owner@gamut.com / owner123 (General)</p>
+                            <p><strong className="text-gray-400">Gen Manager:</strong> manager1@gamut.com / manager123 (General)</p>
+                            <p><strong className="text-accent-400">Water Manager:</strong> manager2@gamut.com / manager123</p>
+                            <p><strong className="text-green-400">Fire Manager:</strong> manager3@gamut.com / manager123</p>
                         </div>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ import ClaimStatusBadge from '../components/ClaimStatusBadge';
 import KanbanBoard from '../components/KanbanBoard';
 import { Search, Filter, Eye, LayoutGrid, List as ListIcon, Map as MapIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useFirestoreClaims, useFirestoreTeams } from '../hooks/useFirestore';
+import { useFirestoreClaims, useFirestoreTeams, useFirestoreUsers } from '../hooks/useFirestore';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -28,6 +28,7 @@ export default function ClaimsListPage() {
     const { user } = useAuth();
     const { claims: userVisibleClaims, loading } = useFirestoreClaims(user);
     const { teams } = useFirestoreTeams(user);
+    const { users } = useFirestoreUsers(user);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [teamFilter, setTeamFilter] = useState('all');
@@ -174,6 +175,9 @@ export default function ClaimsListPage() {
                                             Status
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Submitted By
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Submitted
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -200,6 +204,11 @@ export default function ClaimsListPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <ClaimStatusBadge status={claim.status} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <p className="text-sm text-gray-100">
+                                                        {users.find(u => u.id === claim.submittedBy)?.displayName || 'Unknown'}
+                                                    </p>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <p className="text-sm text-gray-500">

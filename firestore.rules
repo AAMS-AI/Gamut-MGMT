@@ -56,7 +56,7 @@ service cloud.firestore {
       // Allow listing users based on permissions
       allow list: if isAuthenticated() && (
         isOrgOwner() || 
-        (isManager() && hasTeamAccess(get(/databases/$(database)/documents/users/$(userId)).data.teamId))
+        ((isManager() || isTeamMember()) && hasTeamAccess(get(/databases/$(database)/documents/users/$(userId)).data.teamId))
       );
       
       allow write: if isOrgOwner();

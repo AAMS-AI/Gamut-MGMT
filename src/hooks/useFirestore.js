@@ -151,3 +151,52 @@ export function useFirestoreComments(claimId) {
 
     return { comments, loading };
 }
+
+export function useFirestoreUsers(user) {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) {
+            setUsers([]);
+            setLoading(false);
+            return;
+        }
+
+        let q;
+
+        if (user.role === 'org_owner' || user.hasAdminRights) {
+            // Org owner/admin sees all users in organization
+            q = query(
+                collection(db, 'users'),
+                where('organizationId', '==', user.organizationId)
+            );
+        } else if (user.teamId) {
+            // Managers and Team Members see their team's users
+            q = query(
+                collection(db, 'users'),
+                where('teamId', '==', user.teamId)
+            );
+        } else {
+            setUsers([]);
+            setLoading(false);
+            return;
+        }
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const usersData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setUsers(usersData);
+            setLoading(false);
+        }, (error) => {
+            console.error('Error fetching users:', error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
+    return { users, loading };
+}
