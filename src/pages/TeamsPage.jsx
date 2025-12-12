@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFirestoreClaims, useFirestoreTeams } from '../hooks/useFirestore';
 
 export default function TeamsPage() {
-    const { user, isManager, userTeamId } = useAuth();
+    const { user, isManager, userTeamId, isAdmin } = useAuth();
 
     // Stats Data
     const { teams: visibleTeams, loading: statsLoading } = useFirestoreTeams(user);
@@ -38,7 +38,10 @@ export default function TeamsPage() {
             console.log('DEBUG: Fetch Data', { teamsData, userTeamId, role: user?.role, isManager });
 
             // Filter Teams
-            if ((isManager || user?.role === 'team_member') && userTeamId) {
+            // Show only own team if Manager/Member AND NOT Admin/Owner
+            const hasFullAccess = user?.role === 'owner' || user?.role === 'admin';
+
+            if (!hasFullAccess && (isManager || user?.role === 'member') && userTeamId) {
                 const filtered = teamsData.filter(t => String(t.id) === String(userTeamId));
                 console.log('DEBUG: Filtered Teams', { filtered, matchId: userTeamId });
                 setTeams(filtered);
@@ -71,7 +74,7 @@ export default function TeamsPage() {
 
         // Derive Roster and Lead
         const roster = users.filter(u => u.teamId === team.id);
-        const teamLead = roster.find(u => u.role === 'team_lead' || u.role === 'manager' || u.role === 'manager_admin');
+        const teamLead = roster.find(u => u.role === 'lead' || u.role === 'manager' || u.role === 'admin');
 
         return {
             ...team,
@@ -145,8 +148,8 @@ export default function TeamsPage() {
                     <h1 className="text-3xl font-bold text-gray-100">Teams</h1>
                     <p className="text-gray-500 mt-1">Manage teams and track performance</p>
                 </div>
-                {/* Hide Create for Managers AND Members */}
-                {!isManager && user?.role !== 'team_member' && (
+                {/* Hide Create for Managers who are NOT Admins AND Members */}
+                {(!isManager || isAdmin) && user?.role !== 'member' && (
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="btn btn-primary flex items-center gap-2"
@@ -158,8 +161,8 @@ export default function TeamsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {/* Create Team Card - Shortcut - Hide for Managers AND Members */}
-                {!isManager && user?.role !== 'team_member' && (
+                {/* Create Team Card - Shortcut - Hide for Managers (non-admin) AND Members */}
+                {(!isManager || isAdmin) && user?.role !== 'member' && (
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="group border border-dashed border-slate-700 bg-slate-900/30 rounded-xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-slate-800/50 hover:border-primary-500/50 transition-all cursor-pointer min-h-[220px]"
@@ -176,7 +179,7 @@ export default function TeamsPage() {
                         <Users size={48} className="mb-4 opacity-50" />
                         <h3 className="text-lg font-medium text-gray-300">No Teams Found</h3>
                         <p className="max-w-xs text-center mt-2">
-                            {user?.role === 'team_member' ? "You are not currently assigned to any team." : "No teams available."}
+                            {user?.role === 'member' ? "You are not currently assigned to any team." : "No teams available."}
                         </p>
                     </div>
                 )}
@@ -184,7 +187,7 @@ export default function TeamsPage() {
                 {teamsWithStats.map((team) => (
                     <div key={team.id} className="relative group bg-slate-800/40 rounded-xl border border-slate-700 p-6 hover:shadow-xl hover:border-primary-500/30 transition-all flex flex-col">
                         {/* Actions Menu - Hide completely for members */}
-                        {user?.role !== 'team_member' && (
+                        {user?.role !== 'member' && (
                             <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <button
                                     onClick={() => handleEditClick(team)}
@@ -193,8 +196,8 @@ export default function TeamsPage() {
                                 >
                                     <Edit2 size={14} />
                                 </button>
-                                {/* Hide delete for managers */}
-                                {!isManager && (
+                                {/* Hide delete for managers who are NOT Admins */}
+                                {(!isManager || isAdmin) && (
                                     <button
                                         onClick={() => handleDeleteTeam(team.id)}
                                         className="p-2 hover:bg-red-900/30 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
@@ -229,7 +232,7 @@ export default function TeamsPage() {
                                 <span className="text-gray-400">Pending Claims</span>
                                 <span className="text-yellow-400 font-medium">{team.pendingClaims || 0}</span>
                             </div>
-                            {user?.role !== 'team_member' && (
+                            {user?.role !== 'member' && (
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-gray-400">Revenue</span>
                                     <span className="text-green-400 font-medium">${(team.totalAmount || 0).toLocaleString()}</span>
@@ -363,7 +366,7 @@ export default function TeamsPage() {
                                         </div>
                                     </div>
                                     <div className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider border 
-                                        ${(member.role === 'team_lead' || member.role === 'manager')
+                                        ${(member.role === 'lead' || member.role === 'manager')
                                             ? 'text-green-400 border-green-400/20 bg-green-400/10'
                                             : 'text-slate-400 border-slate-400/20 bg-slate-400/10'}`}>
                                         {(member.role || 'Member').replace('_', ' ')}

@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFirestoreClaims, useFirestoreTeams } from '../hooks/useFirestore';
 
 export default function DashboardPage() {
-    const { user, hasAdminRights, isOrgOwner } = useAuth();
+    const { user, isOwner, isAdmin } = useAuth();
     const { claims: visibleClaims, loading: claimsLoading } = useFirestoreClaims(user);
     const { teams: visibleTeams, loading: teamsLoading } = useFirestoreTeams(user);
 
@@ -255,8 +255,8 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Admin User Management */}
-            {(hasAdminRights || isOrgOwner) && (
+            {/* AdminUserManagement - Visible to Admin & Owner */}
+            {(isAdmin || isOwner) && (
                 <div className="card">
                     <AdminUserManagement />
                 </div>

@@ -84,27 +84,27 @@ async def verify_token(authorization: str = Header(...)):
 
 async def verify_admin(user_token: dict = Depends(verify_token)):
     """
-    Verify user is an admin (org_owner or manager_admin)
+    Verify user is an admin (owner or admin)
     """
     uid = user_token['uid']
     user = auth.get_user(uid)
     role = user.custom_claims.get('role') if user.custom_claims else None
     
-    if role not in ['org_owner', 'manager_admin']:
+    if role not in ['owner', 'admin']:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
     
     return user_token
 
-async def verify_org_owner(user_token: dict = Depends(verify_token)):
+async def verify_owner(user_token: dict = Depends(verify_token)):
     """
-    Verify user is org_owner specifically
+    Verify user is owner specifically
     """
     uid = user_token['uid']
     user = auth.get_user(uid)
     role = user.custom_claims.get('role') if user.custom_claims else None
     
-    if role != 'org_owner':
-        raise HTTPException(status_code=403, detail="Requires Org Owner permissions")
+    if role != 'owner':
+        raise HTTPException(status_code=403, detail="Requires Owner permissions")
     
     return user_token
 
@@ -122,7 +122,7 @@ async def signup(user: UserSignup):
     Otherwise, user is 'pending' (or 'member' if strictness relaxed).
     """
     try:
-        role = 'org_owner'
+        role = 'owner'
 
         # Create Auth User
         user_record = auth.create_user(
@@ -183,10 +183,14 @@ async def create_user(
 
     # Role Hierarchy Check
     allowed_roles = []
-    if creator_role == 'org_owner':
-        allowed_roles = ['manager_admin', 'manager', 'team_lead', 'member', 'team_member'] # Expanded roles
-    elif creator_role == 'manager_admin':
-        allowed_roles = ['team_lead', 'member', 'team_member']
+    # Role Hierarchy Check
+    allowed_roles = []
+    if creator_role == 'owner':
+        allowed_roles = ['admin', 'manager', 'lead', 'member'] # Expanded roles
+    elif creator_role == 'admin':
+        allowed_roles = ['manager', 'lead', 'member']
+    elif creator_role == 'manager':
+        allowed_roles = ['member']
     
     if new_user.role not in allowed_roles:
          raise HTTPException(
@@ -375,11 +379,11 @@ async def admin_update_user(
         caller_role = caller_user.custom_claims.get('role') if caller_user.custom_claims else 'member'
         
         # Simple hierarchy check
-        if target_role == 'org_owner' and caller_role != 'org_owner':
+        if target_role == 'owner' and caller_role != 'owner':
              raise HTTPException(status_code=403, detail="Cannot edit Organization Owner")
         
         if updates.get('role'):
-             if caller_role != 'org_owner' and updates['role'] in ['org_owner', 'manager_admin']:
+             if caller_role != 'owner' and updates['role'] in ['owner', 'admin']:
                   raise HTTPException(status_code=403, detail="Insufficient permissions to assign this role")
 
              # Update auth claims
@@ -429,11 +433,11 @@ async def admin_delete_user(
         caller_user = auth.get_user(caller_uid)
         caller_role = caller_user.custom_claims.get('role') if caller_user.custom_claims else 'member'
         
-        if target_role == 'org_owner':
+        if target_role == 'owner':
              raise HTTPException(status_code=403, detail="Cannot delete Organization Owner")
              
-        if caller_role != 'org_owner' and target_role in ['manager', 'manager_admin']:
-             raise HTTPException(status_code=403, detail="Insufficient permissions to delete Managers")
+        if caller_role != 'owner' and target_role in ['admin', 'manager']:
+             raise HTTPException(status_code=403, detail="Insufficient permissions to delete Admins/Managers")
 
         # Get user data to find teamId
         user_doc = db.collection('users').document(uid).get()
@@ -484,7 +488,7 @@ class TeamUpdate(BaseModel):
 @app.post("/api/organization")
 async def create_organization(
     org: OrganizationCreate,
-    user_token: dict = Depends(verify_org_owner)
+    user_token: dict = Depends(verify_owner)
 ):
     """
     Create a new organization.
@@ -606,10 +610,10 @@ async def list_teams(user_token: dict = Depends(verify_token)):
 @app.post("/api/teams")
 async def create_team(
     team_data: TeamCreate,
-    user_token: dict = Depends(verify_org_owner)
+    user_token: dict = Depends(verify_admin)
 ):
     """
-    Create a new team. Only Org Owner can create teams.
+    Create a new team. Owner and Admin can create teams.
     """
     uid = user_token['uid']
     user = auth.get_user(uid)
@@ -643,7 +647,7 @@ async def create_team(
 async def update_team(
     team_id: str,
     team_updates: TeamUpdate,
-    user_token: dict = Depends(verify_org_owner)
+    user_token: dict = Depends(verify_admin)
 ):
     """
     Update a team. Only Org Owner.
@@ -663,7 +667,7 @@ async def update_team(
 @app.delete("/api/teams/{team_id}")
 async def delete_team(
     team_id: str,
-    user_token: dict = Depends(verify_org_owner)
+    user_token: dict = Depends(verify_admin)
 ):
     """
     Delete a team. Only Org Owner.

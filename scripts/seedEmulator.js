@@ -48,7 +48,7 @@ const users = [
         email: 'owner@gamut.com',
         password: 'owner123',
         displayName: 'Sarah Johnson',
-        role: 'org_owner',
+        role: 'owner',
         organizationId: 'org1',
         teamId: 'team1',
         jobTitle: 'CEO',
@@ -56,10 +56,10 @@ const users = [
     },
     {
         id: 'user2',
-        email: 'manager1@gamut.com', // Keeping email consistent for ease, but name/role changes
+        email: 'manager1@gamut.com',
         password: 'manager123',
         displayName: 'Bruce Wayne',
-        role: 'manager',
+        role: 'admin',
         organizationId: 'org1',
         teamId: 'team1',
         jobTitle: 'General Manager',
@@ -83,7 +83,7 @@ const users = [
         email: 'member1@gamut.com',
         password: 'member123',
         displayName: 'Alex Rivera',
-        role: 'team_member',
+        role: 'member',
         organizationId: 'org1',
         teamId: 'team2',
         jobTitle: 'Water Technician',
@@ -107,7 +107,7 @@ const users = [
         email: 'member2@gamut.com',
         password: 'member123',
         displayName: 'Emily Blunt',
-        role: 'team_member',
+        role: 'member',
         organizationId: 'org1',
         teamId: 'team3',
         jobTitle: 'Fire Lead',
@@ -118,7 +118,7 @@ const users = [
         email: 'member3@gamut.com',
         password: 'member123',
         displayName: 'Tom Hardy',
-        role: 'team_member',
+        role: 'member',
         organizationId: 'org1',
         teamId: 'team3',
         jobTitle: 'Fire Technician',
@@ -248,7 +248,11 @@ async function seedData() {
                 console.log(`  ✓ Created auth user: ${user.email}`);
 
                 if (user.role) {
-                    await auth.setCustomUserClaims(firebaseUid, { role: user.role, organizationId: user.organizationId, teamId: user.teamId });
+                    await auth.setCustomUserClaims(firebaseUid, {
+                        role: user.role,
+                        organizationId: user.organizationId,
+                        teamId: user.teamId,
+                    });
                 }
 
             } catch (error) {
@@ -258,7 +262,11 @@ async function seedData() {
                         const existingUser = await auth.getUserByEmail(user.email);
                         firebaseUid = existingUser.uid;
                         if (user.role) {
-                            await auth.setCustomUserClaims(firebaseUid, { role: user.role, organizationId: user.organizationId, teamId: user.teamId });
+                            await auth.setCustomUserClaims(firebaseUid, {
+                                role: user.role,
+                                organizationId: user.organizationId,
+                                teamId: user.teamId,
+                            });
                         }
                     } catch (fetchError) {
                         console.error(`  ✗ Error fetching existing user ${user.email}:`, fetchError.message);

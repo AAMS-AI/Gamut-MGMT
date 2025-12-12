@@ -3,93 +3,95 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // Helper functionality
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    function isOwner() {
+      return isAuthenticated() && request.auth.token.role == 'owner';
     }
     
-    function isOrgOwner() {
-      return isAuthenticated() && getUserData().role == 'org_owner';
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
     }
     
     function isManager() {
-      return isAuthenticated() && getUserData().role == 'manager';
+      return isAuthenticated() && request.auth.token.role == 'manager';
     }
     
-    function isTeamMember() {
-      return isAuthenticated() && getUserData().role == 'team_member';
+    function isMember() {
+      return isAuthenticated() && request.auth.token.role == 'member';
     }
     
-    function hasAdminRights() {
-      return isAuthenticated() && (getUserData().hasAdminRights == true || isOrgOwner());
-    }
-    
-    function canViewAllTeams() {
-      return isOrgOwner() || hasAdminRights();
+    function hasFullAccess() {
+      return isOwner() || isAdmin();
     }
     
     function hasTeamAccess(teamId) {
-      return canViewAllTeams() || getUserData().teamId == teamId;
+      return hasFullAccess() || request.auth.token.teamId == teamId;
     }
     
     // Organizations
     match /organizations/{orgId} {
-      allow read: if isAuthenticated() && getUserData().organizationId == orgId;
-      allow write: if isOrgOwner();
+      allow read: if isAuthenticated() && request.auth.token.organizationId == orgId;
+      allow write: if hasFullAccess();
     }
     
     // Teams
     match /teams/{teamId} {
       allow read: if isAuthenticated() && hasTeamAccess(teamId);
-      allow write: if isOrgOwner();
+      allow write: if hasFullAccess();
     }
     
     // Users
     match /users/{userId} {
-      // Allow users to read their own document (needed for login)
       allow get: if isAuthenticated() && request.auth.uid == userId;
       
-      // Allow listing users based on permissions
       allow list: if isAuthenticated() && (
-        isOrgOwner() || 
-        ((isManager() || isTeamMember()) && hasTeamAccess(get(/databases/$(database)/documents/users/$(userId)).data.teamId))
+        hasFullAccess() || 
+        ((isManager() || isMember()) && hasTeamAccess(resource.data.teamId))
       );
       
-      allow write: if isOrgOwner();
-      allow update: if request.auth.uid == userId; // Users can update their own profile
+      allow write: if isAuthenticated() && (
+        isOwner() || 
+        // Admin: Can write users, but CANNOT touch Owner accounts
+        (isAdmin() && (resource == null || resource.data.role != 'owner') && (request.resource == null || request.resource.data.role != 'owner')) ||
+        // Managers can create/update users in their own team
+        (isManager() && request.resource.data.teamId == request.auth.token.teamId) ||
+        // Managers can delete users in their own team
+        (isManager() && resource != null && resource.data.teamId == request.auth.token.teamId)
+      );
+      allow update: if request.auth.uid == userId;
     }
     
-    // Claims - RBAC enforced at database level
+    // Claims
     match /claims/{claimId} {
-      // Read access based on role
-      // Note: For list queries with where/orderBy, we need to allow list at collection level
       allow list: if isAuthenticated() && (
-        isOrgOwner() ||
-        hasAdminRights() ||
+        hasFullAccess() ||
         isManager() ||
-        isTeamMember()
+        isMember()
       );
       
-      // Individual document read
       allow get: if isAuthenticated() && (
-        isOrgOwner() ||
-        ((isManager() || isTeamMember()) && hasTeamAccess(resource.data.teamId))
+        hasFullAccess() ||
+        ((isManager() || isMember()) && hasTeamAccess(resource.data.teamId))
       );
       
-      // Create - any authenticated user can create
       allow create: if isAuthenticated() && 
         request.resource.data.submittedBy == request.auth.uid;
       
-      // Update - managers, owners, and team members
-      allow update: if isOrgOwner() || 
-        ((isManager() || isTeamMember()) && hasTeamAccess(resource.data.teamId));
+      allow update: if 
+        hasFullAccess() ||
+        // Manager: Any claim in their team
+        (isManager() && hasTeamAccess(resource.data.teamId)) ||
+        // Member: ONLY their own claim in their team
+        (isMember() && hasTeamAccess(resource.data.teamId) && resource.data.submittedBy == request.auth.uid);
       
-      // Delete - only org owner
-      allow delete: if isOrgOwner();
+      allow delete: if 
+        hasFullAccess() ||
+        // Member: ONLY their own claim
+        (isMember() && resource.data.submittedBy == request.auth.uid);
     }
     
     // Comments

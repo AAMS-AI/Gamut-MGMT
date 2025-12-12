@@ -22,7 +22,7 @@ export default function AdminUserManagement() {
         email: '',
         password: '',
         displayName: '',
-        role: 'team_member',
+        role: 'member',
         jobTitle: '',
         phoneNumber: '',
         teamId: ''
@@ -30,7 +30,7 @@ export default function AdminUserManagement() {
 
     const [userRole, setUserRole] = useState(null);
     // RBAC Helpers
-    const { isManager, userTeamId, canManageAllUsers } = useAuth();
+    const { isManager, userTeamId, isAdmin } = useAuth();
 
     useEffect(() => {
         if (user?.role) {
@@ -42,8 +42,10 @@ export default function AdminUserManagement() {
     const fetchUsers = async () => {
         try {
             const data = await apiCall('/users', 'GET');
-            // Filter for managers and members locally
-            if ((isManager || user?.role === 'team_member') && userTeamId) {
+            // Filter for managers and members locally (Admins see all)
+            const isRestrictedManager = isManager && !isAdmin;
+
+            if ((isRestrictedManager || user?.role === 'member') && userTeamId) {
                 setUsers(data.filter(u => u.teamId === userTeamId));
             } else {
                 setUsers(data);
@@ -91,7 +93,7 @@ export default function AdminUserManagement() {
             await adminCreateUser(formData);
             setIsCreateModalOpen(false);
             const defaultTeamId = teams.find(t => t.name === 'General')?.id || teams[0]?.id || '';
-            setFormData({ email: '', password: '', displayName: '', role: 'team_member', jobTitle: '', phoneNumber: '', teamId: defaultTeamId });
+            setFormData({ email: '', password: '', displayName: '', role: 'member', jobTitle: '', phoneNumber: '', teamId: defaultTeamId });
             fetchUsers();
         } catch (error) {
             alert("Failed to create user: " + error.message);
@@ -131,7 +133,7 @@ export default function AdminUserManagement() {
         setFormData({
             email: u.email,
             displayName: u.displayName,
-            role: u.role || 'team_member',
+            role: u.role || 'member',
             jobTitle: u.jobTitle || '',
             phoneNumber: u.phoneNumber || '',
             teamId: u.teamId || teams.find(t => t.name === 'General')?.id || teams[0]?.id || ''
@@ -142,27 +144,28 @@ export default function AdminUserManagement() {
     // Auto-set teamId for new users
     useEffect(() => {
         if ((isCreateModalOpen || isEditModalOpen) && !formData.teamId) {
-            if (isManager && userTeamId) {
+            // Only auto-lock team if purely a manager (not admin)
+            if (isManager && !isAdmin && userTeamId) {
                 setFormData(prev => ({ ...prev, teamId: userTeamId }));
             } else if (teams.length > 0) {
                 const defaultTeamId = teams.find(t => t.name === 'General')?.id || teams[0]?.id;
                 setFormData(prev => ({ ...prev, teamId: defaultTeamId }));
             }
         }
-    }, [isCreateModalOpen, isEditModalOpen, teams, isManager, userTeamId]);
+    }, [isCreateModalOpen, isEditModalOpen, teams, isManager, isAdmin, userTeamId]);
 
-    const canCreateManagers = userRole === 'org_owner';
+    const canCreateManagers = isAdmin || userRole === 'owner';
     const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
 
     const FolderRoleBadge = ({ role }) => {
         const config = {
-            org_owner: { color: 'text-purple-400 bg-purple-400/10 border-purple-400/20', label: 'Owner' },
-            manager_admin: { color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', label: 'Admin' },
+            owner: { color: 'text-purple-400 bg-purple-400/10 border-purple-400/20', label: 'Owner' },
+            admin: { color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', label: 'Admin' },
             manager: { color: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20', label: 'Manager' },
-            team_lead: { color: 'text-green-400 bg-green-400/10 border-green-400/20', label: 'Lead' },
-            team_member: { color: 'text-slate-400 bg-slate-400/10 border-slate-400/20', label: 'Member' },
+            lead: { color: 'text-green-400 bg-green-400/10 border-green-400/20', label: 'Lead' },
+            member: { color: 'text-slate-400 bg-slate-400/10 border-slate-400/20', label: 'Member' },
         };
-        const style = config[role] || config['team_member'];
+        const style = config[role] || config['member'];
         return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${style.color}`}>{style.label}</span>;
     };
 
@@ -193,13 +196,13 @@ export default function AdminUserManagement() {
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
                         <option value="all">All Roles</option>
-                        <option value="team_lead">Team Leads</option>
-                        <option value="team_member">Members</option>
+                        <option value="lead">Team Leads</option>
+                        <option value="member">Members</option>
                         <option value="manager">Managers</option>
                     </select>
                 </div>
                 {/* Only show Add User if allowed (Managers/Owners/Admins) - Hide for Members */}
-                {user?.role !== 'team_member' && (
+                {user?.role !== 'member' && (
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="btn btn-primary flex items-center gap-2 whitespace-nowrap"
@@ -219,7 +222,7 @@ export default function AdminUserManagement() {
                             <th className="px-6 py-4">Role</th>
                             <th className="px-6 py-4 hidden md:table-cell">Contact</th>
                             <th className="px-6 py-4">Team</th>
-                            {user?.role !== 'team_member' && <th className="px-6 py-4 text-right">Actions</th>}
+                            {user?.role !== 'member' && <th className="px-6 py-4 text-right">Actions</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/50">
@@ -269,7 +272,7 @@ export default function AdminUserManagement() {
                                             <span className="text-gray-600 italic text-xs">Unassigned</span>
                                         )}
                                     </td>
-                                    {user?.role !== 'team_member' && (
+                                    {user?.role !== 'member' && (
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
@@ -279,7 +282,7 @@ export default function AdminUserManagement() {
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
-                                                {u.role !== 'org_owner' && (
+                                                {u.role !== 'owner' && (
                                                     <button
                                                         onClick={() => adminDeleteUser(u.uid).then(fetchUsers)}
                                                         className="p-2 hover:bg-red-900/30 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
@@ -363,12 +366,13 @@ export default function AdminUserManagement() {
                         <label className="label mb-3">Role & Access</label>
                         <div className="grid grid-cols-1 gap-2">
                             {[
-                                { val: 'team_member', label: 'Member', desc: 'Standard access to assigned tasks.' },
-                                { val: 'team_lead', label: 'Team Lead', desc: 'Manage claims and view team members.' },
+                                { val: 'member', label: 'Member', desc: 'Standard access to assigned tasks.' },
+                                { val: 'lead', label: 'Team Lead', desc: 'Manage claims and view team members.' },
                                 { val: 'manager', label: 'Manager', desc: 'Full view of multiple teams and reports.' },
+                                { val: 'admin', label: 'Admin', desc: 'Full system access (except Owner).' },
                             ].filter(r => {
-                                // Managers can only create members or team leads, not other managers
-                                if (isManager) return r.val === 'team_member' || r.val === 'team_lead';
+                                // Managers (non-admin) can only create members or team leads
+                                if (isManager && !isAdmin) return r.val === 'member' || r.val === 'lead';
                                 return r.val !== 'manager' || canCreateManagers;
                             }).map(opt => (
                                 <div key={opt.val}
@@ -398,11 +402,11 @@ export default function AdminUserManagement() {
                             className="input w-full bg-slate-800"
                             value={formData.teamId}
                             onChange={(e) => setFormData({ ...formData, teamId: e.target.value })}
-                            disabled={isManager} // Managers cannot change team from their own
+                            disabled={isManager && !isAdmin} // Only disabled for restricted managers
                         >
-                            {!isManager && <option value="">No Team (Unassigned)</option>}
+                            {(isAdmin || !isManager) && <option value="">No Team (Unassigned)</option>}
                             {teams
-                                .filter(t => !isManager || t.id === userTeamId) // Only show own team for manager
+                                .filter(t => (isAdmin || !isManager) || t.id === userTeamId) // Show all for admin/owner
                                 .map(t => (
                                     <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
@@ -457,14 +461,14 @@ export default function AdminUserManagement() {
                             className="input w-full"
                             value={formData.role}
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            disabled={selectedUser?.role === 'org_owner'}
+                            disabled={selectedUser?.role === 'owner'}
                         >
-                            <option value="team_member">Team Member</option>
-                            <option value="team_lead">Team Lead</option>
+                            <option value="member">Team Member</option>
+                            <option value="lead">Team Lead</option>
                             <option value="manager">Manager</option>
-                            <option value="manager_admin">Admin</option>
+                            <option value="admin">Admin</option>
                         </select>
-                        {selectedUser?.role === 'org_owner' && <p className="text-xs text-yellow-500 mt-1">Owner role cannot be changed</p>}
+                        {selectedUser?.role === 'owner' && <p className="text-xs text-yellow-500 mt-1">Owner role cannot be changed</p>}
                     </div>
 
                     <div>

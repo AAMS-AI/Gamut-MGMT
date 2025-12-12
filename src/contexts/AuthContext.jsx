@@ -14,6 +14,15 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const { user, loading, login, logout, refreshUser } = useFirebaseAuth();
 
+    // Derived Booleans from Role String
+    const isOwner = user?.role === 'owner';
+    const isAdmin = user?.role === 'admin';
+    const isManager = user?.role === 'manager';
+    const isMember = user?.role === 'member';
+
+    // Grouped Permissions
+    const hasFullAccess = isOwner || isAdmin;
+
     const value = {
         user,
         login,
@@ -22,24 +31,21 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAuthenticated: !!user,
         organizationId: user?.organizationId,
-        userTeamId: user?.teamId, // Important for managers
+        userTeamId: user?.teamId,
         role: user?.role,
 
-        // Role Checks
-        isOrgOwner: user?.role === 'org_owner',
-        isAdmin: user?.role === 'manager_admin',
-        isManager: user?.role === 'manager',
-        isTeamMember: user?.role === 'team_member',
+        // Role Checks (Boolean)
+        isOwner,
+        isAdmin,
+        isManager,
+        isMember,
 
-        // Permission Derived State
-        canManageAllUsers: user?.role === 'org_owner' || user?.role === 'manager_admin',
-        canManageTeamUsers: user?.role === 'manager', // Managers can only manage their own team's users
-        canViewOrganizationSettings: user?.role === 'org_owner' || user?.role === 'manager_admin',
-
-        // Legacy/Compat flags (review usage later)
-        hasAdminRights: user?.hasAdminRights || user?.role === 'org_owner' || user?.role === 'manager_admin',
-        canViewAllTeams: user?.role === 'org_owner' || user?.role === 'manager_admin',
-        canApprove: user?.role === 'org_owner' || user?.role === 'manager' || user?.role === 'manager_admin',
+        // Permissions
+        canManageAllUsers: hasFullAccess,
+        canManageTeamUsers: isManager,
+        canViewOrganizationSettings: hasFullAccess,
+        canViewAllTeams: hasFullAccess,
+        canApprove: hasFullAccess || isManager,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

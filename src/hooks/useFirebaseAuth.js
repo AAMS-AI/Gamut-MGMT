@@ -14,8 +14,9 @@ export function useFirebaseAuth() {
     const fetchUserData = async (firebaseUser) => {
         try {
             // Force token refresh to get latest claims if needed (optional here, but safe)
-            const idTokenResult = await firebaseUser.getIdTokenResult();
+            const idTokenResult = await firebaseUser.getIdTokenResult(true);
             const claims = idTokenResult.claims;
+            console.log('DEBUG: Auth Claims:', claims); // Debug logging
             const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
 
             if (userDoc.exists()) {
@@ -25,7 +26,6 @@ export function useFirebaseAuth() {
                     displayName: firebaseUser.displayName,
                     role: claims.role,
                     organizationId: claims.organizationId,
-                    hasAdminRights: claims.role === 'org_owner' || claims.role === 'manager_admin',
                     ...userDoc.data(),
                 });
             } else {
@@ -36,7 +36,6 @@ export function useFirebaseAuth() {
                     displayName: firebaseUser.displayName,
                     role: claims.role,
                     organizationId: claims.organizationId,
-                    hasAdminRights: claims.role === 'org_owner' || claims.role === 'manager_admin',
                 });
             }
         } catch (error) {

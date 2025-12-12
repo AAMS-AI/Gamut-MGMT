@@ -68,7 +68,7 @@ function App() {
           <Route
             path="/users"
             element={
-              <ProtectedRoute allowedRoles={['org_owner', 'manager_admin', 'manager']}>
+              <ProtectedRoute allowedRoles={['owner', 'admin', 'manager']}>
                 <Layout>
                   <UsersPage />
                 </Layout>
@@ -78,7 +78,7 @@ function App() {
           <Route
             path="/teams"
             element={
-              <ProtectedRoute allowedRoles={['org_owner', 'manager_admin', 'manager', 'team_member']}>
+              <ProtectedRoute allowedRoles={['owner', 'admin', 'manager', 'member']}>
                 <Layout>
                   <TeamsPage />
                 </Layout>
@@ -88,7 +88,7 @@ function App() {
           <Route
             path="/organization"
             element={
-              <ProtectedRoute allowedRoles={['org_owner', 'manager_admin']}>
+              <ProtectedRoute allowedRoles={['owner', 'admin']}>
                 <Layout>
                   <OrganizationPage />
                 </Layout>

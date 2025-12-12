@@ -16,7 +16,8 @@ export function useFirestoreClaims(user) {
         let q;
 
         // Filter claims based on user role and permissions
-        if (user.role === 'org_owner' || user.hasAdminRights) {
+        // Filter claims based on user role and permissions
+        if (user.role === 'owner' || user.role === 'admin') {
             // Org owner or admin can see all claims
             q = query(
                 collection(db, 'claims'),
@@ -30,7 +31,7 @@ export function useFirestoreClaims(user) {
                 where('teamId', '==', user.teamId),
                 orderBy('updatedAt', 'desc')
             );
-        } else if (user.role === 'team_member') {
+        } else if (user.role === 'member') {
             // Team member sees all claims in their team
             q = query(
                 collection(db, 'claims'),
@@ -79,7 +80,8 @@ export function useFirestoreTeams(user) {
         let q;
 
         // Filter teams based on user permissions
-        if (user.role === 'org_owner' || user.hasAdminRights) {
+        // Filter teams based on user permissions
+        if (user.role === 'owner' || user.role === 'admin') {
             // Can see all teams in their organization
             q = query(
                 collection(db, 'teams'),
@@ -165,7 +167,7 @@ export function useFirestoreUsers(user) {
 
         let q;
 
-        if (user.role === 'org_owner' || user.hasAdminRights) {
+        if (user.role === 'owner' || user.role === 'admin') {
             // Org owner/admin sees all users in organization
             q = query(
                 collection(db, 'users'),

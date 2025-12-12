@@ -5,20 +5,18 @@ export const mockUsers = [
         email: 'owner@gamut.com',
         password: 'owner123',
         name: 'Sarah Johnson',
-        role: 'org_owner',
+        role: 'owner',
         organizationId: 'org1',
         teamId: null,
-        hasAdminRights: true, // Org owner always has admin rights
     },
     {
         id: '2',
         email: 'manager1@gamut.com',
         password: 'manager123',
         name: 'Mike Chen',
-        role: 'manager',
+        role: 'admin',
         organizationId: 'org1',
-        teamId: 'team1', // Water Damage Team
-        hasAdminRights: false, // Can be granted by org owner
+        teamId: 'team1', // General / Water Damage Team
     },
     {
         id: '3',
@@ -28,17 +26,15 @@ export const mockUsers = [
         role: 'manager',
         organizationId: 'org1',
         teamId: 'team2', // Fire Restoration Team
-        hasAdminRights: true, // Granted admin rights by org owner
     },
     {
         id: '4',
         email: 'member@gamut.com',
         password: 'member123',
         name: 'Alex Rivera',
-        role: 'team_member',
+        role: 'member',
         organizationId: 'org1',
         teamId: 'team1',
-        hasAdminRights: false,
     },
 ];
 

@@ -4,7 +4,7 @@ import { LayoutDashboard, FileText, Users, Building2, LogOut, ChevronLeft, Chevr
 import { useState } from 'react';
 
 export default function Layout({ children }) {
-    const { user, logout, loading, isOrgOwner, isAdmin, isManager } = useAuth();
+    const { user, logout, loading, isOwner, isAdmin, isManager } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -32,19 +32,19 @@ export default function Layout({ children }) {
             to: '/users',
             icon: Users,
             label: 'Users',
-            allowed: isOrgOwner || isAdmin || isManager
+            allowed: isOwner || isAdmin || isManager
         },
         {
             to: '/teams',
             icon: Users,
             label: 'Teams',
-            allowed: isOrgOwner || isAdmin || isManager || user?.role === 'team_member'
+            allowed: isOwner || isAdmin || isManager || user?.role === 'member'
         },
         {
             to: '/organization',
             icon: Building2,
             label: 'Organization',
-            allowed: isOrgOwner || isAdmin
+            allowed: isOwner || isAdmin
         },
     ];
 
@@ -61,7 +61,7 @@ export default function Layout({ children }) {
     }
 
     // Redirect Org Owner to Onboarding if no organizationId
-    if (user.role === 'org_owner' && !user.organizationId) {
+    if (user.role === 'owner' && !user.organizationId) {
         return <Navigate to="/onboarding" />;
     }
 
