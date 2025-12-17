@@ -5,7 +5,7 @@ from typing import Optional, List
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 import os
-from rbac import ROLES, PERMISSIONS, has_permission, ROLE_CREATION_HIERARCHY
+from .rbac import ROLES, PERMISSIONS, has_permission, ROLE_CREATION_HIERARCHY
 
 # Initialize Firebase Admin
 if not firebase_admin._apps:

@@ -67,35 +67,7 @@ service cloud.firestore {
       allow update: if request.auth.uid == userId;
     }
     
-    // Claims
-    match /claims/{claimId} {
-      allow list: if isAuthenticated() && (
-        hasFullAccess() ||
-        isManager() ||
-        isMember()
-      );
-      
-      allow get: if isAuthenticated() && (
-        hasFullAccess() ||
-        ((isManager() || isMember()) && hasTeamAccess(resource.data.teamId))
-      );
-      
-      allow create: if isAuthenticated() && 
-        request.resource.data.submittedBy == request.auth.uid;
-      
-      allow update: if 
-        hasFullAccess() ||
-        // Manager: Any claim in their team
-        (isManager() && hasTeamAccess(resource.data.teamId)) ||
-        // Member: ONLY their own claim in their team
-        (isMember() && hasTeamAccess(resource.data.teamId) && resource.data.submittedBy == request.auth.uid);
-      
-      allow delete: if 
-        hasFullAccess() ||
-        // Member: ONLY their own claim
-        (isMember() && resource.data.submittedBy == request.auth.uid);
-    }
-    
+
     // Comments
     match /comments/{commentId} {
       allow read: if isAuthenticated();

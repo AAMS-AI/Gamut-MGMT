@@ -11,9 +11,8 @@ import {
 } from 'recharts';
 import { getTeam, deleteTeam, updateTeam, adminUpdateUser, apiCall } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { useFirestoreClaims, useFirestoreTeams } from '../hooks/useFirestore';
 import Modal from '../components/Modal';
-import ClaimStatusBadge from '../components/ClaimStatusBadge';
+// import ClaimStatusBadge from '../components/ClaimStatusBadge';
 
 export default function TeamDetailsPage() {
     const { id } = useParams();
@@ -21,13 +20,13 @@ export default function TeamDetailsPage() {
     const { user, isManager, isAdmin, isOwner } = useAuth();
 
     // Hooks
-    const { claims } = useFirestoreClaims(user);
+    // const { claims } = useFirestoreClaims(user);
 
     // Local State
     const [team, setTeam] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState('overview'); // overview, roster, workload, settings
+    const [activeTab, setActiveTab] = useState('roster'); // roster, settings
 
     // Modals
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -39,12 +38,9 @@ export default function TeamDetailsPage() {
     const [selectedUserToAdd, setSelectedUserToAdd] = useState('');
 
     // Derived Data
-    const teamClaims = claims.filter(c => String(c.teamId) === String(id));
-    const pendingClaims = teamClaims.filter(c => c.status === 'pending_review' || c.status === 'under_review');
-    const closedClaims = teamClaims.filter(c => c.status === 'approved' || c.status === 'sent_to_insurance' || c.status === 'rejected');
-    const totalRevenue = teamClaims.reduce((sum, c) => sum + (Number(c.totalAmount) || Number(c.amount) || 0), 0);
 
-    const hasManagePermission = (!isManager || isAdmin || isOwner) && user?.role !== 'member';
+
+    const hasManagePermission = (isManager || isAdmin || isOwner) && user?.role !== 'member';
 
     const fetchTeam = async () => {
         try {
@@ -138,16 +134,8 @@ export default function TeamDetailsPage() {
     };
 
     // Visualization Data
-    const statusData = [
-        { name: 'Pending', value: teamClaims.filter(c => c.status === 'pending_review' || c.status === 'under_review').length, color: '#eab308' },
-        { name: 'Approved', value: teamClaims.filter(c => c.status === 'approved' || c.status === 'sent_to_insurance').length, color: '#22c55e' },
-        { name: 'Rejected', value: teamClaims.filter(c => c.status === 'rejected').length, color: '#ef4444' },
-    ].filter(i => i.value > 0);
-
-    const memberInitiatedClaims = (team?.roster || []).map(member => ({
-        name: member.displayName.split(' ')[0],
-        claims: teamClaims.filter(c => c.createdById === member.uid || c.authorId === member.uid).length // Adjust depending on claim schema
-    })).filter(i => i.claims >= 0); // Include 0
+    // const statusData = [];
+    // const memberInitiatedClaims = [];
 
     const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
 
@@ -167,14 +155,14 @@ export default function TeamDetailsPage() {
 
     return (
         <div className="space-y-6 animate-fade-in pb-12">
-            {/* Top Navigation / Breadcrumbs */}
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            {/* Top Navigation / Breadcrumbs - Removed as this is the root view of the Team Context */}
+            {/* <div className="flex items-center gap-4 text-sm text-gray-400">
                 <Link to="/teams" className="hover:text-gray-200 flex items-center gap-1">
                     <ArrowLeft size={14} /> Back to Teams
                 </Link>
                 <span>/</span>
                 <span className="text-gray-200 font-medium">{team.name} Manager</span>
-            </div>
+            </div> */}
 
             {/* Header Card */}
             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
@@ -191,23 +179,21 @@ export default function TeamDetailsPage() {
                 </div>
 
                 {/* KPI Stripes */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-700/50">
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Revenue</p>
-                        <p className="text-2xl font-bold text-white mt-1">${totalRevenue.toLocaleString()}</p>
+                <div>
+                    <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Team Lead</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className="w-6 h-6 rounded-full bg-primary-500/20 text-primary-400 text-xs flex items-center justify-center font-bold">
+                            {getInitials(team.roster?.find(m => m.role === 'manager')?.displayName || 'Unknown')}
+                        </div>
+                        <p className="text-lg font-bold text-white">
+                            {team.roster?.find(m => m.role === 'manager')?.displayName || 'TBD'}
+                        </p>
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Active Claims</p>
-                        <p className="text-2xl font-bold text-white mt-1">{teamClaims.length}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Pending Review</p>
-                        <p className="text-2xl font-bold text-yellow-400 mt-1">{pendingClaims.length}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Team Size</p>
-                        <p className="text-2xl font-bold text-white mt-1">{team.roster?.length || 0} Member{team.roster?.length !== 1 && 's'}</p>
-                    </div>
+                </div>
+                <div className="h-8 w-px bg-slate-700 mx-6 hidden md:block"></div>
+                <div>
+                    <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Team Size</p>
+                    <p className="text-2xl font-bold text-white mt-1">{team.roster?.length || 0} Member{team.roster?.length !== 1 && 's'}</p>
                 </div>
             </div>
 
@@ -215,9 +201,9 @@ export default function TeamDetailsPage() {
             <div className="border-b border-slate-700">
                 <div className="flex gap-6 overflow-x-auto">
                     {[
-                        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+                        // { id: 'overview', label: 'Overview', icon: LayoutDashboard },
                         { id: 'roster', label: 'Roster', icon: Users },
-                        { id: 'workload', label: 'Workload', icon: FileText },
+                        // { id: 'workload', label: 'Workload', icon: FileText },
                         { id: 'settings', label: 'Settings', icon: SettingsIcon },
                     ].map(tab => (
                         <button
@@ -240,69 +226,7 @@ export default function TeamDetailsPage() {
             {/* Tab Content */}
             <div className="min-h-[400px]">
                 {/* OVERVIEW TAB */}
-                {activeTab === 'overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Status Distribution Chart */}
-                        <div className="card">
-                            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                                <TrendingUp className="text-primary-400" size={20} />
-                                Claims Status Distribution
-                            </h3>
-                            <div className="h-[250px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={statusData}
-                                            cx="50%" cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            paddingAngle={5}
-                                            dataKey="value"
-                                        >
-                                            {statusData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        <RechartsTooltip
-                                            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                                            itemStyle={{ color: '#fff' }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                            <div className="flex flex-wrap justify-center gap-4 mt-2">
-                                {statusData.map(stat => (
-                                    <div key={stat.name} className="flex items-center gap-2 text-xs text-gray-400">
-                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: stat.color }}></div>
-                                        {stat.name}: {stat.value}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Member Performance Estimated */}
-                        <div className="card">
-                            <h3 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                                <Users className="text-blue-400" size={20} />
-                                Claims per Member
-                            </h3>
-                            <div className="h-[250px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={memberInitiatedClaims}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                                        <XAxis dataKey="name" stroke="#94a3b8" />
-                                        <YAxis stroke="#94a3b8" />
-                                        <RechartsTooltip
-                                            contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155' }}
-                                            cursor={{ fill: '#1e293b' }}
-                                        />
-                                        <Bar dataKey="claims" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* OVERVIEW TAB - Disabled */}
 
                 {/* ROSTER TAB */}
                 {activeTab === 'roster' && (
@@ -330,50 +254,55 @@ export default function TeamDetailsPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-700/50">
-                                    {(team.roster || []).map((member) => (
-                                        <tr key={member.uid} className="hover:bg-slate-800/30 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                                        {getInitials(member.displayName)}
+                                    {(team.roster || [])
+                                        .sort((a, b) => {
+                                            const rolePriority = { 'manager': 0, 'lead': 1, 'member': 2 };
+                                            return (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99);
+                                        })
+                                        .map((member) => (
+                                            <tr key={member.uid} className="hover:bg-slate-800/30 transition-colors group">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold shrink-0">
+                                                            {getInitials(member.displayName)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-gray-200">{member.displayName}</p>
+                                                            <p className="text-xs text-gray-500">{member.email}</p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-200">{member.displayName}</p>
-                                                        <p className="text-xs text-gray-500">{member.email}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {hasManagePermission ? (
-                                                    <select
-                                                        value={member.role}
-                                                        onChange={(e) => handleChangeRole(member.uid, e.target.value)}
-                                                        className="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-primary-500"
-                                                    >
-                                                        <option value="member">Member</option>
-                                                        <option value="lead">Lead</option>
-                                                        <option value="manager">Manager</option>
-                                                    </select>
-                                                ) : (
-                                                    <span className="text-sm text-gray-300 capitalize">{member.role?.replace('_', ' ')}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-400">
-                                                {member.jobTitle || '-'}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                {hasManagePermission && (
-                                                    <button
-                                                        onClick={() => handleRemoveMember(member.uid)}
-                                                        className="text-gray-500 hover:text-red-400 transition-colors p-2 rounded hover:bg-slate-800"
-                                                        title="Remove from Team"
-                                                    >
-                                                        <UserMinus size={16} />
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {hasManagePermission ? (
+                                                        <select
+                                                            value={member.role}
+                                                            onChange={(e) => handleChangeRole(member.uid, e.target.value)}
+                                                            className="bg-slate-800 border border-slate-700 text-xs rounded px-2 py-1 text-gray-300 focus:outline-none focus:border-primary-500"
+                                                        >
+                                                            <option value="member">Member</option>
+                                                            <option value="lead">Lead</option>
+                                                            <option value="manager">Manager</option>
+                                                        </select>
+                                                    ) : (
+                                                        <span className="text-sm text-gray-300 capitalize">{member.role?.replace('_', ' ')}</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-400">
+                                                    {member.jobTitle || '-'}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    {hasManagePermission && (
+                                                        <button
+                                                            onClick={() => handleRemoveMember(member.uid)}
+                                                            className="text-gray-500 hover:text-red-400 transition-colors p-2 rounded hover:bg-slate-800"
+                                                            title="Remove from Team"
+                                                        >
+                                                            <UserMinus size={16} />
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
                                     {(!team.roster || team.roster.length === 0) && (
                                         <tr>
                                             <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
@@ -388,50 +317,7 @@ export default function TeamDetailsPage() {
                 )}
 
                 {/* WORKLOAD TAB */}
-                {activeTab === 'workload' && (
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-white">Active Workload</h2>
-                            {/* Future: Add Filters */}
-                        </div>
-
-                        <div className="space-y-3">
-                            {teamClaims.map((claim) => (
-                                <div key={claim.id} className="bg-slate-800/40 border border-slate-700 p-4 rounded-xl hover:border-slate-600 transition-all flex items-center justify-between group">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg ${claim.status.includes('approved') ? 'bg-green-500/10 text-green-400' :
-                                                claim.status.includes('reject') ? 'bg-red-500/10 text-red-400' :
-                                                    'bg-blue-500/10 text-blue-400'
-                                            }`}>
-                                            <FileText size={20} />
-                                        </div>
-                                        <div>
-                                            <Link to={`/claims/${claim.id}`} className="font-semibold text-gray-200 hover:text-primary-400 transition-colors">
-                                                {claim.title || `Claim #${claim.claimNumber}`}
-                                            </Link>
-                                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                                <span>{new Date(claim.createdAt?.seconds * 1000 || Date.now()).toLocaleDateString()}</span>
-                                                <span>•</span>
-                                                <span>${(Number(claim.totalAmount) || Number(claim.amount) || 0).toLocaleString()}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-6">
-                                        <ClaimStatusBadge status={claim.status} />
-                                        <Link to={`/claims/${claim.id}`} className="btn btn-sm btn-ghost opacity-0 group-hover:opacity-100 transition-opacity">
-                                            View <ChevronRight size={16} />
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                            {teamClaims.length === 0 && (
-                                <div className="text-center py-12 bg-slate-800/30 rounded-xl border border-dashed border-slate-700">
-                                    <p className="text-gray-500">No active claims found for this team.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+                {/* WORKLOAD TAB - Disabled */}
 
                 {/* SETTINGS TAB */}
                 {activeTab === 'settings' && (

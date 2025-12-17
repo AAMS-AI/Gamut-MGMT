@@ -25,12 +25,6 @@ export const PERMISSIONS = {
     VIEW_ALL_TEAMS: 'view_all_teams',          // View all teams
     VIEW_OWN_TEAM: 'view_own_team',            // View own team details
 
-    // Claim Management
-    APPROVE_CLAIMS: 'approve_claims',          // Approve/Reject claims
-    VIEW_ALL_CLAIMS: 'view_all_claims',        // View claims across all teams
-    VIEW_TEAM_CLAIMS: 'view_team_claims',      // View claims in own team
-    CREATE_CLAIMS: 'create_claims',            // Submit new claims
-    DELETE_OWN_CLAIMS: 'delete_own_claims',    // Delete own claims
 
     // Organization
     VIEW_ORG_SETTINGS: 'view_org_settings',    // View org settings
@@ -45,9 +39,7 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.VIEW_ALL_USERS,
         PERMISSIONS.MANAGE_TEAMS,
         PERMISSIONS.VIEW_ALL_TEAMS,
-        PERMISSIONS.APPROVE_CLAIMS,
-        PERMISSIONS.VIEW_ALL_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS, // Usually doesn't need to, but can
+
         PERMISSIONS.VIEW_ORG_SETTINGS,
         PERMISSIONS.MANAGE_ORG_SETTINGS,
     ],
@@ -57,8 +49,7 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.VIEW_ALL_USERS,
         PERMISSIONS.MANAGE_TEAMS,
         PERMISSIONS.VIEW_ALL_TEAMS,
-        PERMISSIONS.APPROVE_CLAIMS,
-        PERMISSIONS.VIEW_ALL_CLAIMS,
+
         PERMISSIONS.VIEW_ORG_SETTINGS,
         // Cannot manage org settings (financials etc)? Let's say yes for now or no depending on business logic. 
         // Based on existing code, admin had less than owner. Let's give them view org but not manage.
@@ -68,22 +59,17 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.MANAGE_TEAM_USERS,
         PERMISSIONS.VIEW_TEAM_USERS,
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.APPROVE_CLAIMS,       // Can approve for own team
-        PERMISSIONS.VIEW_TEAM_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS,
+
     ],
     [ROLES.LEAD]: [
         PERMISSIONS.VIEW_TEAM_USERS,
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.VIEW_TEAM_CLAIMS,     // Leads usually see their team's work
-        PERMISSIONS.CREATE_CLAIMS,
+
     ],
     [ROLES.MEMBER]: [
         PERMISSIONS.VIEW_TEAM_USERS,      // Can see logic in list_users backend
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.VIEW_TEAM_CLAIMS,     // Can see claims in team? Or just own? Existing code: "isMember && hasTeamAccess" for list.
-        PERMISSIONS.CREATE_CLAIMS,
-        PERMISSIONS.DELETE_OWN_CLAIMS,
+
     ],
 };
 

@@ -42,14 +42,8 @@ export default function AdminUserManagement() {
     const fetchUsers = async () => {
         try {
             const data = await apiCall('/users', 'GET');
-            // Filter for managers and members locally (Admins see all)
-            const isRestrictedManager = isManager && !isAdmin;
-
-            if ((isRestrictedManager || user?.role === 'member') && userTeamId) {
-                setUsers(data.filter(u => u.teamId === userTeamId));
-            } else {
-                setUsers(data);
-            }
+            // Unified Directory: Everyone sees all users
+            setUsers(data);
         } catch (error) {
             console.error("Failed to fetch users:", error);
         } finally {

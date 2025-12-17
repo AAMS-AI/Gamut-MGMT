@@ -1,52 +1,35 @@
 import { Link, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, FileText, Users, Building2, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useFirestoreTeams } from '../hooks/useFirestore';
+import {
+    LayoutDashboard, Users, Building2, LogOut, ChevronLeft, ChevronRight,
+    Settings, Briefcase, Plus, Hash
+} from 'lucide-react';
+import { useState, useMemo } from 'react';
 
 export default function Layout({ children }) {
-    const { user, logout, loading, isOwner, isAdmin, isManager } = useAuth();
+    const { user, logout, loading, isOwner, isAdmin, isManager, userTeamId } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    // Fetch Dynamic Data for Sidebar
+    const { teams } = useFirestoreTeams(user);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
-    // RBAC Navigation Logic
-    const navItems = [
-        {
-            to: '/dashboard',
-            icon: LayoutDashboard,
-            label: 'Dashboard',
-            allowed: true // Everyone accesses dashboard
-        },
-        {
-            to: '/claims',
-            icon: FileText,
-            label: 'Claims',
-            allowed: true // Everyone accesses claims
-        },
-        {
-            to: '/users',
-            icon: Users,
-            label: 'Users',
-            allowed: isOwner || isAdmin || isManager
-        },
-        {
-            to: '/teams',
-            icon: Users,
-            label: 'Teams',
-            allowed: isOwner || isAdmin || isManager || user?.role === 'member'
-        },
-        {
-            to: '/organization',
-            icon: Building2,
-            label: 'Organization',
-            allowed: isOwner || isAdmin
-        },
-    ];
+    // Filter relevant teams for the sidebar
+    const visibleTeams = useMemo(() => {
+        if (!teams) return [];
+        // Show ONLY the team the user is explicitly assigned to
+        // This keeps the sidebar clean. Admins can view others via "All Teams" page.
+        if (userTeamId) return teams.filter(t => String(t.id) === String(userTeamId));
+        return [];
+    }, [teams, userTeamId]);
+
 
     if (loading) {
         return (
@@ -60,14 +43,39 @@ export default function Layout({ children }) {
         return <Navigate to="/login" />;
     }
 
-    // Redirect Org Owner to Onboarding if no organizationId
     if (user.role === 'owner' && !user.organizationId) {
         return <Navigate to="/onboarding" />;
     }
 
-    // Redirect Pending users
     if (user.role === 'pending') {
         return <Navigate to="/pending" />;
+    }
+
+    // Helper for Links
+    const SidebarLink = ({ to, icon: Icon, label, badge }) => {
+        const isActive = location.pathname.startsWith(to) &&
+            (to !== '/teams' || location.pathname === '/teams'); // Strict check for /teams vs /teams/123
+
+        return (
+            <Link
+                to={to}
+                className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative text-sm
+                    ${isActive
+                        ? 'bg-primary-500/10 text-primary-400 font-medium'
+                        : 'text-gray-400 hover:bg-slate-800 hover:text-gray-200'}
+                `}
+                title={!isSidebarOpen ? label : ''}
+            >
+                <Icon size={18} className={`shrink-0 ${isActive ? 'text-primary-400' : 'text-slate-500 group-hover:text-gray-300'}`} />
+                <span className={`whitespace-nowrap transition-all duration-200 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+                    {label}
+                </span>
+                {badge && isSidebarOpen && (
+                    <span className="ml-auto text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-gray-500">{badge}</span>
+                )}
+            </Link>
+        );
     }
 
     return (
@@ -79,47 +87,69 @@ export default function Layout({ children }) {
                     ${isSidebarOpen ? 'w-64' : 'w-20'}
                 `}
             >
-                {/* Logo Section */}
-                <div className="h-16 flex items-center px-4 border-b border-slate-800">
+                {/* 1. App Header */}
+                <div className="h-16 flex items-center px-4 border-b border-slate-800 bg-slate-900/50">
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-10 h-10 min-w-[2.5rem] bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/30">
-                            <span className="text-xl font-bold text-white">G</span>
+                        <div className="w-8 h-8 min-w-[2rem] bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-lg shadow-primary-500/30">
+                            <span className="text-lg font-bold text-white">G</span>
                         </div>
                         <div className={`transition-opacity duration-200 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
-                            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400 whitespace-nowrap">Gamut</h1>
+                            <h1 className="text-lg font-bold text-gray-100 whitespace-nowrap tracking-tight">Gamut <span className="text-primary-500">.io</span></h1>
                         </div>
                     </div>
                 </div>
 
-                {/* Navigation Links */}
-                <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
-                    {navItems.filter(item => item.allowed).map((item) => {
-                        const isActive = location.pathname.startsWith(item.to);
-                        return (
-                            <Link
-                                key={item.to}
-                                to={item.to}
-                                className={`
-                                    flex items-center gap-3 px-3 py-3 rounded-lg transition-all group relative
-                                    ${isActive
-                                        ? 'bg-primary-500/10 text-primary-400'
-                                        : 'text-gray-400 hover:bg-slate-800 hover:text-gray-200'}
-                                `}
-                                title={!isSidebarOpen ? item.label : ''}
-                            >
-                                <item.icon size={20} className={isActive ? 'text-primary-400' : 'text-gray-400 group-hover:text-gray-200'} />
-                                <span className={`font-medium whitespace-nowrap transition-all duration-200 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
-                                    {item.label}
-                                </span>
-                                {/* Tooltip for collapsed state */}
-                                {!isSidebarOpen && (
-                                    <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-[60]">
-                                        {item.label}
-                                    </div>
+                {/* 2. Navigation Content */}
+                <nav className="flex-1 overflow-y-auto py-6 flex flex-col gap-6 px-3">
+
+                    {/* Section: PERSONAL */}
+                    <div className="space-y-1">
+                        <SidebarLink to="/dashboard" icon={LayoutDashboard} label="Home" />
+                    </div>
+
+                    {/* Section: TEAMS */}
+                    <div className="space-y-1">
+                        {isSidebarOpen && (
+                            <div className="px-3 text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2 flex items-center justify-between">
+                                <span>Teams</span>
+                                {(isOwner || isAdmin) && (
+                                    <Link to="/teams" className="hover:text-primary-400" title="Manage All Teams"><Settings size={12} /></Link>
                                 )}
-                            </Link>
-                        );
-                    })}
+                            </div>
+                        )}
+
+                        {/* Dynamic Team List */}
+                        {visibleTeams.map(team => (
+                            <SidebarLink
+                                key={team.id}
+                                to={`/teams/${team.id}`}
+                                icon={Hash}
+                                label={team.name}
+                            />
+                        ))}
+
+                        {/* Fallback if no team assigned */}
+                        {visibleTeams.length === 0 && isSidebarOpen && (
+                            <div className="px-3 py-2 text-xs text-slate-600 italic">
+                                No teams assigned.
+                            </div>
+                        )}
+
+                        {/* Admin Action: Create Team shortcut if needed, or link to full manager */}
+                    </div>
+
+                    {/* Section: ORGANIZATION (Directory, etc) - Separate from Teams */}
+                    <div className="space-y-1">
+                        {isSidebarOpen && <div className="px-3 text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-2 mt-2">Organization</div>}
+
+                        <SidebarLink to="/teams" icon={Hash} label="All Teams" />
+                        <SidebarLink to="/users" icon={Users} label="Directory" />
+
+                        {(isOwner || isAdmin) && (
+                            <SidebarLink to="/organization" icon={Building2} label="Settings" />
+                        )}
+                    </div>
+
                 </nav>
 
                 {/* User Section */}

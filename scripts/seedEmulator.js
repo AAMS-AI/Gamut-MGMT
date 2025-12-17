@@ -36,17 +36,16 @@ const organization = {
 };
 
 const teams = [
-    { id: 'team1', name: 'General', organizationId: 'org1', specialty: 'General Operations', memberCount: 2, description: 'Administrative and HQ operations center.' }, // Owner + BG
-    { id: 'team2', name: 'Water Damage Team', organizationId: 'org1', specialty: 'Water Damage', memberCount: 2, description: 'Specializes in rapid response for water damage mitigation.' }, // Mike + Alex
-    { id: 'team3', name: 'Fire Restoration Team', organizationId: 'org1', specialty: 'Fire Restoration', memberCount: 3, description: 'Experts in fire and smoke damage restoration.' }, // Lisa + Emily + Tom
+    { id: 'team1', name: 'General', organizationId: 'org1', specialty: 'Headquarters', memberCount: 2, description: 'Organization management and oversight.' },
+    { id: 'team2', name: 'Team Alpha', organizationId: 'org1', specialty: 'Field Operations', memberCount: 2, description: 'Primary field response team.' },
 ];
 
 const users = [
-    // --- TEAM 1: General (Admin/HQ) ---
+    // --- TEAM 1: General (HQ) ---
     {
         id: 'user1',
         email: 'owner@gamut.com',
-        password: 'owner123',
+        password: 'password123',
         displayName: 'Sarah Johnson',
         role: 'owner',
         organizationId: 'org1',
@@ -56,135 +55,42 @@ const users = [
     },
     {
         id: 'user2',
-        email: 'manager1@gamut.com',
-        password: 'manager123',
+        email: 'admin@gamut.com',
+        password: 'password123',
         displayName: 'Bruce Wayne',
         role: 'admin',
         organizationId: 'org1',
         teamId: 'team1',
-        jobTitle: 'General Manager',
+        jobTitle: 'Operations Director',
         phoneNumber: '555-0102',
     },
 
-    // --- TEAM 2: Water (Ops) ---
+    // --- TEAM 2: Team Alpha ---
     {
         id: 'user3',
-        email: 'manager2@gamut.com',
-        password: 'manager123',
+        email: 'manager@gamut.com',
+        password: 'password123',
         displayName: 'Mike Chen',
         role: 'manager',
         organizationId: 'org1',
         teamId: 'team2',
-        jobTitle: 'Water Ops Manager',
+        jobTitle: 'Team Lead',
         phoneNumber: '555-0103',
     },
     {
         id: 'user4',
-        email: 'member1@gamut.com',
-        password: 'member123',
+        email: 'member@gamut.com',
+        password: 'password123',
         displayName: 'Alex Rivera',
         role: 'member',
         organizationId: 'org1',
         teamId: 'team2',
-        jobTitle: 'Water Technician',
+        jobTitle: 'Technician',
         phoneNumber: '555-0104',
     },
-
-    // --- TEAM 3: Fire (Ops) ---
-    {
-        id: 'user5',
-        email: 'manager3@gamut.com',
-        password: 'manager123',
-        displayName: 'Lisa Rodriguez',
-        role: 'manager',
-        organizationId: 'org1',
-        teamId: 'team3',
-        jobTitle: 'Fire Ops Manager',
-        phoneNumber: '555-0105',
-    },
-    {
-        id: 'user6',
-        email: 'member2@gamut.com',
-        password: 'member123',
-        displayName: 'Emily Blunt',
-        role: 'member',
-        organizationId: 'org1',
-        teamId: 'team3',
-        jobTitle: 'Fire Lead',
-        phoneNumber: '555-0106',
-    },
-    {
-        id: 'user7',
-        email: 'member3@gamut.com',
-        password: 'member123',
-        displayName: 'Tom Hardy',
-        role: 'member',
-        organizationId: 'org1',
-        teamId: 'team3',
-        jobTitle: 'Fire Technician',
-        phoneNumber: '555-0107',
-    },
 ];
 
-const claims = [
-    // Water Claims (Team 2)
-    {
-        id: 'claim1',
-        claimNumber: 'CLM-2024-001',
-        title: 'Water Damage - Kitchen Flood',
-        description: 'Extensive water damage in kitchen due to burst pipe.',
-        amount: 15750,
-        status: 'pending_review',
-        teamId: 'team2',
-        submittedBy: 'user4', // Alex (Member)
-        submittedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-15')),
-        updatedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-15')),
-        propertyType: 'Residential',
-        metadata: { address: '123 Main St', incidentDate: '2024-01-10' },
-        lineItems: []
-    },
-    {
-        id: 'claim2',
-        claimNumber: 'CLM-2024-002',
-        title: 'Water Damage - Bathroom',
-        description: 'Bathroom flood from toilet overflow.',
-        amount: 9800,
-        status: 'approved',
-        teamId: 'team2', // Water
-        submittedBy: 'user3', // Mike (Manager)
-        submittedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-20')),
-        updatedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-21')),
-        propertyType: 'Residential',
-        metadata: { address: '555 Maple Dr', incidentDate: '2024-01-18', approvedBy: 'user1' },
-        lineItems: []
-    },
-    // Fire Claims (Team 3)
-    {
-        id: 'claim3',
-        claimNumber: 'CLM-2024-003',
-        title: 'Fire Damage - Living Room',
-        description: 'Fire damage from electrical fault.',
-        amount: 28500,
-        status: 'sent_to_insurance',
-        teamId: 'team3',
-        submittedBy: 'user6', // Emily (Member)
-        submittedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-12')),
-        updatedAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-14')),
-        propertyType: 'Residential',
-        metadata: { address: '456 Oak Ave', incidentDate: '2024-01-08' },
-        lineItems: []
-    }
-];
 
-const comments = [
-    {
-        id: 'comment1',
-        claimId: 'claim1',
-        userId: 'user3', // Mike
-        text: 'Scheduling site visit for tomorrow.',
-        createdAt: admin.firestore.Timestamp.fromDate(new Date('2024-01-16')),
-    }
-];
 
 async function clearCollection(collectionPath) {
     const batchSize = 100;
@@ -228,7 +134,6 @@ async function seedData() {
         await clearCollection('users');
         await clearCollection('teams');
         await clearCollection('organizations');
-        await clearCollection('claims');
         await clearCollection('comments');
         console.log('  ✓ Data cleared.');
 
@@ -314,28 +219,10 @@ async function seedData() {
         }
 
         // Create claims
-        console.log('\n📋 Creating claims...');
-        for (const claim of claims) {
-            const claimData = {
-                ...claim,
-                organizationId: 'org1',
-                submittedBy: userIdMap[claim.submittedBy] || claim.submittedBy,
-            };
-            if (claimData.metadata?.approvedBy) claimData.metadata.approvedBy = userIdMap[claimData.metadata.approvedBy] || claimData.metadata.approvedBy;
-
-            await db.collection('claims').doc(claim.id).set(claimData);
-            console.log(`  ✓ Created: ${claim.claimNumber}`);
-        }
+        // Create claims (Skipped)
 
         // Create comments
-        console.log('\n💬 Creating comments...');
-        for (const comment of comments) {
-            const commentData = {
-                ...comment,
-                userId: userIdMap[comment.userId] || comment.userId,
-            };
-            await db.collection('comments').doc(comment.id).set(commentData);
-        }
+        // Create comments (Skipped)
 
         console.log('\n✅ Seed completed successfully!');
 

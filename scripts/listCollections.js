@@ -11,7 +11,7 @@ const db = getFirestore(app);
 connectFirestoreEmulator(db, 'localhost', 8080);
 
 async function listCollections() {
-    const collections = ['users', 'organizations', 'teams', 'claims', 'comments'];
+    const collections = ['users', 'organizations', 'teams'];
 
     console.log('📊 Firestore Collections:\n');
 

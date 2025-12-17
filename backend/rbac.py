@@ -24,12 +24,7 @@ class PERMISSIONS:
     VIEW_ALL_TEAMS = 'view_all_teams'          # View all teams
     VIEW_OWN_TEAM = 'view_own_team'            # View own team details
 
-    # Claim Management
-    APPROVE_CLAIMS = 'approve_claims'          # Approve/Reject claims
-    VIEW_ALL_CLAIMS = 'view_all_claims'        # View claims across all teams
-    VIEW_TEAM_CLAIMS = 'view_team_claims'      # View claims in own team
-    CREATE_CLAIMS = 'create_claims'            # Submit new claims
-    DELETE_OWN_CLAIMS = 'delete_own_claims'    # Delete own claims
+
 
     # Organization
     VIEW_ORG_SETTINGS = 'view_org_settings'    # View org settings
@@ -42,9 +37,7 @@ ROLE_PERMISSIONS = {
         PERMISSIONS.VIEW_ALL_USERS,
         PERMISSIONS.MANAGE_TEAMS,
         PERMISSIONS.VIEW_ALL_TEAMS,
-        PERMISSIONS.APPROVE_CLAIMS,
-        PERMISSIONS.VIEW_ALL_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS,
+
         PERMISSIONS.VIEW_ORG_SETTINGS,
         PERMISSIONS.MANAGE_ORG_SETTINGS,
     ],
@@ -53,30 +46,24 @@ ROLE_PERMISSIONS = {
         PERMISSIONS.VIEW_ALL_USERS,
         PERMISSIONS.MANAGE_TEAMS,
         PERMISSIONS.VIEW_ALL_TEAMS,
-        PERMISSIONS.APPROVE_CLAIMS,
-        PERMISSIONS.VIEW_ALL_CLAIMS,
+
         PERMISSIONS.VIEW_ORG_SETTINGS,
     ],
     ROLES.MANAGER: [
         PERMISSIONS.MANAGE_TEAM_USERS,
         PERMISSIONS.VIEW_TEAM_USERS,
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.APPROVE_CLAIMS,
-        PERMISSIONS.VIEW_TEAM_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS,
+
     ],
     ROLES.LEAD: [
         PERMISSIONS.VIEW_TEAM_USERS,
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.VIEW_TEAM_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS,
+
     ],
     ROLES.MEMBER: [
         PERMISSIONS.VIEW_TEAM_USERS,
         PERMISSIONS.VIEW_OWN_TEAM,
-        PERMISSIONS.VIEW_TEAM_CLAIMS,
-        PERMISSIONS.CREATE_CLAIMS,
-        PERMISSIONS.DELETE_OWN_CLAIMS,
+
     ],
 }
 

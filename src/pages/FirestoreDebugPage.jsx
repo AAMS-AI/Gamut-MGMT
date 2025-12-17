@@ -8,7 +8,7 @@ export default function FirestoreDebugPage() {
 
     useEffect(() => {
         async function fetchAllData() {
-            const collections = ['users', 'organizations', 'teams', 'claims', 'comments'];
+            const collections = ['users', 'organizations', 'teams'];
             const result = {};
 
             for (const collectionName of collections) {

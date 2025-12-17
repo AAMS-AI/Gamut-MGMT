@@ -23,15 +23,6 @@
   - manager1@gamut.com / manager123 (Team 1 only)
   - manager2@gamut.com / manager123 (Has admin rights - sees all teams)
 
-### 👤 Team Member
-- **Access**: Own claims and information only
-- **Permissions**:
-  - View own claims
-  - Submit new claims
-  - Add comments to own claims
-  - View own team information
-- **Demo Account**: member@gamut.com / member123
-
 ## Permission Flags
 
 - `isOrgOwner`: User is organization owner

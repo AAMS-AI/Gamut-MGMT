@@ -1,11 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
+
+// Context Layouts
+import DashboardLayout from './layouts/DashboardLayout';
+import AdminLayout from './layouts/AdminLayout';
+import TeamLayout from './layouts/TeamLayout';
+
+// Pages
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import ClaimsListPage from './pages/ClaimsListPage';
-import ClaimDetailPage from './pages/ClaimDetailPage';
 import TeamsPage from './pages/TeamsPage';
 import TeamDetailsPage from './pages/TeamDetailsPage';
 import OrganizationPage from './pages/OrganizationPage';
@@ -21,18 +25,21 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/pending" element={<PendingPage />} />
           <Route path="/debug" element={<FirestoreDebugPage />} />
+
+          {/* 1. Personal Context (Dashboard) */}
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <Layout>
+                <DashboardLayout>
                   <Navigate to="/dashboard" replace />
-                </Layout>
+                </DashboardLayout>
               </ProtectedRoute>
             }
           />
@@ -40,59 +47,41 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Layout>
+                <DashboardLayout>
                   <DashboardPage />
-                </Layout>
+                </DashboardLayout>
               </ProtectedRoute>
             }
           />
           <Route
-            path="/claims"
+            path="/profile"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <ClaimsListPage />
-                </Layout>
+                <DashboardLayout>
+                  <ProfilePage />
+                </DashboardLayout>
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/claims/:id"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ClaimDetailPage />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+
+          {/* 2. Admin Context (Organization) */}
           <Route
             path="/users"
             element={
-              <ProtectedRoute allowedRoles={['owner', 'admin', 'manager']}>
-                <Layout>
+              <ProtectedRoute>
+                <AdminLayout>
                   <UsersPage />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/teams/:id"
-            element={
-              <ProtectedRoute allowedRoles={['owner', 'admin', 'manager', 'member']}>
-                <Layout>
-                  <TeamDetailsPage />
-                </Layout>
+                </AdminLayout>
               </ProtectedRoute>
             }
           />
           <Route
             path="/teams"
             element={
-              <ProtectedRoute allowedRoles={['owner', 'admin', 'manager', 'member']}>
-                <Layout>
+              <ProtectedRoute>
+                <AdminLayout>
                   <TeamsPage />
-                </Layout>
+                </AdminLayout>
               </ProtectedRoute>
             }
           />
@@ -100,19 +89,21 @@ function App() {
             path="/organization"
             element={
               <ProtectedRoute allowedRoles={['owner', 'admin']}>
-                <Layout>
+                <AdminLayout>
                   <OrganizationPage />
-                </Layout>
+                </AdminLayout>
               </ProtectedRoute>
             }
           />
+
+          {/* 3. Team Context (Workspace) */}
           <Route
-            path="/profile"
+            path="/teams/:id"
             element={
-              <ProtectedRoute allowedRoles={null}> {/* Null means allowed for all auth users */}
-                <Layout>
-                  <ProfilePage />
-                </Layout>
+              <ProtectedRoute>
+                <TeamLayout>
+                  <TeamDetailsPage />
+                </TeamLayout>
               </ProtectedRoute>
             }
           />
