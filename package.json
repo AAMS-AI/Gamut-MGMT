@@ -1,47 +1,37 @@
 {
-  "name": "mgmt_app",
+  "name": "gamut-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit",
-    "seed": "node scripts/seedEmulator.js",
-    "backend": "export FIRESTORE_EMULATOR_HOST=\"127.0.0.1:8080\" && export FIREBASE_AUTH_EMULATOR_HOST=\"127.0.0.1:9099\" && export GCLOUD_PROJECT=\"demo-gamut-claims\" && ./backend/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
-    "dev:full": "concurrently \"npm run emulators\" \"npm run backend\" \"npm run dev\"",
-    "stop:backend": "lsof -ti:8000 | xargs -r kill -9",
-    "stop:emulators": "lsof -ti:8080,9099,4000,4400,4500 | xargs -r kill -9",
-    "stop:all": "npm run stop:backend && npm run stop:emulators && lsof -ti:5173,5174 | xargs -r kill -9"
+    "emulators": "firebase emulators:start --only auth,firestore,storage --project gamut-demo",
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.9",
-    "firebase": "^12.6.0",
-    "leaflet": "^1.9.4",
-    "lucide-react": "^0.556.0",
+    "firebase": "^12.7.0",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.10.1",
-    "recharts": "^3.5.1"
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "autoprefixer": "^10.4.22",
-    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "firebase-admin": "^13.6.0",
-    "firebase-tools": "^14.27.0",
     "globals": "^16.5.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.18",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
   }
 }

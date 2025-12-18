@@ -8,6 +8,7 @@ It should be kept in sync with `src/config/permissions.js`.
 class ROLES:
     OWNER = 'owner'
     ADMIN = 'admin'
+    GENERAL_MANAGER = 'general_manager'
     MANAGER = 'manager'
     LEAD = 'lead'
     MEMBER = 'member'
@@ -30,6 +31,12 @@ class PERMISSIONS:
     VIEW_ORG_SETTINGS = 'view_org_settings'    # View org settings
     MANAGE_ORG_SETTINGS = 'manage_org_settings'# Edit org settings
 
+    # Office Management
+    MANAGE_OFFICE_SETTINGS = 'manage_office_settings' # Edit office details
+    VIEW_OFFICE_SETTINGS = 'view_office_settings'     # View office details
+    MANAGE_OFFICE_USERS = 'manage_office_users'       # Create/Edit users in own office
+    MANAGE_OFFICE_TEAMS = 'manage_office_teams'       # Create/Edit teams in own office
+
 # Map Roles to Permissions
 ROLE_PERMISSIONS = {
     ROLES.OWNER: [
@@ -40,6 +47,8 @@ ROLE_PERMISSIONS = {
 
         PERMISSIONS.VIEW_ORG_SETTINGS,
         PERMISSIONS.MANAGE_ORG_SETTINGS,
+        PERMISSIONS.MANAGE_OFFICE_SETTINGS, 
+        PERMISSIONS.MANAGE_OFFICE_TEAMS,
     ],
     ROLES.ADMIN: [
         PERMISSIONS.MANAGE_ALL_USERS,
@@ -48,6 +57,15 @@ ROLE_PERMISSIONS = {
         PERMISSIONS.VIEW_ALL_TEAMS,
 
         PERMISSIONS.VIEW_ORG_SETTINGS,
+        PERMISSIONS.MANAGE_OFFICE_SETTINGS,
+        PERMISSIONS.MANAGE_OFFICE_TEAMS,
+    ],
+    ROLES.GENERAL_MANAGER: [
+        PERMISSIONS.MANAGE_OFFICE_USERS,
+        PERMISSIONS.MANAGE_OFFICE_TEAMS,
+        PERMISSIONS.VIEW_OFFICE_SETTINGS,
+        PERMISSIONS.MANAGE_OFFICE_SETTINGS,
+        PERMISSIONS.VIEW_TEAM_USERS, 
     ],
     ROLES.MANAGER: [
         PERMISSIONS.MANAGE_TEAM_USERS,
@@ -80,9 +98,10 @@ def has_permission(role: str, permission: str) -> bool:
 # This logic is a bit specific to "MANAGE_USERS" but good to centralize.
 # Maps Creator Role -> List of Roles they can assign
 ROLE_CREATION_HIERARCHY = {
-    ROLES.OWNER: [ROLES.ADMIN, ROLES.MANAGER, ROLES.LEAD, ROLES.MEMBER], 
-    ROLES.ADMIN: [ROLES.MANAGER, ROLES.LEAD, ROLES.MEMBER],
-    ROLES.MANAGER: [ROLES.LEAD, ROLES.MEMBER], # Manager can make leads? Assuming yes.
+    ROLES.OWNER: [ROLES.ADMIN, ROLES.GENERAL_MANAGER, ROLES.MANAGER, ROLES.LEAD, ROLES.MEMBER], 
+    ROLES.ADMIN: [ROLES.GENERAL_MANAGER, ROLES.MANAGER, ROLES.LEAD, ROLES.MEMBER],
+    ROLES.GENERAL_MANAGER: [ROLES.MANAGER, ROLES.LEAD, ROLES.MEMBER],
+    ROLES.MANAGER: [ROLES.LEAD, ROLES.MEMBER], 
     ROLES.LEAD: [],
     ROLES.MEMBER: []
 }

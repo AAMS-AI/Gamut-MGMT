@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Any
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 import os
@@ -58,6 +58,7 @@ class UserCreate(BaseModel):
     jobTitle: Optional[str] = None
     phoneNumber: Optional[str] = None
     teamId: Optional[str] = None
+    officeId: Optional[str] = None
 
 class UserResponse(BaseModel):
     uid: str
@@ -65,13 +66,68 @@ class UserResponse(BaseModel):
     displayName: Optional[str] = None
     role: Optional[str] = None
     organizationId: Optional[str] = None
+    officeId: Optional[str] = None
     teamId: Optional[str] = None
 
 class UserProfileUpdate(BaseModel):
     jobTitle: Optional[str] = None
     phoneNumber: Optional[str] = None
 
+# --- Office Models ---
+
+class OfficeCreate(BaseModel):
+    name: str # e.g. "Miami HQ"
+    address: dict # { street, city, state, zip }
+
+class OfficeResponse(BaseModel):
+    id: str
+    organizationId: str
+    name: str
+    address: dict
+    createdAt: Any
+    updatedAt: Any
+
+# --- Job Models ---
+
+class CustomerInfo(BaseModel):
+    firstName: str
+    lastName: str
+    phone: str
+    email: Optional[str] = None
+    address: dict  # { street, city, state, zip }
+
+class LossInfo(BaseModel):
+    date: str # ISO String
+    type: str # water, fire, mold
+    description: str
+    insuranceCarrier: Optional[str] = None
+    policyNumber: Optional[str] = None
+    claimNumber: Optional[str] = None
+
+class JobAssignment(BaseModel):
+    managerId: str
+    primaryTechId: Optional[str] = None
+
+class JobCreate(BaseModel):
+    teamId: str
+    customer: CustomerInfo
+    loss: LossInfo
+    assignments: List[JobAssignment] = []
+
+class JobResponse(BaseModel):
+    id: str
+    teamId: str
+    organizationId: str
+    status: str
+    stage: str
+    customer: CustomerInfo
+    loss: LossInfo
+    assignments: List[JobAssignment]
+    createdAt: Any
+    updatedAt: Any
+
 # --- Dependencies ---
+
 async def verify_token(authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
          raise HTTPException(status_code=401, detail="Invalid authentication scheme")
@@ -477,11 +533,13 @@ class OrganizationCreate(BaseModel):
 class TeamCreate(BaseModel):
     name: str
     specialty: str
+    officeId: Optional[str] = None
     description: Optional[str] = None
 
 class TeamUpdate(BaseModel):
     name: Optional[str] = None
     specialty: Optional[str] = None
+    officeId: Optional[str] = None
     description: Optional[str] = None
 
 
@@ -581,7 +639,71 @@ async def get_organization(user_token: dict = Depends(verify_token)):
          print(f"Error fetching organization: {e}")
          raise HTTPException(status_code=500, detail=str(e))
 
+         print(f"Error fetching organization: {e}")
+         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Office Endpoints ---
+
+@app.post("/api/offices", response_model=OfficeResponse)
+async def create_office(
+    office: OfficeCreate,
+    user_token: dict = Depends(verify_admin) # Owner or Admin
+):
+    """
+    Create a new Office (Location).
+    """
+    uid = user_token['uid']
+    user = auth.get_user(uid)
+    org_id = user.custom_claims.get('organizationId')
+    
+    if not org_id:
+        raise HTTPException(status_code=400, detail="User not in organization")
+
+    try:
+        new_office = {
+            'organizationId': org_id,
+            'name': office.name,
+            'address': office.address,
+            'createdAt': firestore.SERVER_TIMESTAMP,
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        }
+        
+        update_time, doc_ref = db.collection('offices').add(new_office)
+        
+        new_office['id'] = doc_ref.id
+        return new_office
+        
+    except Exception as e:
+        print(f"Error creating office: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/offices")
+async def list_offices(user_token: dict = Depends(verify_token)):
+    """
+    List all offices in the organization.
+    """
+    uid = user_token['uid']
+    user = auth.get_user(uid)
+    org_id = user.custom_claims.get('organizationId')
+
+    if not org_id:
+        return []
+
+    try:
+        offices = []
+        docs = db.collection('offices').where('organizationId', '==', org_id).stream()
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            offices.append(data)
+        return offices
+    except Exception as e:
+         print(f"Error listing offices: {e}")
+         raise HTTPException(status_code=500, detail=str(e))
+
+
 # --- Team Endpoints ---
+
 
 @app.get("/api/teams")
 async def list_teams(user_token: dict = Depends(verify_token)):
@@ -738,4 +860,99 @@ async def delete_team(
     except Exception as e:
         print(f"Error deleting team: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Job Endpoints ---
+
+@app.post("/api/jobs", response_model=JobResponse)
+async def create_job(
+    job: JobCreate,
+    user_token: dict = Depends(verify_token)
+):
+    """
+    Create a new Job (FNOL).
+    Requires the user to be a Manager or Admin/Owner, AND belong to the same organization.
+    """
+    try:
+        uid = user_token['uid']
+        user = auth.get_user(uid)
+        user_role = user.custom_claims.get('role')
+        user_org_id = user.custom_claims.get('organizationId')
+        
+        # Verify Permissions: Only Manager, Admin, Owner can create jobs
+        if user_role not in [ROLES.MANAGER, ROLES.ADMIN, ROLES.OWNER]:
+             raise HTTPException(status_code=403, detail="Insufficient permissions to create jobs")
+
+        # Verify Team Exists & Org Match
+        team_doc = db.collection('teams').document(job.teamId).get()
+        if not team_doc.exists:
+             raise HTTPException(status_code=404, detail="Team not found")
+        
+        team_data = team_doc.to_dict()
+        if team_data.get('organizationId') != user_org_id:
+             raise HTTPException(status_code=403, detail="Team belongs to another organization")
+
+        # Construct Job Data
+        new_job = {
+            'teamId': job.teamId,
+            'organizationId': user_org_id,
+            'status': 'new',
+            'stage': 'fnol',
+            'customer': job.customer.dict(),
+            'loss': job.loss.dict(),
+            'assignments': [a.dict() for a in job.assignments],
+            'createdBy': uid,
+            'createdAt': firestore.SERVER_TIMESTAMP,
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        }
+
+        update_time, doc_ref = db.collection('jobs').add(new_job)
+        
+        # Increment Job Count on Team? (Optional, good for stats)
+        # db.collection('teams').document(job.teamId).update({'jobCount': firestore.Increment(1)})
+
+        # Return Response with ID
+        new_job['id'] = doc_ref.id
+        return new_job
+
+    except Exception as e:
+        print(f"Error creating job: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/teams/{team_id}/jobs", response_model=List[JobResponse])
+async def list_team_jobs(
+    team_id: str,
+    user_token: dict = Depends(verify_token)
+):
+    """
+    List all jobs for a specific assigned team.
+    """
+    try:
+        uid = user_token['uid']
+        user = auth.get_user(uid)
+        user_org_id = user.custom_claims.get('organizationId')
+
+        # Verify Team/Org access
+        # For now, allow reading if in same Org. Stricter Team isolation can be added later if needed.
+        if not user_org_id:
+             raise HTTPException(status_code=403, detail="User not in organization")
+
+        jobs = []
+        # Filter by TeamID and OrgID for safety
+        query = db.collection('jobs')\
+            .where('teamId', '==', team_id)\
+            .where('organizationId', '==', user_org_id)\
+            .order_by('createdAt', direction=firestore.Query.DESCENDING)
+        
+        docs = query.stream()
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            jobs.append(data)
+            
+        return jobs
+
+    except Exception as e:
+        print(f"Error listing jobs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
