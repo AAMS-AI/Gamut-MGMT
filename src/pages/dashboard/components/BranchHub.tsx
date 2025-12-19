@@ -135,7 +135,7 @@ export const BranchHub: React.FC = () => {
                                             width: `${percentage}%`,
                                         }} />
                                     </div>
-                                    <Link to={`/jobs?dept=${dept.id}`} className="text-[10px] text-accent-electric font-black flex items-center gap-2 hover:translate-x-1 transition-transform uppercase tracking-[0.1em] no-underline">
+                                    <Link to={`/jobs?dept=${dept.id}`} className="text-[10px] text-accent-electric font-black flex items-center gap-2 hover:translate-x-1 transition-transform uppercase tracking-widest no-underline">
                                         ACCESS QUEUE <ArrowRight size={12} />
                                     </Link>
                                 </div>

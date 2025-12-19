@@ -35,7 +35,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ lane, jobs }) => {
                 <MoreHorizontal size={14} className="text-text-muted cursor-pointer hover:text-white transition-colors" />
             </div>
 
-            <div className="flex-1 bg-white/[0.02] backdrop-blur-md rounded-2xl p-3 flex flex-col gap-3 min-h-[500px] border border-white/[0.03]">
+            <div className="flex-1 bg-white/2 backdrop-blur-md rounded-2xl p-3 flex flex-col gap-3 min-h-[500px] border border-white/3">
                 <SortableContext items={jobs.map(j => j.id)} strategy={verticalListSortingStrategy}>
                     {jobs.map(job => (
                         <KanbanCard key={job.id} job={job} />

@@ -28,6 +28,11 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [activeOfficeId, setActiveOfficeId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Explicit Department Switching
+    const [manualDepartmentId, setManualDepartmentId] = useState<string | null>(null);
+    // Default to NULL (Global Office View) instead of profile.departmentId
+    const activeDepartmentId = manualDepartmentId;
+
     useEffect(() => {
         if (!profile?.orgId) {
             if (loading) {
@@ -80,14 +85,11 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             unsubscribeOffices();
             unsubscribeDepts();
         };
-    }, [profile?.orgId, profile?.role, profile?.officeId, activeOfficeId, loading]);
+    }, [profile?.orgId, profile?.role, profile?.officeId, profile?.departmentId, activeOfficeId, loading]);
 
     const activeOffice = offices.find(o => o.id === activeOfficeId);
 
-    // Explicit Department Switching
-    const [manualDepartmentId, setManualDepartmentId] = useState<string | null>(null);
-    // Default to NULL (Global Office View) instead of profile.departmentId
-    const activeDepartmentId = manualDepartmentId;
+    // Explicit Department Switching - Moved to top
     const activeDepartment = departments.find(d => d.id === activeDepartmentId);
 
     const setActiveDepartmentId = (id: string | null) => {
