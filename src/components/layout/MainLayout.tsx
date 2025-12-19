@@ -49,7 +49,11 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     ];
 
     return (
-        <div className="flex min-h-screen bg-black text-white font-sans">
+        <div className="flex min-h-screen bg-black text-white font-sans mesh-gradient relative overflow-hidden">
+            {/* Background Glows */}
+            <div className="glow-blob top-[-10%] left-[-10%] opacity-20" />
+            <div className="glow-blob bottom-[-10%] right-[-10%] opacity-10" />
+
             <Sidebar
                 profile={profile}
                 organization={organization}
@@ -63,7 +67,7 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             />
 
             {/* Main Content */}
-            <main className="ms-72 flex-1 p-8 min-h-screen">
+            <main className="ms-72 flex-1 p-8 min-h-screen relative z-10 animate-in">
                 <Header
                     activeOfficeId={activeOfficeId}
                     activeOffice={activeOffice}

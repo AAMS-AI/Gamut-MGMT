@@ -45,6 +45,15 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             if (activeOfficeId !== desiredOfficeId) setActiveOfficeId(desiredOfficeId);
         }
 
+        // Default Active Department
+        // If MEMBER, force to their department.
+        // If Non-MEMBER (Owner, Admin, etc), force reset to Overview (null) to clear any stale state from previous sessions.
+        if (profile.role === 'MEMBER' && profile.departmentId) {
+            setManualDepartmentId(profile.departmentId);
+        } else {
+            setManualDepartmentId(null);
+        }
+
         // Listen to organization doc
         const unsubscribeOrg = onSnapshot(doc(db, 'organizations', profile.orgId), (snap) => {
             if (snap.exists()) {

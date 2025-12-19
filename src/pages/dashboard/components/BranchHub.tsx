@@ -83,50 +83,60 @@ export const BranchHub: React.FC = () => {
             </header>
 
             {/* Top Metrics Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in">
                 {[
-                    { label: 'Total Claims', value: stats.total, icon: Briefcase, color: 'var(--accent-electric)' },
-                    { label: 'New FNOLs', value: stats.fnol, icon: Clock, color: 'var(--status-fnol)' },
-                    { label: 'In Production', value: stats.active, icon: TrendingUp, color: 'var(--accent-primary)' },
-                    { label: 'Recent Closeouts', value: stats.completed, icon: CheckCircle2, color: 'var(--status-closeout)' },
+                    { label: 'Total Claims', value: stats.total, icon: Briefcase, color: 'var(--accent-electric)', glow: 'rgba(0, 242, 255, 0.2)' },
+                    { label: 'New FNOLs', value: stats.fnol, icon: Clock, color: 'var(--status-fnol)', glow: 'rgba(59, 130, 246, 0.2)' },
+                    { label: 'In Production', value: stats.active, icon: TrendingUp, color: 'var(--accent-primary)', glow: 'rgba(99, 102, 241, 0.2)' },
+                    { label: 'Recent Closeouts', value: stats.completed, icon: CheckCircle2, color: 'var(--status-closeout)', glow: 'rgba(168, 85, 247, 0.2)' },
                 ].map((stat, i) => (
-                    <div key={i} className="glass p-6 relative overflow-hidden group">
-                        <div className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity rotate-[-15deg]">
-                            <stat.icon size={80} />
+                    <div key={i} className="glass-premium p-6 group hover-glow transition-all duration-500 overflow-hidden">
+                        <div className="absolute -top-4 -right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-all duration-700 group-hover:scale-125 group-hover:rotate-12" style={{ color: stat.color }}>
+                            <stat.icon size={100} />
                         </div>
-                        <div className="text-text-muted text-sm mb-2 flex items-center gap-1.5">
-                            <stat.icon size={14} /> {stat.label}
+                        <div className="text-text-muted text-[10px] font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                            <stat.icon size={12} style={{ color: stat.color }} /> {stat.label}
                         </div>
-                        <div className="text-3xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
+                        <div className="text-4xl font-black tracking-tighter" style={{ color: stat.color, filter: `drop-shadow(0 0 10px ${stat.glow})` }}>
+                            {stat.value}
+                        </div>
                     </div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 animate-in" style={{ animationDelay: '0.1s' }}>
                 {/* Department Grids */}
                 <div className="flex flex-col gap-6">
                     <div className="flex justify-between items-center">
-                        <h3 className="text-xl font-semibold flex items-center gap-2.5 m-0">
-                            <ListTree size={20} className="text-accent-primary" /> Department Distribution
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] flex items-center gap-3 m-0 text-text-secondary">
+                            <ListTree size={16} className="text-accent-primary" /> Department Pulse
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         {depts.map(dept => {
                             const deptJobs = jobs.filter(j => j.departmentId === dept.id);
+                            const percentage = (deptJobs.length / (stats.total || 1)) * 100;
                             return (
-                                <div key={dept.id} className="glass p-5 border border-accent-electric/10 hover:border-accent-electric/30 transition-colors">
-                                    <div className="font-semibold mb-1 text-white">{dept.name}</div>
-                                    <div className="text-[0.7rem] text-text-muted mb-4 uppercase tracking-wider font-bold">
-                                        {deptJobs.length} Active Claims
+                                <div key={dept.id} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-all duration-300 group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <div className="font-bold text-white tracking-tight">{dept.name}</div>
+                                            <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">
+                                                {deptJobs.length} Operations
+                                            </div>
+                                        </div>
+                                        <div className="text-xl font-black text-accent-electric/40 group-hover:text-accent-electric transition-colors">
+                                            {Math.round(percentage)}%
+                                        </div>
                                     </div>
-                                    <div className="h-1 bg-white/5 rounded-full mb-3 overflow-hidden">
-                                        <div className="h-full bg-accent-electric shadow-[0_0_8px_var(--accent-electric)] transition-all duration-1000" style={{
-                                            width: `${(deptJobs.length / (stats.total || 1)) * 100}%`,
+                                    <div className="h-1.5 bg-white/5 rounded-full mb-5 overflow-hidden ring-1 ring-white/5">
+                                        <div className="h-full bg-linear-to-r from-accent-primary to-accent-electric shadow-[0_0_12px_rgba(0,242,255,0.4)] transition-all duration-1000 ease-out" style={{
+                                            width: `${percentage}%`,
                                         }} />
                                     </div>
-                                    <Link to={`/jobs?dept=${dept.id}`} className="text-[0.7rem] text-accent-electric font-bold flex items-center gap-1 hover:opacity-80 transition-opacity uppercase tracking-widest">
-                                        Manage Queue <ArrowRight size={12} />
+                                    <Link to={`/jobs?dept=${dept.id}`} className="text-[10px] text-accent-electric font-black flex items-center gap-2 hover:translate-x-1 transition-transform uppercase tracking-[0.1em] no-underline">
+                                        ACCESS QUEUE <ArrowRight size={12} />
                                     </Link>
                                 </div>
                             );

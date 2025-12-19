@@ -69,15 +69,21 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
 
         return (
             <div className="pl-3 mt-1 mb-2">
-                <button
-                    onClick={() => handleSwitch(o.id, null)}
-                    className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white mb-1 ${isOverviewActive ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
-                        }`}
-                >
-                    <MapPin size={14} />
-                    <span className="text-xs font-semibold">Office Overview</span>
-                </button>
-                <div className="h-px bg-white/10 my-1 opacity-50" />
+                {userRole !== 'MEMBER' && (
+                    <>
+                        <button
+                            onClick={() => handleSwitch(o.id, null)}
+                            className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-white/5 hover:text-white mb-1 ${isOverviewActive
+                                ? 'bg-accent-electric/10 border-accent-electric/50 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.2)] font-bold'
+                                : 'border-transparent'
+                                }`}
+                        >
+                            <MapPin size={14} />
+                            <span className="text-xs font-semibold">Office Overview</span>
+                        </button>
+                        <div className="h-px bg-white/10 my-1 opacity-50" />
+                    </>
+                )}
                 {officeDepts.map(d => (
                     <button
                         key={d.id}
@@ -139,7 +145,9 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
                                 {(userRole === 'OWNER' || userRole === 'ORG_ADMIN') && (
                                     <button
                                         onClick={() => handleSwitch(null)}
-                                        className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white ${!activeOfficeId ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
+                                        className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-white/5 hover:text-white ${!activeOfficeId
+                                            ? 'bg-accent-primary/20 border-accent-primary/50 text-accent-primary shadow-[0_0_15px_rgba(99,102,241,0.2)] font-bold'
+                                            : 'border-transparent'
                                             }`}
                                     >
                                         <Globe size={14} />
@@ -155,7 +163,9 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
                                     return (
                                         <div key={o.id}>
                                             <div
-                                                className={`w-full p-2.5 flex items-center justify-between bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white ${isActiveOffice ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
+                                                className={`w-full p-2.5 flex items-center justify-between bg-transparent border rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-white/5 hover:text-white ${isActiveOffice
+                                                    ? 'bg-accent-electric/10 border-accent-electric/50 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.15)] font-bold'
+                                                    : 'border-transparent'
                                                     }`}
                                                 onClick={() => handleSwitch(o.id, null)}
                                             >

@@ -42,42 +42,45 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false }
             style={style}
             {...attributes}
             {...listeners}
-            className="glass hover:bg-white/5 transition-colors"
+            className={`glass-premium group transition-all duration-300 ${isDragging ? 'z-50' : 'hover-glow'}`}
         >
             <div
-                className={`p-4 rounded-xl transition-all duration-300 border-l-4 ${isOverlay ? 'bg-[#1a1a20] shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'} ${isStagnant ? 'border-red-500 shadow-[inset_4px_0_10px_rgba(239,68,68,0.1)]' : 'border-transparent'}`}
+                className={`p-5 rounded-2xl transition-all duration-300 border-l-[3px] ${isOverlay ? 'bg-white/10 shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'} ${isStagnant ? 'border-red-500 shadow-[inset_10px_0_20px_rgba(239,68,68,0.05)]' : 'border-transparent group-hover:border-accent-electric/30'}`}
             >
-                <div className="flex justify-between mb-3">
-                    <div className="text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
-                        <Briefcase size={12} /> {job.insurance.carrier}
+                <div className="flex justify-between items-center mb-4">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 group-hover:text-text-secondary transition-colors">
+                        <Briefcase size={12} className="text-accent-primary" /> {job.insurance.carrier}
                     </div>
                     {isStagnant && (
-                        <div className="text-xs flex items-center gap-1 text-[#ef4444]">
-                            <AlertCircle size={12} /> {daysInStage}d
+                        <div className="text-[10px] font-black flex items-center gap-1.5 text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full animate-pulse">
+                            <AlertCircle size={10} strokeWidth={3} /> {daysInStage}D STALE
                         </div>
                     )}
                 </div>
 
-                <div className="text-base font-semibold mb-1 text-white">
+                <div className="text-sm font-bold mb-1 text-white tracking-tight group-hover:text-accent-electric transition-colors">
                     {job.customer.name}
                 </div>
-                <div className="text-[0.8125rem] text-text-muted flex items-center gap-1 mb-4">
+                <div className="text-[0.75rem] text-text-muted font-medium flex items-center gap-1.5 mb-5">
                     {job.property.address}
                 </div>
 
-                <div className="flex justify-between items-center pt-3 border-t border-white/10">
-                    <div className="flex items-center -space-x-2">
+                <div className="flex justify-between items-end pt-4 border-t border-white/5">
+                    <div className="flex items-center -space-x-1.5">
                         {job.assignedUserIds && job.assignedUserIds.length > 0 ? (
                             job.assignedUserIds.map((uid) => (
-                                <div key={uid} className="w-6 h-6 rounded-full border-2 border-bg-primary" style={{
-                                    backgroundColor: `hsl(${parseInt(uid.slice(-4), 16) % 360}, 70%, 50%)`,
-                                }} />
+                                <div key={uid} className="w-6 h-6 rounded-full border-2 border-bg-secondary ring-1 ring-white/5 shadow-lg overflow-hidden flex items-center justify-center text-[10px] font-black" style={{
+                                    backgroundColor: `hsl(${parseInt(uid.slice(-4), 16) % 360}, 60%, 40%)`,
+                                    color: 'white'
+                                }}>
+                                    {uid.slice(0, 1).toUpperCase()}
+                                </div>
                             ))
                         ) : (
-                            <div className="w-6 h-6 rounded-full border border-dashed border-text-muted flex items-center justify-center text-[10px] text-text-muted">?</div>
+                            <div className="w-6 h-6 rounded-full border border-dashed border-white/20 flex items-center justify-center text-[8px] text-text-muted font-bold">VAC</div>
                         )}
                     </div>
-                    <div className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/5 text-text-secondary">
+                    <div className="text-[9px] font-black px-2.5 py-1 rounded-md bg-white/5 text-text-secondary uppercase tracking-widest ring-1 ring-white/5">
                         {job.status}
                     </div>
                 </div>

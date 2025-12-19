@@ -11,15 +11,17 @@ export interface SidebarItemProps {
 export const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, to, active }) => (
     <Link
         to={to}
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 mb-1 no-underline ${active
-            ? 'text-accent-electric bg-[rgba(0,242,255,0.05)]'
-            : 'text-text-secondary hover:bg-[rgba(255,255,255,0.03)] hover:text-white'
+        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 mb-1 no-underline group ${active
+            ? 'text-accent-electric bg-accent-electric/5 shadow-[inset_0_0_15px_rgba(0,242,255,0.03)]'
+            : 'text-text-secondary hover:bg-white/5 hover:text-white'
             }`}
     >
-        <Icon size={20} />
-        <span className="font-medium">{label}</span>
+        <div className={`transition-all duration-300 ${active ? 'text-accent-electric drop-shadow-[0_0_8px_rgba(0,242,255,0.5)]' : 'group-hover:text-white'}`}>
+            <Icon size={20} />
+        </div>
+        <span className="font-semibold tracking-wide text-sm">{label}</span>
         {active && (
-            <div className="ml-auto w-1 h-1 rounded-full bg-accent-electric shadow-[0_0_10px_var(--accent-electric)]" />
+            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-accent-electric shadow-[0_0_12px_#00f2ff,0_0_20px_rgba(0,242,255,0.4)]" />
         )}
     </Link>
 );

@@ -32,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const location = useLocation();
 
     return (
-        <aside className="w-72 border-r border-white/10 p-6 flex flex-col fixed h-screen z-10 bg-[#141414]/60 backdrop-blur-[20px]">
+        <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-black/40 backdrop-blur-3xl shadow-2xl">
             <div className="mb-8 flex items-center gap-3 px-1">
                 <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent-primary to-accent-electric flex items-center justify-center text-white font-bold text-base shadow-[0_0_15px_rgba(0,242,255,0.3)]">G</div>
                 <h1 className="text-xl font-extrabold tracking-tight m-0 bg-linear-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
