@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { type Job, type Office } from '@/types';
+import { jobService } from '@/pages/jobs/jobService';
 import {
     LayoutDashboard,
     Building2,
@@ -11,21 +12,26 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { StatCard } from '@/components/ui/StatCard';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Dashboard: React.FC = () => {
+    const { profile } = useAuth();
     const [jobs, setJobs] = useState<Job[]>([]);
     const [offices, setOffices] = useState<Office[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch All Jobs Org-wide
-        const unsubJobs = onSnapshot(collection(db, 'jobs'), (snap) => {
-            setJobs(snap.docs.map(doc => doc.data() as Job));
+        if (!profile?.orgId) return;
+
+        // Fetch All Jobs Org-wide using jobService
+        const unsubJobs = jobService.subscribeToOrganizationJobs(profile.orgId, (jobsList: Job[]) => {
+            setJobs(jobsList);
         });
 
         // Fetch All Offices
         const unsubOffices = onSnapshot(collection(db, 'offices'), (snap) => {
-            setOffices(snap.docs.map(doc => doc.data() as Office));
+            setOffices(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office)));
             setLoading(false);
         });
 
@@ -33,7 +39,7 @@ export const Dashboard: React.FC = () => {
             unsubJobs();
             unsubOffices();
         };
-    }, []);
+    }, [profile?.orgId]);
 
     const stats = {
         total: jobs.length,
@@ -58,19 +64,14 @@ export const Dashboard: React.FC = () => {
             </header>
 
             {/* Global Metrics */}
-            <div className="grid grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                 {[
                     { label: 'Total Enterprise Jobs', value: stats.total, icon: Briefcase, color: 'var(--accent-electric)' },
                     { label: 'Active Locations', value: stats.offices, icon: Building2, color: 'var(--accent-primary)' },
                     { label: 'Active Volume', value: stats.active, icon: TrendingUp, color: 'var(--status-mitigation)' },
-                    { label: 'Est. Revenue', value: stats.revenue, icon: LayoutDashboard, color: '#fff' },
+                    { label: 'Estimated Revenue', value: stats.revenue, icon: LayoutDashboard, color: '#fff' },
                 ].map((stat, i) => (
-                    <div key={i} className="glass p-6">
-                        <div className="text-text-muted text-sm mb-2 flex items-center gap-1.5">
-                            <stat.icon size={14} /> {stat.label}
-                        </div>
-                        <div className="text-3xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
-                    </div>
+                    <StatCard key={i} {...stat} />
                 ))}
             </div>
 

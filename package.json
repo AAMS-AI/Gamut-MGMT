@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "emulators": "firebase emulators:start --only auth,firestore,storage --project gamut-demo",
+    "dev": "tsx scripts/dev.ts",
+    "build": "tsx scripts/build.ts",
+    "lint": "tsx scripts/lint.ts",
+    "preview": "vite preview --config config/vite.config.ts",
+    "emulators": "tsx scripts/emulators.ts",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {

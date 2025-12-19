@@ -9,7 +9,7 @@ import { JobsList } from '@/pages/jobs/JobsList';
 import { OrgManagement } from '@/pages/org/OrgManagement';
 
 // New Components
-import { OperationsBoard } from '@/pages/ops/OperationsBoard';
+import { OperationsBoard } from '@/pages/jobs/OperationsBoard';
 import { StaffDirectory } from '@/pages/team/StaffDirectory';
 import { OfficeDepartments } from '@/pages/org/OfficeDepartments';
 import { GlobalUserTable } from '@/pages/team/GlobalUserTable';

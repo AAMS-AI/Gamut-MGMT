@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../../lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import type { UserRole } from '../../types';
-import { DEMO_USERS } from '../../config/demoUsers';
+import type { UserRole } from '@/types';
+import { DEMO_USERS } from '@/demo/demoUsers';
 
 export const LoginPage: React.FC = () => {
     const [isRegister, setIsRegister] = useState(false);

@@ -5,10 +5,10 @@ import {
     where,
     onSnapshot
 } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { useAuth } from '../../contexts/AuthContext';
-import { useOrganization } from '../../contexts/OrganizationContext';
-import { type Job } from '../../types';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
+import { type Job } from '@/types';
 import { Briefcase, ChevronRight, Clock, MapPin } from 'lucide-react';
 
 import { useParams } from 'react-router-dom';

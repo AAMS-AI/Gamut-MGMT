@@ -7,12 +7,12 @@ import {
     addDoc,
     serverTimestamp
 } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { useAuth } from '../../contexts/AuthContext';
-import { type Office, type Department } from '../../types';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { type Office, type Department } from '@/types';
 import { Building2, MapPin, Plus, ListTree } from 'lucide-react';
-import { hasPermission } from '../../hooks/useRBAC';
-import { useOrganization } from '../../contexts/OrganizationContext';
+import { hasPermission } from '@/hooks/useRBAC';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { useNavigate } from 'react-router-dom';
 
 export const OrgManagement: React.FC = () => {

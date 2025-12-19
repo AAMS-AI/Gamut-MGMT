@@ -7,9 +7,9 @@ import {
     addDoc,
     serverTimestamp
 } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { useAuth } from '../../contexts/AuthContext';
-import { type Office, type Department, type JobStatus } from '../../types';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { type Office, type Department, type JobStatus } from '@/types';
 import { ShieldAlert, Send } from 'lucide-react';
 
 export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
