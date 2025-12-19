@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { collection, query, where, onSnapshot, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -29,15 +30,19 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     useEffect(() => {
         if (!profile?.orgId) {
-            setLoading(false);
+            if (loading) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setLoading(false);
+            }
             return;
         }
 
         // Default active office based on role
         if (profile.role === 'OWNER' || profile.role === 'ORG_ADMIN') {
-            setActiveOfficeId(null); // Global by default
+            if (activeOfficeId !== null) setActiveOfficeId(null);
         } else {
-            setActiveOfficeId(profile.officeId || null);
+            const desiredOfficeId = profile.officeId || null;
+            if (activeOfficeId !== desiredOfficeId) setActiveOfficeId(desiredOfficeId);
         }
 
         // Listen to organization doc
@@ -52,11 +57,8 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         const unsubscribeOffices = onSnapshot(q, (snap) => {
             const officesList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
             setOffices(officesList);
-            // Department fetch is nested or parallel? Parallel is fine.
         });
 
-        // Listen to all departments in org (filtered later or filtered query?)
-        // For efficiency, let's just grab all depts in org for now since it's small context
         const qDepts = query(collection(db, 'departments'), where('orgId', '==', profile.orgId));
         const unsubscribeDepts = onSnapshot(qDepts, (snap) => {
             const deptsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
@@ -69,7 +71,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             unsubscribeOffices();
             unsubscribeDepts();
         };
-    }, [profile?.orgId, profile?.role, profile?.officeId]);
+    }, [profile?.orgId, profile?.role, profile?.officeId, activeOfficeId, loading]);
 
     const activeOffice = offices.find(o => o.id === activeOfficeId);
 

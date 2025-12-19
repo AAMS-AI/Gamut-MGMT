@@ -71,10 +71,7 @@ const KanbanCard = ({ job, isOverlay = false }: { job: Job; isOverlay?: boolean 
             className="glass hover:bg-white/5 transition-colors"
         >
             <div
-                className={`p-4 rounded-xl transition-transform duration-200 ${isOverlay ? 'bg-[#1a1a20] shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'}`}
-                style={{
-                    borderLeft: isStagnant ? '4px solid #ef4444' : '4px solid transparent',
-                }}
+                className={`p-4 rounded-xl transition-all duration-300 border-l-[4px] ${isOverlay ? 'bg-[#1a1a20] shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'} ${isStagnant ? 'border-red-500 shadow-[inset_4px_0_10px_rgba(239,68,68,0.1)]' : 'border-transparent'}`}
             >
                 <div className="flex justify-between mb-3">
                     <div className="text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">

@@ -88,6 +88,7 @@ a {
 
 .gradient-text {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-electric));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

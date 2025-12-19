@@ -18,7 +18,7 @@ import { BranchDashboard } from '@/pages/dashboard/BranchDashboard';
 
 const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div style={{ color: '#fff', padding: '20px' }}>Loading GAMUT...</div>;
+  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-accent-electric font-bold tracking-tighter text-2xl animate-pulse">GAMUT</div>;
   if (!user) return <Navigate to="/login" />;
   return <MainLayout>{children}</MainLayout>;
 };

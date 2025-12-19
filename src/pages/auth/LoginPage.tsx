@@ -57,15 +57,15 @@ export const LoginPage: React.FC = () => {
                 await signInWithEmailAndPassword(auth, email, password);
                 navigate('/');
             }
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-[radial-gradient(circle_at_center,_#1a1a2e_0%,_#0a0a0c_100%)] p-6">
+        <div className="h-screen flex items-center justify-center bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#0a0a0c_100%)] p-6">
             <div className="glass p-10 w-full max-w-md border border-white/10 shadow-2xl">
                 <h1 className="text-center mb-2 gradient-text text-5xl font-black tracking-tighter">GAMUT</h1>
                 <p className="text-center text-text-secondary mb-10 text-sm font-medium tracking-wide">
@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 rounded-xl bg-gradient-to-br from-accent-primary to-accent-secondary text-white font-bold shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 mt-4 cursor-pointer"
+                        className="w-full py-4 rounded-xl bg-linear-to-br from-accent-primary to-accent-secondary text-white font-bold shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 mt-4 cursor-pointer"
                     >
                         {loading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
                     </button>

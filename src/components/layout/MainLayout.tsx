@@ -13,7 +13,7 @@ import {
     Globe,
     ClipboardList
 } from 'lucide-react';
-import { type Department } from '@/types';
+import { type Department, type Office, type Organization, type UserProfile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -45,14 +45,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, to, active
 
 // --- Context Switcher ---
 const SidebarContextSwitcher: React.FC<{
-    organization: any;
-    offices: any[];
+    organization: Organization | null;
+    offices: Office[];
     departments: Department[];
     activeOfficeId: string | null;
     activeDepartmentId: string | null;
     setActiveDepartmentId: (id: string | null) => void;
     userRole?: string;
-    userProfile?: any;
+    userProfile?: UserProfile | null;
 }> = ({ organization, offices, departments, activeOfficeId, activeDepartmentId, setActiveDepartmentId, userRole, userProfile }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [expandedOfficeId, setExpandedOfficeId] = useState<string | null>(null);
@@ -62,10 +62,11 @@ const SidebarContextSwitcher: React.FC<{
 
     // Sync expanded state likely to active office on mount/change
     useEffect(() => {
-        if (activeOfficeId) {
+        if (activeOfficeId && expandedOfficeId !== activeOfficeId) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setExpandedOfficeId(activeOfficeId);
         }
-    }, [activeOfficeId]);
+    }, [activeOfficeId, expandedOfficeId]);
 
     const handleSwitch = (officeId: string | null, departmentId: string | null = null) => {
         if (officeId) {
@@ -83,7 +84,7 @@ const SidebarContextSwitcher: React.FC<{
         setExpandedOfficeId(prev => prev === officeId ? null : officeId);
     };
 
-    const renderOfficeContent = (o: any) => {
+    const renderOfficeContent = (o: Office) => {
         let officeDepts = departments.filter(d => d.officeId === o.id);
 
         if (userRole === 'MEMBER' && userProfile?.departmentId) {
@@ -109,17 +110,13 @@ const SidebarContextSwitcher: React.FC<{
                     <button
                         key={d.id}
                         onClick={() => handleSwitch(o.id, d.id)}
-                        className="w-full p-2.5 flex items-center gap-2.5 rounded-lg cursor-pointer text-left transition-all duration-200"
-                        style={{
-                            background: activeDepartmentId === d.id ? 'rgba(0, 242, 255, 0.1)' : 'transparent',
-                            border: activeDepartmentId === d.id ? '1px solid rgba(0, 242, 255, 0.3)' : '1px solid transparent',
-                            color: activeDepartmentId === d.id ? 'var(--accent-electric)' : 'var(--text-secondary)',
-                            boxShadow: activeDepartmentId === d.id ? '0 0 10px rgba(0, 242, 255, 0.1)' : 'none'
-                        }}
+                        className={`w-full p-2.5 flex items-center gap-2.5 rounded-lg cursor-pointer text-left transition-all duration-200 border ${activeDepartmentId === d.id
+                            ? 'bg-accent-electric/10 border-accent-electric/30 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.1)]'
+                            : 'bg-transparent border-transparent text-text-secondary'
+                            }`}
                     >
                         <div
-                            className="w-1.5 h-1.5 rounded-full bg-current"
-                            style={{ opacity: activeDepartmentId === d.id ? 1 : 0.5 }}
+                            className={`w-1.5 h-1.5 rounded-full bg-current ${activeDepartmentId === d.id ? 'opacity-100' : 'opacity-50'}`}
                         />
                         <span className={`text-xs ${activeDepartmentId === d.id ? 'font-bold' : 'font-medium'}`}>{d.name}</span>
                     </button>
@@ -136,12 +133,10 @@ const SidebarContextSwitcher: React.FC<{
                     }`}
             >
                 <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                    style={{
-                        background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
-                        color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
-                        boxShadow: activeDepartmentId ? '0 0 15px rgba(0, 242, 255, 0.2)' : 'none'
-                    }}
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${activeDepartmentId
+                        ? 'bg-accent-electric/10 text-accent-electric shadow-[0_0_15px_rgba(0,242,255,0.2)]'
+                        : 'bg-purple-500/10 text-[#c084fc]'
+                        }`}
                 >
                     {activeOfficeId ? <MapPin size={18} /> : <Globe size={18} />}
                 </div>
@@ -162,7 +157,7 @@ const SidebarContextSwitcher: React.FC<{
                         onClick={() => setIsOpen(false)}
                         className="fixed inset-0 z-40"
                     />
-                    <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#141414f2] backdrop-blur-xl rounded-2xl border border-white/10 p-2 z-50 shadow-2xl animate-[fadeInScale_0.2s_ease-out] max-h-[400px] overflow-y-auto">
+                    <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#141414]/95 backdrop-blur-xl rounded-2xl border border-white/10 p-2 z-50 shadow-2xl animate-[fadeInScale_0.2s_ease-out] max-h-[400px] overflow-y-auto">
                         <div className="text-[0.65rem] font-bold text-text-muted py-2 px-3 uppercase tracking-wider">
                             Switch Perspective
                         </div>
@@ -240,9 +235,8 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             setActiveOfficeId(urlOfficeId);
         } else {
             setActiveOfficeId(null);
-            // DO NOT reset department here, as we might want to persist it or let other logic handle global reset
         }
-    }, [urlOfficeId]);
+    }, [urlOfficeId, setActiveOfficeId]);
 
     const effectiveOfficeId = urlOfficeId;
 
@@ -272,10 +266,10 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     return (
         <div className="flex min-h-screen bg-black text-white font-sans">
-            <aside className="w-72 border-r border-white/10 p-6 flex flex-col fixed h-screen z-10 bg-[rgba(20,20,20,0.6)] backdrop-blur-[20px]">
+            <aside className="w-72 border-r border-white/10 p-6 flex flex-col fixed h-screen z-10 bg-[#141414]/60 backdrop-blur-[20px]">
                 <div className="mb-8 flex items-center gap-3 px-1">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-primary to-accent-electric flex items-center justify-center text-white font-bold text-base shadow-[0_0_15px_rgba(0,242,255,0.3)]">G</div>
-                    <h1 className="text-xl font-extrabold tracking-tight m-0 bg-gradient-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent-primary to-accent-electric flex items-center justify-center text-white font-bold text-base shadow-[0_0_15px_rgba(0,242,255,0.3)]">G</div>
+                    <h1 className="text-xl font-extrabold tracking-tight m-0 bg-linear-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
                 </div>
 
                 <SidebarContextSwitcher
@@ -345,13 +339,10 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
                         {/* Context Badge */}
                         <div
-                            className="flex items-center gap-2 px-3.5 py-1.5 border rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md"
-                            style={{
-                                background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
-                                borderColor: activeDepartmentId ? 'rgba(0, 242, 255, 0.3)' : 'rgba(192, 132, 252, 0.3)',
-                                color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
-                                boxShadow: '0 0 15px rgba(0, 242, 255, 0.05)'
-                            }}
+                            className={`flex items-center gap-2 px-3.5 py-1.5 border rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${activeDepartmentId
+                                ? 'bg-accent-electric/10 border-accent-electric/30 text-accent-electric shadow-[0_0_15px_rgba(0,242,255,0.05)]'
+                                : 'bg-purple-500/10 border-purple-500/30 text-[#c084fc]'
+                                }`}
                         >
                             {activeOfficeId ? <MapPin size={12} /> : <Shield size={12} />}
                             {activeOfficeId

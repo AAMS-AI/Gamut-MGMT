@@ -101,7 +101,7 @@ async function seed() {
             console.log(`   > Setting up ${u.email}...`);
             try {
                 // Delete existing first to ensure clean state (optional but good for seed)
-                try { await auth.deleteUser(u.uid); } catch (e) { }
+                try { await auth.deleteUser(u.uid); } catch { /* ignore */ }
 
                 await auth.createUser({
                     uid: u.uid,
@@ -109,16 +109,17 @@ async function seed() {
                     password: 'password123',
                     displayName: u.name
                 });
-            } catch (e: any) {
-                if (e.code === 'auth/uid-already-exists') {
+            } catch (e: unknown) {
+                const error = e as { code: string; message: string };
+                if (error.code === 'auth/uid-already-exists') {
                     // Update if exists
                     await auth.updateUser(u.uid, {
                         email: u.email,
                         displayName: u.name,
                         password: 'password123'
                     });
-                } else if (e.code !== 'auth/email-already-exists') {
-                    console.error(`     ❌ Auth Error for ${u.email}:`, e.message);
+                } else if (error.code !== 'auth/email-already-exists') {
+                    console.error(`     ❌ Auth Error for ${u.email}:`, error.message);
                 }
             }
 

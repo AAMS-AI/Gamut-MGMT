@@ -90,69 +90,67 @@ export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            backdropFilter: 'blur(4px)'
-        }}>
-            <div className="glass" style={{ width: '100%', maxWidth: '600px', padding: '32px', position: 'relative' }}>
-                <h2 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <ShieldAlert style={{ color: 'var(--accent-electric)' }} /> New FNOL (First Notice of Loss)
-                </h2>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-100 backdrop-blur-md p-6">
+            <div className="glass w-full max-w-2xl p-8 relative border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-300">
+                <header className="mb-8 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-accent-electric/20 flex items-center justify-center text-accent-electric">
+                        <ShieldAlert size={28} />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white leading-tight">New FNOL</h2>
+                        <p className="text-text-secondary text-sm font-medium tracking-wide">First Notice of Loss Setup</p>
+                    </div>
+                </header>
 
-                <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Office</label>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-text-muted">Office</label>
                             <select
                                 value={officeId}
                                 onChange={(e) => setOfficeId(e.target.value)}
                                 required
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all appearance-none cursor-pointer"
                             >
-                                <option value="">Select Office</option>
-                                {offices.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                                <option value="" className="bg-bg-tertiary">Select Office</option>
+                                {offices.map(o => <option key={o.id} value={o.id} className="bg-bg-tertiary">{o.name}</option>)}
                             </select>
                         </div>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Department</label>
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-text-muted">Department</label>
                             <select
                                 value={departmentId}
                                 onChange={(e) => setDepartmentId(e.target.value)}
                                 required
                                 disabled={!officeId}
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed appearance-none cursor-pointer"
                             >
-                                <option value="">Select Department</option>
-                                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                <option value="" className="bg-bg-tertiary">Select Department</option>
+                                {departments.map(d => <option key={d.id} value={d.id} className="bg-bg-tertiary">{d.name}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: '24px' }}>
-                        <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Customer & Property</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '12px' }}>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-white/40 mb-2">
+                            <div className="h-px flex-1 bg-white/5"></div>
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">Customer & Property</h3>
+                            <div className="h-px flex-1 bg-white/5"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                                 placeholder="Customer Name"
                                 value={customerName}
                                 onChange={(e) => setCustomerName(e.target.value)}
                                 required
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
                             />
                             <input
                                 placeholder="Phone Number"
                                 value={customerPhone}
                                 onChange={(e) => setCustomerPhone(e.target.value)}
                                 required
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
                             />
                         </div>
                         <input
@@ -160,42 +158,46 @@ export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             required
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                            className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
                         />
                     </div>
 
-                    <div style={{ marginBottom: '32px' }}>
-                        <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>Insurance Details</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-white/40 mb-2">
+                            <div className="h-px flex-1 bg-white/5"></div>
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em]">Insurance Carrier</h3>
+                            <div className="h-px flex-1 bg-white/5"></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                                 placeholder="Carrier (e.g. State Farm)"
                                 value={carrier}
                                 onChange={(e) => setCarrier(e.target.value)}
                                 required
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
                             />
                             <input
                                 placeholder="Claim #"
                                 value={claimNumber}
                                 onChange={(e) => setClaimNumber(e.target.value)}
                                 required
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
                             />
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '16px' }}>
+                    <div className="flex gap-4 pt-4">
                         <button
                             type="submit"
                             disabled={loading}
-                            style={{ flex: 1, padding: '14px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-electric))', border: 'none', color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                            className="flex-1 py-4 rounded-xl bg-linear-to-br from-accent-primary to-accent-electric text-black font-bold flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,242,255,0.2)] hover:shadow-[0_0_30px_rgba(0,242,255,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 cursor-pointer"
                         >
-                            <Send size={18} /> {loading ? 'Creating...' : 'Create Claim (FNOL)'}
+                            <Send size={18} /> {loading ? 'Processing...' : 'Assign & Create Claim'}
                         </button>
                         <button
                             type="button"
                             onClick={onClose}
-                            style={{ flex: 0.3, padding: '14px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+                            className="px-8 flex-none py-4 rounded-xl bg-transparent border border-white/10 text-text-muted font-bold hover:bg-white/5 hover:text-white transition-all cursor-pointer"
                         >
                             Cancel
                         </button>

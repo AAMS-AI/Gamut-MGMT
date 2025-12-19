@@ -65,7 +65,7 @@ export const OrgManagement: React.FC = () => {
             unsubOffices();
             unsubDepts();
         };
-    }, [profile]);
+    }, [profile, navigate]);
 
     // Department form state
     const [showDeptForm, setShowDeptForm] = useState<string | null>(null); // officeId
