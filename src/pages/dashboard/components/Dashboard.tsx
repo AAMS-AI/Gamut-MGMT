@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const OwnerCommandCenter: React.FC = () => {
+export const Dashboard: React.FC = () => {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [offices, setOffices] = useState<Office[]>([]);
     const [loading, setLoading] = useState(true);
