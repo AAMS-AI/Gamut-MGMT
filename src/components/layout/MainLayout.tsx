@@ -13,11 +13,11 @@ import {
     Globe,
     ClipboardList
 } from 'lucide-react';
-import { type Department } from '../../types';
-import { useAuth } from '../../contexts/AuthContext';
-import { useOrganization } from '../../contexts/OrganizationContext';
+import { type Department } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { JobCreate } from '../../pages/jobs/JobCreate';
+import { JobCreate } from '@/pages/jobs/JobCreate';
 
 // --- Types ---
 interface SidebarItemProps {
@@ -28,27 +28,18 @@ interface SidebarItemProps {
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, to, active }) => (
-    <Link to={to} style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 16px',
-        borderRadius: '12px',
-        color: active ? 'var(--accent-electric)' : 'var(--text-secondary)',
-        backgroundColor: active ? 'rgba(0, 242, 255, 0.05)' : 'transparent',
-        transition: 'all 0.2s ease',
-        marginBottom: '4px'
-    }}>
+    <Link
+        to={to}
+        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 mb-1 no-underline ${active
+            ? 'text-accent-electric bg-[rgba(0,242,255,0.05)]'
+            : 'text-text-secondary hover:bg-[rgba(255,255,255,0.03)] hover:text-white'
+            }`}
+    >
         <Icon size={20} />
-        <span style={{ fontWeight: 500 }}>{label}</span>
-        {active && <div style={{
-            marginLeft: 'auto',
-            width: '4px',
-            height: '4px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--accent-electric)',
-            boxShadow: '0 0 10px var(--accent-electric)'
-        }} />}
+        <span className="font-medium">{label}</span>
+        {active && (
+            <div className="ml-auto w-1 h-1 rounded-full bg-accent-electric shadow-[0_0_10px_var(--accent-electric)]" />
+        )}
     </Link>
 );
 
@@ -56,7 +47,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, to, active
 const SidebarContextSwitcher: React.FC<{
     organization: any;
     offices: any[];
-    departments: Department[]; // Added
+    departments: Department[];
     activeOfficeId: string | null;
     activeDepartmentId: string | null;
     setActiveDepartmentId: (id: string | null) => void;
@@ -104,51 +95,33 @@ const SidebarContextSwitcher: React.FC<{
         const isOverviewActive = isActiveOffice && !activeDepartmentId;
 
         return (
-            <div style={{ paddingLeft: '12px', marginTop: '4px', marginBottom: '8px' }}>
+            <div className="pl-3 mt-1 mb-2">
                 <button
                     onClick={() => handleSwitch(o.id, null)}
-                    style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        background: isOverviewActive ? 'rgba(192, 132, 252, 0.1)' : 'transparent',
-                        border: 'none',
-                        borderRadius: '10px',
-                        color: isOverviewActive ? '#c084fc' : 'var(--text-secondary)',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.2s ease',
-                        marginBottom: '4px'
-                    }}
+                    className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white mb-1 ${isOverviewActive ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
+                        }`}
                 >
                     <MapPin size={14} />
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Office Overview</span>
+                    <span className="text-xs font-semibold">Office Overview</span>
                 </button>
-                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0', opacity: 0.5 }} />
+                <div className="h-px bg-white/10 my-1 opacity-50" />
                 {officeDepts.map(d => (
                     <button
                         key={d.id}
                         onClick={() => handleSwitch(o.id, d.id)}
+                        className="w-full p-2.5 flex items-center gap-2.5 rounded-lg cursor-pointer text-left transition-all duration-200"
                         style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
                             background: activeDepartmentId === d.id ? 'rgba(0, 242, 255, 0.1)' : 'transparent',
                             border: activeDepartmentId === d.id ? '1px solid rgba(0, 242, 255, 0.3)' : '1px solid transparent',
-                            borderRadius: '10px',
                             color: activeDepartmentId === d.id ? 'var(--accent-electric)' : 'var(--text-secondary)',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            transition: 'all 0.2s ease',
                             boxShadow: activeDepartmentId === d.id ? '0 0 10px rgba(0, 242, 255, 0.1)' : 'none'
                         }}
                     >
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'currentColor', opacity: activeDepartmentId === d.id ? 1 : 0.5 }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: activeDepartmentId === d.id ? 700 : 500 }}>{d.name}</span>
+                        <div
+                            className="w-1.5 h-1.5 rounded-full bg-current"
+                            style={{ opacity: activeDepartmentId === d.id ? 1 : 0.5 }}
+                        />
+                        <span className={`text-xs ${activeDepartmentId === d.id ? 'font-bold' : 'font-medium'}`}>{d.name}</span>
                     </button>
                 ))}
             </div>
@@ -156,76 +129,41 @@ const SidebarContextSwitcher: React.FC<{
     };
 
     return (
-        <div style={{ position: 'relative', marginBottom: '32px' }}>
+        <div className="relative mb-8">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: isOpen ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
-                    borderRadius: '16px',
-                    border: '1px solid',
-                    borderColor: isOpen ? 'var(--accent-electric)' : 'var(--border-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    textAlign: 'left'
-                }}
+                className={`w-full p-3 bg-[rgba(255,255,255,0.03)] rounded-2xl border border-white/10 flex items-center gap-3 cursor-pointer transition-all duration-200 text-left ${isOpen ? 'bg-[rgba(255,255,255,0.08)] border-accent-electric' : ''
+                    }`}
             >
-                <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
-                    flexShrink: 0,
-                    boxShadow: activeDepartmentId ? '0 0 15px rgba(0, 242, 255, 0.2)' : 'none'
-                }}>
+                <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                    style={{
+                        background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
+                        color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
+                        boxShadow: activeDepartmentId ? '0 0 15px rgba(0, 242, 255, 0.2)' : 'none'
+                    }}
+                >
                     {activeOfficeId ? <MapPin size={18} /> : <Globe size={18} />}
                 </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div className="flex-1 overflow-hidden">
+                    <div className="text-[0.8125rem] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
                         {activeDepartment ? activeDepartment.name : (activeOfficeId ? activeOffice?.name : organization?.name)}
                     </div>
-                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                    <div className="text-[0.6875rem] text-text-muted font-medium">
                         {activeDepartment ? 'Department View' : (activeOfficeId ? 'Branch Hub' : 'Enterprise Global')}
                     </div>
                 </div>
-                <ChevronDown size={14} style={{
-                    color: 'var(--text-muted)',
-                    transform: isOpen ? 'rotate(180deg)' : 'none',
-                    transition: 'transform 0.3s ease'
-                }} />
+                <ChevronDown size={14} className={`text-text-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
                 <>
                     <div
                         onClick={() => setIsOpen(false)}
-                        style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                        className="fixed inset-0 z-40"
                     />
-                    <div style={{
-                        position: 'absolute',
-                        top: 'calc(100% + 8px)',
-                        left: 0,
-                        right: 0,
-                        backgroundColor: 'rgba(20, 20, 20, 0.95)',
-                        backdropFilter: 'blur(20px)',
-                        borderRadius: '16px',
-                        border: '1px solid var(--border-color)',
-                        padding: '8px',
-                        zIndex: 50,
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                        animation: 'fadeInScale 0.2s ease-out',
-                        maxHeight: '400px',
-                        overflowY: 'auto'
-                    }}>
-                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', padding: '8px 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#141414f2] backdrop-blur-xl rounded-2xl border border-white/10 p-2 z-50 shadow-2xl animate-[fadeInScale_0.2s_ease-out] max-h-[400px] overflow-y-auto">
+                        <div className="text-[0.65rem] font-bold text-text-muted py-2 px-3 uppercase tracking-wider">
                             Switch Perspective
                         </div>
 
@@ -235,26 +173,14 @@ const SidebarContextSwitcher: React.FC<{
                                 {(userRole === 'OWNER' || userRole === 'ORG_ADMIN') && (
                                     <button
                                         onClick={() => handleSwitch(null)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 12px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px',
-                                            background: !activeOfficeId ? 'rgba(192, 132, 252, 0.1)' : 'transparent',
-                                            border: 'none',
-                                            borderRadius: '10px',
-                                            color: !activeOfficeId ? '#c084fc' : 'var(--text-secondary)',
-                                            cursor: 'pointer',
-                                            textAlign: 'left',
-                                            transition: 'all 0.2s ease'
-                                        }}
+                                        className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white ${!activeOfficeId ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
+                                            }`}
                                     >
                                         <Globe size={14} />
-                                        <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Global Overview</span>
+                                        <span className="text-[0.8125rem] font-semibold">Global Overview</span>
                                     </button>
                                 )}
-                                <div style={{ height: '1px', background: 'var(--border-color)', margin: '4px 0' }} />
+                                <div className="h-px bg-white/10 my-1" />
 
                                 {offices.map(o => {
                                     const isExpanded = expandedOfficeId === o.id;
@@ -263,44 +189,22 @@ const SidebarContextSwitcher: React.FC<{
                                     return (
                                         <div key={o.id}>
                                             <div
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px 12px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    gap: '10px',
-                                                    background: isActiveOffice ? 'rgba(192, 132, 252, 0.1)' : 'transparent', // Highlight if active office
-                                                    borderRadius: '10px',
-                                                    color: isActiveOffice ? '#c084fc' : 'var(--text-secondary)',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s ease'
-                                                }}
+                                                className={`w-full p-2.5 flex items-center justify-between bg-transparent border-none rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-[rgba(255,255,255,0.05)] hover:text-white ${isActiveOffice ? 'bg-[rgba(192,132,252,0.1)] text-[#c084fc]' : ''
+                                                    }`}
                                                 // Main Click -> Navigate to Office Global
                                                 onClick={() => handleSwitch(o.id, null)}
                                             >
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div className="flex items-center gap-2.5">
                                                     <MapPin size={14} />
-                                                    <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{o.name}</span>
+                                                    <span className="text-[0.8125rem] font-semibold">{o.name}</span>
                                                 </div>
 
                                                 {/* Chevron Click -> Toggle Expansion Only */}
                                                 <div
                                                     onClick={(e) => toggleExpansion(o.id, e)}
-                                                    style={{
-                                                        padding: '4px',
-                                                        margin: '-4px', // Increase hit area
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        borderRadius: '4px'
-                                                    }}
+                                                    className="p-1 -m-1 flex items-center justify-center rounded"
                                                 >
-                                                    <ChevronDown size={12} style={{
-                                                        transform: isExpanded ? 'rotate(180deg)' : 'none',
-                                                        transition: 'transform 0.2s ease',
-                                                        opacity: 0.7
-                                                    }} />
+                                                    <ChevronDown size={12} className={`opacity-70 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                                                 </div>
                                             </div>
 
@@ -317,12 +221,6 @@ const SidebarContextSwitcher: React.FC<{
                     </div >
                 </>
             )}
-            <style>{`
-                @keyframes fadeInScale {
-                    from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-                    to { opacity: 1; transform: scale(1) translateY(0); }
-                }
-            `}</style>
         </div>
     );
 };
@@ -373,32 +271,11 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#000' }}>
-            <aside style={{
-                width: '280px',
-                borderRight: '1px solid var(--border-color)',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'fixed',
-                height: '100vh',
-                zIndex: 10
-            }} className="glass">
-                <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px', padding: '0 4px' }}>
-                    <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-electric))',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        boxShadow: '0 0 15px rgba(0, 242, 255, 0.3)'
-                    }}>G</div>
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }} className="gradient-text">GAMUT</h1>
+        <div className="flex min-h-screen bg-black text-white font-sans">
+            <aside className="w-72 border-r border-white/10 p-6 flex flex-col fixed h-screen z-10 bg-[rgba(20,20,20,0.6)] backdrop-blur-[20px]">
+                <div className="mb-8 flex items-center gap-3 px-1">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-primary to-accent-electric flex items-center justify-center text-white font-bold text-base shadow-[0_0_15px_rgba(0,242,255,0.3)]">G</div>
+                    <h1 className="text-xl font-extrabold tracking-tight m-0 bg-gradient-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
                 </div>
 
                 <SidebarContextSwitcher
@@ -416,7 +293,7 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     userProfile={profile}
                 />
 
-                <nav style={{ flex: 1 }}>
+                <nav className="flex-1">
                     {navItems.map((item) => (
                         <SidebarItem
                             key={item.to}
@@ -426,31 +303,21 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     ))}
                 </nav>
 
-                <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                        <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '10px',
-                            backgroundColor: 'var(--bg-tertiary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.875rem',
-                            fontWeight: 600
-                        }}>
+                <div className="mt-auto border-t border-white/10 pt-6">
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="w-10 h-10 rounded-[10px] bg-bg-tertiary flex items-center justify-center text-sm font-semibold">
                             {profile?.displayName?.[0] || 'U'}
                         </div>
-                        <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="overflow-hidden">
+                            <div className="text-sm font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
                                 {profile?.displayName || 'User'}
                             </div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            <div className="text-xs text-text-muted capitalize">
                                 {profile?.role.replace('_', ' ')}
                             </div>
                             {/* Show Assigned Department (Identity) */}
                             {profile?.departmentId && (
-                                <div style={{ fontSize: '0.7rem', color: 'var(--accent-electric)', fontWeight: 500, marginTop: '2px' }}>
+                                <div className="text-[0.7rem] text-accent-electric font-medium mt-0.5">
                                     {departments.find(d => d.id === profile.departmentId)?.name}
                                 </div>
                             )}
@@ -458,64 +325,34 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     </div>
                     <button
                         onClick={signOut}
-                        style={{
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: '12px 16px',
-                            borderRadius: '12px',
-                            color: '#ff4444',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            transition: 'all 0.2s ease'
-                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#ff4444] bg-transparent border-none transition-all duration-200 cursor-pointer hover:bg-[rgba(255,68,68,0.1)]"
                     >
                         <LogOut size={20} />
-                        <span style={{ fontWeight: 500 }}>Sign Out</span>
+                        <span className="font-medium">Sign Out</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main style={{ marginLeft: '280px', flex: 1, padding: '32px' }}>
-                <header style={{
-                    marginBottom: '32px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', transition: 'all 0.3s ease' }}>
-                        <div style={{ marginRight: '24px' }}>
-                            <h2 style={{
-                                fontSize: '1.5rem',
-                                fontWeight: 800,
-                                letterSpacing: '-0.03em',
-                                margin: 0,
-                                color: '#fff'
-                            }}>
+            <main className="ms-72 flex-1 p-8 min-h-screen">
+                <header className="mb-8 flex justify-between items-center gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="shrink-0">
+                            <h2 className="text-2xl font-extrabold tracking-tight m-0 text-white whitespace-nowrap">
                                 {activeOfficeId ? (activeOffice?.name || 'Branch Hub') : 'Enterprise Command Center'}
                             </h2>
                         </div>
 
                         {/* Context Badge */}
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '6px 14px',
-                            background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
-                            border: '1px solid',
-                            borderColor: activeDepartmentId ? 'rgba(0, 242, 255, 0.3)' : 'rgba(192, 132, 252, 0.3)',
-                            borderRadius: '100px',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            backdropFilter: 'blur(10px)',
-                            boxShadow: '0 0 15px rgba(0, 242, 255, 0.05)'
-                        }}>
+                        <div
+                            className="flex items-center gap-2 px-3.5 py-1.5 border rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md"
+                            style={{
+                                background: activeDepartmentId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(192, 132, 252, 0.1)',
+                                borderColor: activeDepartmentId ? 'rgba(0, 242, 255, 0.3)' : 'rgba(192, 132, 252, 0.3)',
+                                color: activeDepartmentId ? 'var(--accent-electric)' : '#c084fc',
+                                boxShadow: '0 0 15px rgba(0, 242, 255, 0.05)'
+                            }}
+                        >
                             {activeOfficeId ? <MapPin size={12} /> : <Shield size={12} />}
                             {activeOfficeId
                                 ? (activeDepartmentId
@@ -528,16 +365,7 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     {activeOfficeId && profile?.role !== 'MEMBER' && (
                         <button
                             onClick={() => setShowJobModal(true)}
-                            className="glass"
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '8px 16px',
-                                color: '#fff',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
+                            className="glass flex items-center gap-2 px-4 py-2 text-white border-none cursor-pointer"
                         >
                             <PlusCircle size={18} />
                             <span>Create Job</span>

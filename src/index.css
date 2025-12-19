@@ -1,33 +1,58 @@
+@import "tailwindcss";
+@source "../src/**/*.{ts,tsx}";
+
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-electric: var(--accent-electric);
+
+  --color-status-fnol: var(--status-fnol);
+  --color-status-mitigation: var(--status-mitigation);
+  --color-status-reconstruction: var(--status-reconstruction);
+  --color-status-closeout: var(--status-closeout);
+
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+}
+
 :root {
   /* Colors - Sleek Dark/Electric Theme */
   --bg-primary: #0a0a0c;
   --bg-secondary: #16161a;
   --bg-tertiary: #23232a;
-  
+
   --text-primary: #ffffff;
   --text-secondary: #a0a0ab;
   --text-muted: #71717a;
-  
-  --accent-primary: #6366f1; /* Indigo */
-  --accent-secondary: #a855f7; /* Purple */
-  --accent-electric: #00f2ff; /* Cyan Electric */
-  
+
+  --accent-primary: #6366f1;
+  /* Indigo */
+  --accent-secondary: #a855f7;
+  /* Purple */
+  --accent-electric: #00f2ff;
+  /* Cyan Electric */
+
   --border-color: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
-  
+
   --status-fnol: #3b82f6;
   --status-mitigation: #f59e0b;
   --status-reconstruction: #10b981;
   --status-closeout: #6366f1;
 
   --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {

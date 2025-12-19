@@ -65,113 +65,80 @@ export const LoginPage: React.FC = () => {
     };
 
     return (
-        <div style={{
-            height: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%)'
-        }}>
-            <div className="glass" style={{ padding: '40px', width: '100%', maxWidth: '400px' }}>
-                <h1 style={{ textAlign: 'center', marginBottom: '8px' }} className="gradient-text">GAMUT</h1>
-                <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '0.875rem' }}>
+        <div className="h-screen flex items-center justify-center bg-[radial-gradient(circle_at_center,_#1a1a2e_0%,_#0a0a0c_100%)] p-6">
+            <div className="glass p-10 w-full max-w-md border border-white/10 shadow-2xl">
+                <h1 className="text-center mb-2 gradient-text text-5xl font-black tracking-tighter">GAMUT</h1>
+                <p className="text-center text-text-secondary mb-10 text-sm font-medium tracking-wide">
                     Restoration Management Reimagined
                 </p>
 
-                {error && <div style={{ color: '#ff4444', marginBottom: '16px', fontSize: '0.875rem' }}>{error}</div>}
+                {error && <div className="text-red-500 mb-4 text-xs font-bold uppercase tracking-wider bg-red-500/10 p-3 rounded-lg border border-red-500/20">{error}</div>}
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="space-y-5">
                     {isRegister && (
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Full Name</label>
+                        <div>
+                            <label className="block mb-2 text-xs font-bold uppercase tracking-widest text-text-muted">Full Name</label>
                             <input
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
                                 autoComplete="name"
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    background: 'var(--bg-tertiary)',
-                                    border: '1px solid var(--border-color)',
-                                    color: '#fff'
-                                }}
+                                className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
+                                placeholder="Enter your full name"
                             />
                         </div>
                     )}
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Email Address</label>
+                    <div>
+                        <label className="block mb-2 text-xs font-bold uppercase tracking-widest text-text-muted">Email Address</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             autoComplete="email"
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '8px',
-                                background: 'var(--bg-tertiary)',
-                                border: '1px solid var(--border-color)',
-                                color: '#fff'
-                            }}
+                            className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
+                            placeholder="name@company.com"
                         />
                     </div>
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Password</label>
+                    <div>
+                        <label className="block mb-2 text-xs font-bold uppercase tracking-widest text-text-muted">Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             autoComplete={isRegister ? "new-password" : "current-password"}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '8px',
-                                background: 'var(--bg-tertiary)',
-                                border: '1px solid var(--border-color)',
-                                color: '#fff'
-                            }}
+                            className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-all placeholder:text-white/20"
+                            placeholder="••••••••"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        style={{
-                            width: '100%',
-                            padding: '14px',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-                            border: 'none',
-                            color: '#fff',
-                            fontWeight: 600,
-                            marginBottom: '16px'
-                        }}
+                        className="w-full py-4 rounded-xl bg-gradient-to-br from-accent-primary to-accent-secondary text-white font-bold shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 mt-4 cursor-pointer"
                     >
                         {loading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
                     </button>
                 </form>
 
-                <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                <p className="text-center text-sm text-text-muted mt-8">
                     {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
                     <span
                         onClick={() => setIsRegister(!isRegister)}
-                        style={{ color: 'var(--accent-electric)', cursor: 'pointer' }}
+                        className="text-accent-electric cursor-pointer font-bold hover:underline"
                     >
                         {isRegister ? 'Sign In' : 'Create One'}
                     </span>
                 </p>
 
                 {!isRegister && (
-                    <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>
+                    <div className="mt-10 border-t border-white/5 pt-8">
+                        <p className="text-[0.65rem] text-text-muted mb-4 uppercase tracking-[0.2em] font-bold text-center">
                             Demo Accounts (password123)
                         </p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                             {DEMO_USERS.map((demo) => (
                                 <button
                                     key={demo.email}
@@ -179,21 +146,7 @@ export const LoginPage: React.FC = () => {
                                         setEmail(demo.email);
                                         setPassword('password123');
                                     }}
-                                    style={{
-                                        padding: '8px',
-                                        fontSize: '0.75rem',
-                                        background: 'var(--bg-tertiary)',
-                                        border: '1px solid var(--border-color)',
-                                        borderRadius: '6px',
-                                        color: 'var(--text-secondary)',
-                                        transition: 'all 0.2s',
-                                        textAlign: 'center',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}
-                                    onMouseOver={(e) => (e.currentTarget.style.borderColor = 'var(--accent-electric)')}
-                                    onMouseOut={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
+                                    className="p-2.5 text-[0.7rem] bg-white/5 border border-white/10 rounded-lg text-text-secondary hover:border-accent-electric hover:text-white transition-all text-center truncate font-medium"
                                     title={demo.email}
                                 >
                                     {demo.label}

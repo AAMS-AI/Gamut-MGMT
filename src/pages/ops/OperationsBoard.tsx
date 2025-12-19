@@ -26,10 +26,10 @@ import {
 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 
-import { db } from '../../../lib/firebase';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useOrganization } from '../../../contexts/OrganizationContext';
-import { type Job } from '../../../types';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrganization } from '@/contexts/OrganizationContext';
+import { type Job } from '@/types';
 
 // --- Types ---
 type LaneId = 'unassigned' | 'in_progress' | 'review' | 'done';
@@ -56,7 +56,7 @@ const KanbanCard = ({ job, isOverlay = false }: { job: Job; isOverlay?: boolean 
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.3 : 1,
-        touchAction: 'none' // Essential for dnd-kit on mobile/touch
+        touchAction: 'none' as const // Essential for dnd-kit on mobile/touch
     };
 
     const daysInStage = Math.floor((new Date().getTime() - job.updatedAt?.toMillis()) / (1000 * 3600 * 24)) || 0;
@@ -68,78 +68,45 @@ const KanbanCard = ({ job, isOverlay = false }: { job: Job; isOverlay?: boolean 
             style={style}
             {...attributes}
             {...listeners}
-            className="glass"
+            className="glass hover:bg-white/5 transition-colors"
         >
-            <div style={{
-                padding: '16px',
-                cursor: 'grab',
-                borderLeft: isStagnant ? '4px solid #ef4444' : '4px solid transparent',
-                borderRadius: '12px', // Match glass border radius
-                backgroundColor: isOverlay ? '#1a1a20' : 'transparent',
-                boxShadow: isOverlay ? '0 10px 30px rgba(0,0,0,0.5)' : 'none'
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        color: 'var(--text-secondary)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }}>
+            <div
+                className={`p-4 rounded-xl transition-transform duration-200 ${isOverlay ? 'bg-[#1a1a20] shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'}`}
+                style={{
+                    borderLeft: isStagnant ? '4px solid #ef4444' : '4px solid transparent',
+                }}
+            >
+                <div className="flex justify-between mb-3">
+                    <div className="text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                         <Briefcase size={12} /> {job.insurance.carrier}
                     </div>
                     {isStagnant && (
-                        <div style={{ color: '#ef4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div className="text-xs flex items-center gap-1 text-[#ef4444]">
                             <AlertCircle size={12} /> {daysInStage}d
                         </div>
                     )}
                 </div>
 
-                <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '4px', color: '#fff' }}>
+                <div className="text-base font-semibold mb-1 text-white">
                     {job.customer.name}
                 </div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '16px' }}>
+                <div className="text-[0.8125rem] text-text-muted flex items-center gap-1 mb-4">
                     {job.property.address}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '-8px' }}>
+                <div className="flex justify-between items-center pt-3 border-t border-white/10">
+                    <div className="flex items-center -space-x-2">
                         {job.assignedUserIds && job.assignedUserIds.length > 0 ? (
-                            job.assignedUserIds.map((uid, i) => (
-                                <div key={uid} style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '50%',
+                            job.assignedUserIds.map((uid) => (
+                                <div key={uid} className="w-6 h-6 rounded-full border-2 border-bg-primary" style={{
                                     backgroundColor: `hsl(${parseInt(uid.slice(-4), 16) % 360}, 70%, 50%)`,
-                                    border: '2px solid var(--bg-primary)',
-                                    marginLeft: i > 0 ? '-8px' : 0
                                 }} />
                             ))
                         ) : (
-                            <div style={{
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                border: '1px dashed var(--text-muted)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '10px',
-                                color: 'var(--text-muted)'
-                            }}>?</div>
+                            <div className="w-6 h-6 rounded-full border border-dashed border-text-muted flex items-center justify-center text-[10px] text-text-muted">?</div>
                         )}
                     </div>
-                    <div style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        padding: '4px 10px',
-                        borderRadius: '100px',
-                        background: 'rgba(255,255,255,0.05)',
-                        color: 'var(--text-secondary)'
-                    }}>
+                    <div className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/5 text-text-secondary">
                         {job.status}
                     </div>
                 </div>
@@ -152,50 +119,27 @@ const KanbanColumn = ({ lane, jobs }: { lane: Lane; jobs: Job[] }) => {
     const { setNodeRef } = useSortable({ id: lane.id, data: { type: 'Lane', lane } });
 
     return (
-        <div ref={setNodeRef} style={{ display: 'flex', flexDirection: 'column', minWidth: '320px', height: '100%' }}>
-            <div style={{
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 8px'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: lane.colors }} />
-                    <h3 style={{ fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff' }}>
+        <div ref={setNodeRef} className="flex flex-col min-w-[320px] h-full">
+            <div className="flex items-center justify-between mb-4 px-2">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lane.colors }} />
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-white m-0">
                         {lane.title}
                     </h3>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                    <span className="text-xs text-text-muted font-medium">
                         {jobs.length}
                     </span>
                 </div>
-                <MoreHorizontal size={16} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
+                <MoreHorizontal size={16} className="text-text-muted cursor-pointer hover:text-white" />
             </div>
 
-            <div style={{
-                flex: 1,
-                backgroundColor: 'rgba(255,255,255,0.02)',
-                borderRadius: '16px',
-                padding: '12px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-            }}>
+            <div className="flex-1 bg-white/5 rounded-2xl p-3 flex flex-col gap-3">
                 <SortableContext items={jobs.map(j => j.id)} strategy={verticalListSortingStrategy}>
                     {jobs.map(job => (
                         <KanbanCard key={job.id} job={job} />
                     ))}
                     {jobs.length === 0 && (
-                        <div style={{
-                            height: '100px',
-                            border: '1px dashed var(--border-color)',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'var(--text-muted)',
-                            fontSize: '0.875rem'
-                        }}>
+                        <div className="h-24 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-text-muted text-sm">
                             Drop Items Here
                         </div>
                     )}
@@ -330,43 +274,43 @@ export const OperationsBoard: React.FC = () => {
 
     if (isReadOnly) {
         return (
-            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
-                <header style={{ marginBottom: '24px', flexShrink: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="flex flex-col h-[calc(100vh-140px)]">
+                <header className="mb-6 shrink-0">
+                    <div className="flex justify-between items-center">
                         <div>
-                            <div style={{ color: 'var(--accent-electric)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div className="flex items-center gap-2 text-accent-electric text-xs font-bold uppercase mb-2">
                                 <Users size={14} /> {activeDepartment ? `${activeOffice?.name} - ${activeDepartment.name}` : (activeOffice?.name || 'Operations Board')}
                             </div>
-                            <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Active Claims</h1>
+                            <h1 className="text-3xl font-extrabold m-0">Active Claims</h1>
                         </div>
-                        <div style={{ display: 'flex', gap: '16px' }}>
+                        <div className="flex gap-4">
                             {/* Read Only Badge */}
-                            <div style={{ padding: '8px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                            <div className="px-4 py-2 rounded-lg bg-white/5 text-sm text-text-secondary">
                                 Read Only
                             </div>
-                            <div style={{ padding: '8px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                Active Claims: <strong style={{ color: '#fff' }}>{jobs.length}</strong>
+                            <div className="px-4 py-2 rounded-lg bg-white/5 text-sm text-text-secondary">
+                                Active Claims: <strong className="text-white">{jobs.length}</strong>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <div style={{ display: 'flex', gap: '24px', overflowX: 'auto', paddingBottom: '16px', height: '100%' }}>
+                <div className="flex gap-6 overflow-x-auto pb-4 h-full">
                     {lanes.map(lane => (
-                        <div key={lane.id} style={{ display: 'flex', flexDirection: 'column', minWidth: '320px', height: '100%' }}>
-                            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: lane.colors }} />
-                                    <h3 style={{ fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff' }}>{lane.title}</h3>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>{groupedJobs[lane.id].length}</span>
+                        <div key={lane.id} className="flex flex-col min-w-[320px] h-full">
+                            <div className="mb-4 flex items-center justify-between px-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lane.colors }} />
+                                    <h3 className="text-sm font-bold uppercase text-white m-0">{lane.title}</h3>
+                                    <span className="text-xs text-text-muted font-medium">{groupedJobs[lane.id].length}</span>
                                 </div>
                             </div>
-                            <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className="flex-1 bg-white/5 rounded-2xl p-3 flex flex-col gap-3">
                                 {groupedJobs[lane.id].map(job => (
                                     <KanbanCard key={job.id} job={job} />
                                 ))}
                                 {groupedJobs[lane.id].length === 0 && (
-                                    <div style={{ height: '100px', border: '1px dashed var(--border-color)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                                    <div className="h-24 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-text-muted text-sm">
                                         Empty
                                     </div>
                                 )}
@@ -385,45 +329,24 @@ export const OperationsBoard: React.FC = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column' }}>
-                <header style={{ marginBottom: '24px', flexShrink: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="flex flex-col h-[calc(100vh-140px)]">
+                <header className="mb-6 shrink-0">
+                    <div className="flex justify-between items-center">
                         <div>
-                            <div style={{
-                                color: 'var(--accent-electric)',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                textTransform: 'uppercase',
-                                marginBottom: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
+                            <div className="flex items-center gap-2 text-accent-electric text-xs font-bold uppercase mb-2">
                                 <Users size={14} /> {activeDepartment ? `${activeOffice?.name} - ${activeDepartment.name}` : (activeOffice?.name || 'Operations Board')}
                             </div>
-                            <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Active Claims</h1>
+                            <h1 className="text-3xl font-extrabold m-0">Active Claims</h1>
                         </div>
-                        <div style={{ display: 'flex', gap: '16px' }}>
-                            <div style={{
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                background: 'rgba(255,255,255,0.05)',
-                                fontSize: '0.875rem',
-                                color: 'var(--text-secondary)'
-                            }}>
-                                Active Claims: <strong style={{ color: '#fff' }}>{jobs.length}</strong>
+                        <div className="flex gap-4">
+                            <div className="px-4 py-2 rounded-lg bg-white/5 text-sm text-text-secondary">
+                                Active Claims: <strong className="text-white">{jobs.length}</strong>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <div style={{
-                    display: 'flex',
-                    gap: '24px',
-                    overflowX: 'auto',
-                    paddingBottom: '16px',
-                    height: '100%'
-                }}>
+                <div className="flex gap-6 overflow-x-auto pb-4 h-full">
                     {lanes.map(lane => (
                         <KanbanColumn
                             key={lane.id}

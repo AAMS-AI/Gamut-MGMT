@@ -1,19 +1,19 @@
 import React, { type ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth, AuthProvider } from './contexts/AuthContext';
-import { OrganizationProvider } from './contexts/OrganizationContext';
-import { MainLayout } from './components/layout/MainLayout';
-import { LoginPage } from './pages/auth/LoginPage';
-import { Dashboard } from './pages/dashboard/components/Dashboard';
-import { JobsList } from './pages/jobs/JobsList';
-import { OrgManagement } from './pages/org/OrgManagement';
+import { useAuth, AuthProvider } from '@/contexts/AuthContext';
+import { OrganizationProvider } from '@/contexts/OrganizationContext';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { LoginPage } from '@/pages/auth/LoginPage';
+import { Dashboard } from '@/pages/dashboard/Dashboard';
+import { JobsList } from '@/pages/jobs/JobsList';
+import { OrgManagement } from '@/pages/org/OrgManagement';
 
 // New Components
-import { OperationsBoard } from './pages/dashboard/components/OperationsBoard';
-import { StaffDirectory } from './pages/dashboard/components/StaffDirectory';
-import { OfficeDepartments } from './pages/dashboard/components/OfficeDepartments';
-import { GlobalUserTable } from './pages/dashboard/components/GlobalUserTable';
-import { BranchDashboard } from './pages/dashboard/components/BranchDashboard';
+import { OperationsBoard } from '@/pages/ops/OperationsBoard';
+import { StaffDirectory } from '@/pages/team/StaffDirectory';
+import { OfficeDepartments } from '@/pages/org/OfficeDepartments';
+import { GlobalUserTable } from '@/pages/team/GlobalUserTable';
+import { BranchDashboard } from '@/pages/dashboard/BranchDashboard';
 
 
 const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {

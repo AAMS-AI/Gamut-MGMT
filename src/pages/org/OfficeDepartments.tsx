@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../../lib/firebase';
+import { db } from '@/lib/firebase';
 import { useParams } from 'react-router-dom';
-import { type Department } from '../../../types';
+import { type Department } from '@/types';
 import { Network } from 'lucide-react';
 
 export const OfficeDepartments: React.FC = () => {
@@ -31,27 +31,28 @@ export const OfficeDepartments: React.FC = () => {
     }, [officeId]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="flex flex-col gap-8">
             <header>
-                <div style={{ color: 'var(--accent-electric)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="text-accent-electric text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
                     <Network size={14} /> Structure
                 </div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Departments</h1>
-                <p style={{ color: 'var(--text-secondary)' }}>Operational units within this branch.</p>
+                <h1 className="text-4xl font-extrabold tracking-tight">Departments</h1>
+                <p className="text-text-secondary mt-2">Operational units within this branch.</p>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {depts.length === 0 && !loading && (
-                    <div className="glass" style={{ padding: '30px', color: 'var(--text-muted)' }}>
+                    <div className="glass p-12 text-center text-text-muted col-span-full border border-white/5">
                         No departments found.
                     </div>
                 )}
 
                 {depts.map(dept => (
-                    <div key={dept.id} className="glass" style={{ padding: '24px' }}>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '8px' }}>{dept.name}</h4>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Network size={14} /> Active
+                    <div key={dept.id} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-all group">
+                        <h4 className="text-xl font-bold mb-4 group-hover:text-accent-electric transition-colors">{dept.name}</h4>
+                        <div className="text-xs font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-status-reconstruction animate-pulse" />
+                            Active Unit
                         </div>
                     </div>
                 ))}

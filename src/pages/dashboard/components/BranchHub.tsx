@@ -65,86 +65,66 @@ export const BranchHub: React.FC = () => {
     if (loading) return null;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div className="flex flex-col gap-8">
+            <header className="flex justify-between items-end">
                 <div>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        color: 'var(--accent-electric)',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        marginBottom: '8px'
-                    }}>
+                    <div className="flex items-center gap-2 text-accent-electric text-xs font-bold uppercase tracking-widest mb-2">
                         <Building2 size={14} /> Branch Operations Center
                     </div>
-                    <h1 style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
+                    <h1 className="text-4xl font-extrabold tracking-tighter m-0">
                         Branch Hub
                     </h1>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Active Personnel</div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 600, color: '#fff' }}>12 Online</div>
+                <div className="text-right">
+                    <div className="text-text-muted text-sm">Active Personnel</div>
+                    <div className="text-xl font-semibold text-white">12 Online</div>
                 </div>
             </header>
 
             {/* Top Metrics Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
                     { label: 'Total Claims', value: stats.total, icon: Briefcase, color: 'var(--accent-electric)' },
                     { label: 'New FNOLs', value: stats.fnol, icon: Clock, color: 'var(--status-fnol)' },
                     { label: 'In Production', value: stats.active, icon: TrendingUp, color: 'var(--accent-primary)' },
                     { label: 'Recent Closeouts', value: stats.completed, icon: CheckCircle2, color: 'var(--status-closeout)' },
                 ].map((stat, i) => (
-                    <div key={i} className="glass" style={{ padding: '24px', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.05, transform: 'rotate(-15deg)' }}>
+                    <div key={i} className="glass p-6 relative overflow-hidden group">
+                        <div className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity rotate-[-15deg]">
                             <stat.icon size={80} />
                         </div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div className="text-text-muted text-sm mb-2 flex items-center gap-1.5">
                             <stat.icon size={14} /> {stat.label}
                         </div>
-                        <div style={{ fontSize: '2rem', fontWeight: 700, color: stat.color }}>{stat.value}</div>
+                        <div className="text-3xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
                     </div>
                 ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-                {/* Department Grids - This is where the GM sees their "Departments" */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <ListTree size={20} className="text-accent" /> Department Distribution
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+                {/* Department Grids */}
+                <div className="flex flex-col gap-6">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-semibold flex items-center gap-2.5 m-0">
+                            <ListTree size={20} className="text-accent-primary" /> Department Distribution
                         </h3>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {depts.map(dept => {
                             const deptJobs = jobs.filter(j => j.departmentId === dept.id);
                             return (
-                                <div key={dept.id} className="glass" style={{ padding: '20px', border: '1px solid rgba(0, 242, 255, 0.1)' }}>
-                                    <div style={{ fontWeight: 600, marginBottom: '4px' }}>{dept.name}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                                <div key={dept.id} className="glass p-5 border border-accent-electric/10 hover:border-accent-electric/30 transition-colors">
+                                    <div className="font-semibold mb-1 text-white">{dept.name}</div>
+                                    <div className="text-[0.7rem] text-text-muted mb-4 uppercase tracking-wider font-bold">
                                         {deptJobs.length} Active Claims
                                     </div>
-                                    <div style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginBottom: '12px', overflow: 'hidden' }}>
-                                        <div style={{
+                                    <div className="h-1 bg-white/5 rounded-full mb-3 overflow-hidden">
+                                        <div className="h-full bg-accent-electric shadow-[0_0_8px_var(--accent-electric)] transition-all duration-1000" style={{
                                             width: `${(deptJobs.length / (stats.total || 1)) * 100}%`,
-                                            height: '100%',
-                                            backgroundColor: 'var(--accent-electric)',
-                                            boxShadow: '0 0 10px var(--accent-electric)'
                                         }} />
                                     </div>
-                                    <Link to={`/jobs?dept=${dept.id}`} style={{
-                                        fontSize: '0.75rem',
-                                        color: 'var(--accent-electric)',
-                                        textDecoration: 'none',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '4px'
-                                    }}>
+                                    <Link to={`/jobs?dept=${dept.id}`} className="text-[0.7rem] text-accent-electric font-bold flex items-center gap-1 hover:opacity-80 transition-opacity uppercase tracking-widest">
                                         Manage Queue <ArrowRight size={12} />
                                     </Link>
                                 </div>
@@ -154,41 +134,31 @@ export const BranchHub: React.FC = () => {
                 </div>
 
                 {/* Right Column: Office Pulse */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className="glass" style={{ padding: '24px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <MapPin size={18} color="var(--accent-primary)" /> Office Information
+                <div className="flex flex-col gap-6">
+                    <div className="glass p-6 border border-white/5">
+                        <h3 className="text-base font-semibold mb-5 flex items-center gap-2 m-0 text-white">
+                            <MapPin size={18} className="text-accent-primary" /> Office Information
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className="flex flex-col gap-4">
                             <div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Location</div>
-                                <div style={{ fontSize: '0.875rem' }}>{activeOffice?.name || 'Unknown Office'}</div>
+                                <div className="text-[0.7rem] text-text-muted uppercase tracking-wider font-bold mb-1">Location</div>
+                                <div className="text-sm font-medium">{activeOffice?.name || 'Unknown Office'}</div>
                             </div>
                             <div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Office Manager</div>
-                                <div style={{ fontSize: '0.875rem' }}>View Personnel List</div>
+                                <div className="text-[0.7rem] text-text-muted uppercase tracking-wider font-bold mb-1">Office Manager</div>
+                                <div className="text-sm font-medium">View Personnel List</div>
                             </div>
-                            <div style={{ marginTop: '8px' }}>
-                                <Link to="/org" style={{
-                                    display: 'block',
-                                    padding: '12px',
-                                    background: 'rgba(255,255,255,0.03)',
-                                    borderRadius: '8px',
-                                    textAlign: 'center',
-                                    fontSize: '0.875rem',
-                                    color: '#fff',
-                                    textDecoration: 'none',
-                                    border: '1px solid var(--border-color)'
-                                }}>
+                            <div className="mt-2">
+                                <Link to="/org" className="block p-3 bg-white/5 hover:bg-white/10 rounded-xl text-center text-sm font-semibold text-white transition-colors border border-white/10 no-underline">
                                     Office Settings
                                 </Link>
                             </div>
                         </div>
                     </div>
 
-                    <div className="glass" style={{ padding: '24px' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '16px' }}>Performance</h3>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '20px' }}>
+                    <div className="glass p-6">
+                        <h3 className="text-base font-semibold mb-4 m-0 text-white">Performance</h3>
+                        <div className="text-text-muted text-sm text-center py-5">
                             Branch metrics will appear here as more data is collected.
                         </div>
                     </div>

@@ -53,68 +53,58 @@ export const JobsList: React.FC = () => {
     if (loading) return <div>Loading jobs...</div>;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex flex-col gap-6">
+            <header className="flex justify-between items-center">
                 <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Jobs & Claims</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Showing active claims in your scope.</p>
+                    <h2 className="text-2xl font-bold text-white">Jobs & Claims</h2>
+                    <p className="text-text-secondary">Showing active claims in your scope.</p>
                 </div>
             </header>
 
-            <div style={{ display: 'grid', gap: '16px' }}>
+            <div className="grid grid-cols-1 gap-4">
                 {jobs.length === 0 ? (
-                    <div className="glass" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <div className="glass p-12 text-center text-text-muted">
                         No jobs found matching your scope.
                     </div>
                 ) : (
                     jobs.map(job => (
-                        <div key={job.id} className="glass" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '24px', cursor: 'pointer', transition: 'transform 0.2s' }}>
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '12px',
-                                backgroundColor: `var(--status-${job.status.toLowerCase()})`,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#fff'
-                            }}>
+                        <div
+                            key={job.id}
+                            className="glass p-5 flex flex-col md:flex-row items-start md:items-center gap-6 cursor-pointer hover:bg-white/5 transition-all group border border-white/5 hover:border-accent-electric/20"
+                        >
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg`}
+                                style={{ backgroundColor: `var(--status-${job.status.toLowerCase()})` }}
+                            >
                                 <Briefcase size={24} />
                             </div>
 
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{job.customer.name}</h4>
-                                    <span style={{
-                                        fontSize: '0.75rem',
-                                        padding: '2px 8px',
-                                        borderRadius: '4px',
-                                        background: 'rgba(255,255,255,0.05)',
-                                        color: 'var(--text-secondary)',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em'
-                                    }}>{job.status}</span>
-                                </div>
-                                <div style={{ display: 'flex', gap: '16px', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <MapPin size={14} /> {job.property.address}
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-1">
+                                    <h4 className="text-lg font-bold text-white group-hover:text-accent-electric transition-colors">{job.customer.name}</h4>
+                                    <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-md bg-white/5 text-text-secondary uppercase tracking-widest border border-white/10">
+                                        {job.status}
                                     </span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Briefcase size={14} /> {job.insurance.carrier}
+                                </div>
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-text-muted text-sm">
+                                    <span className="flex items-center gap-1.5">
+                                        <MapPin size={14} className="text-accent-primary" /> {job.property.address}
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <Briefcase size={14} className="text-accent-primary" /> {job.insurance.carrier}
                                     </span>
                                 </div>
                             </div>
 
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '4px' }}>
+                            <div className="text-left md:text-right mt-2 md:mt-0 font-sans">
+                                <div className="text-sm font-semibold text-text-secondary mb-1">
                                     Claim: {job.insurance.claimNumber}
                                 </div>
-                                <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
+                                <div className="text-[0.65rem] text-text-muted flex items-center gap-1.5 md:justify-end font-medium">
                                     <Clock size={12} /> Just now
                                 </div>
                             </div>
 
-                            <ChevronRight style={{ color: 'var(--text-muted)' }} />
+                            <ChevronRight className="hidden md:block text-text-muted group-hover:text-white transition-colors" />
                         </div>
                     ))
                 )}

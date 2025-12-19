@@ -1,5 +1,5 @@
 import React from 'react';
-import { DailyPulse } from './DailyPulse';
+import { DailyPulse } from '@/pages/dashboard/components/DailyPulse';
 
 export const BranchDashboard: React.FC = () => {
     // Uses officeId from URL implicitly via context or just renders Pulse for now

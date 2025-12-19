@@ -111,12 +111,12 @@ export const OrgManagement: React.FC = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="flex flex-col gap-8">
             <header>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>
+                <h2 className="text-3xl font-extrabold tracking-tight mb-2">
                     {hasPermission(profile, 'VIEW_ORG_SETTINGS') ? 'Organization Management' : 'My Branch Information'}
                 </h2>
-                <p style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-text-secondary">
                     {hasPermission(profile, 'VIEW_ORG_SETTINGS')
                         ? 'Manage your offices and departments across the organization.'
                         : `View details for ${activeOffice?.name || 'your assigned branch'}.`}
@@ -124,32 +124,23 @@ export const OrgManagement: React.FC = () => {
             </header>
 
             {!hasPermission(profile, 'VIEW_ORG_SETTINGS') ? (
-                <div className="glass" style={{ padding: '32px', textAlign: 'center' }}>
-                    <Building2 size={48} style={{ color: 'var(--accent-electric)', marginBottom: '16px', opacity: 0.5 }} />
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '8px' }}>Restricted Access</h3>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
+                <div className="glass p-12 text-center">
+                    <Building2 size={48} className="text-accent-electric mb-4 opacity-50 mx-auto" />
+                    <h3 className="text-xl font-bold mb-2">Restricted Access</h3>
+                    <p className="text-text-secondary max-w-md mx-auto">
                         You have limited visibility into organizational settings. Please contact your Office Admin for any changes.
                     </p>
                 </div>
             ) : (
                 <section>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Building2 size={20} /> Offices
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="flex items-center gap-2.5 text-xl font-bold m-0 text-white">
+                            <Building2 size={22} className="text-accent-primary" /> Offices
                         </h3>
                         {hasPermission(profile, 'MANAGE_OFFICES') && (
                             <button
                                 onClick={() => setShowOfficeForm(true)}
-                                style={{
-                                    background: 'var(--accent-primary)',
-                                    color: '#fff',
-                                    border: 'none',
-                                    padding: '8px 16px',
-                                    borderRadius: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}
+                                className="bg-accent-primary hover:opacity-90 transition-opacity text-white border-none py-2.5 px-5 rounded-xl flex items-center gap-2 font-bold shadow-lg"
                             >
                                 <Plus size={18} /> Add Office
                             </button>
@@ -157,60 +148,60 @@ export const OrgManagement: React.FC = () => {
                     </div>
 
                     {showOfficeForm && (
-                        <form onSubmit={handleAddOffice} className="glass" style={{ padding: '24px', marginBottom: '24px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                        <form onSubmit={handleAddOffice} className="glass p-8 mb-8 border border-white/10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Office Name</label>
+                                    <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-text-muted">Office Name</label>
                                     <input
                                         type="text"
                                         value={officeName}
                                         onChange={(e) => setOfficeName(e.target.value)}
                                         placeholder="e.g. Downtown Branch"
                                         required
-                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                        className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-colors"
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem' }}>Address</label>
+                                    <label className="block mb-2 text-xs font-bold uppercase tracking-wider text-text-muted">Address</label>
                                     <input
                                         type="text"
                                         value={officeAddress}
                                         onChange={(e) => setOfficeAddress(e.target.value)}
                                         placeholder="123 Main St..."
                                         required
-                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff' }}
+                                        className="w-full p-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:border-accent-electric focus:outline-none transition-colors"
                                     />
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button type="submit" style={{ background: 'var(--accent-electric)', color: '#000', fontWeight: 600, border: 'none', padding: '10px 20px', borderRadius: '8px' }}>Save Office</button>
-                                <button type="button" onClick={() => setShowOfficeForm(false)} style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', padding: '10px 20px', borderRadius: '8px' }}>Cancel</button>
+                            <div className="flex gap-3">
+                                <button type="submit" className="bg-accent-electric text-black font-bold border-none py-2.5 px-6 rounded-xl hover:opacity-90 transition-opacity">Save Office</button>
+                                <button type="button" onClick={() => setShowOfficeForm(false)} className="bg-transparent text-text-muted border border-white/10 py-2.5 px-6 rounded-xl hover:bg-white/5 transition-colors">Cancel</button>
                             </div>
                         </form>
                     )}
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {offices.map(office => (
-                            <div key={office.id} className="glass" style={{ padding: '24px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{office.name}</h4>
-                                    <MapPin size={18} style={{ color: 'var(--text-muted)' }} />
+                            <div key={office.id} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-all group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h4 className="text-xl font-bold m-0 group-hover:text-accent-electric transition-colors">{office.name}</h4>
+                                    <MapPin size={18} className="text-text-muted" />
                                 </div>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '20px' }}>{office.address}</p>
+                                <p className="text-text-secondary text-sm mb-6">{office.address}</p>
 
-                                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
-                                    <h5 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <ListTree size={14} /> Departments
+                                <div className="border-t border-white/10 pt-5">
+                                    <h5 className="text-[0.65rem] font-bold uppercase tracking-widest text-text-muted mb-4 flex items-center gap-2">
+                                        <ListTree size={14} className="text-accent-primary" /> Departments
                                     </h5>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    <div className="flex flex-wrap gap-2">
                                         {departments.filter(d => d.officeId === office.id).map(dept => (
-                                            <span key={dept.id} style={{ padding: '4px 10px', borderRadius: '6px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 600 }}>
+                                            <span key={dept.id} className="px-3 py-1.5 rounded-lg bg-accent-primary/10 text-accent-primary text-[0.7rem] font-bold border border-accent-primary/20">
                                                 {dept.name}
                                             </span>
                                         ))}
                                         <button
                                             onClick={() => setShowDeptForm(office.id)}
-                                            style={{ padding: '4px 10px', borderRadius: '6px', border: '1px dashed var(--border-color)', background: 'transparent', color: 'var(--text-muted)', fontSize: '0.75rem' }}
+                                            className="px-3 py-1.5 rounded-lg border border-dashed border-white/20 bg-transparent text-text-muted text-[0.7rem] font-medium hover:border-white/40 transition-colors"
                                         >
                                             + Add Dept
                                         </button>
@@ -218,7 +209,7 @@ export const OrgManagement: React.FC = () => {
                                 </div>
 
                                 {showDeptForm === office.id && (
-                                    <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                                    <div className="mt-5 border-t border-white/10 pt-5 animate-in fade-in slide-in-from-top-2 duration-200">
                                         <form onSubmit={handleAddDept}>
                                             <input
                                                 type="text"
@@ -226,11 +217,11 @@ export const OrgManagement: React.FC = () => {
                                                 onChange={(e) => setDeptName(e.target.value)}
                                                 placeholder="Dept Name (e.g. Mitigation)"
                                                 required
-                                                style={{ width: '100%', padding: '8px', borderRadius: '6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.875rem', marginBottom: '8px' }}
+                                                className="w-full p-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:border-accent-electric focus:outline-none transition-colors mb-3"
                                             />
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button type="submit" style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.75rem' }}>Save</button>
-                                                <button type="button" onClick={() => setShowDeptForm(null)} style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', fontSize: '0.75rem' }}>Cancel</button>
+                                            <div className="flex gap-2">
+                                                <button type="submit" className="bg-accent-primary text-white border-none py-1.5 px-4 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity">Save</button>
+                                                <button type="button" onClick={() => setShowDeptForm(null)} className="bg-transparent text-text-muted border-none text-xs font-medium hover:text-white transition-colors">Cancel</button>
                                             </div>
                                         </form>
                                     </div>

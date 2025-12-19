@@ -34,28 +34,28 @@ export const DailyPulse: React.FC = () => {
     if (loading) return null;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="flex flex-col gap-8">
             <header>
-                <div style={{ color: 'var(--accent-electric)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="text-accent-electric text-xs font-bold uppercase mb-2 flex items-center gap-2">
                     <Zap size={14} /> My Daily Pulse
                 </div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Welcome Back, {profile?.displayName.split(' ')[0]}</h1>
+                <h1 className="text-4xl font-extrabold tracking-tight">Welcome Back, {profile?.displayName.split(' ')[0]}</h1>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div className="glass" style={{ padding: '32px' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '20px' }}>Current Assignments</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="glass p-8">
+                    <h3 className="text-xl font-semibold mb-5">Current Assignments</h3>
+                    <div className="flex flex-col gap-3">
                         {jobs.length === 0 ? (
-                            <p style={{ color: 'var(--text-muted)' }}>No active assignments for today.</p>
+                            <p className="text-text-muted">No active assignments for today.</p>
                         ) : (
                             jobs.map(job => (
-                                <div key={job.id} style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div key={job.id} className="p-4 bg-white/5 rounded-xl flex justify-between items-center transition-colors hover:bg-white/10">
                                     <div>
-                                        <div style={{ fontWeight: 600 }}>{job.customer.name}</div>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{job.status}</div>
+                                        <div className="font-semibold text-white">{job.customer.name}</div>
+                                        <div className="text-xs text-text-muted">{job.status}</div>
                                     </div>
-                                    <Link to={`/jobs/${job.id}`} style={{ color: 'var(--accent-electric)' }}>
+                                    <Link to={`/jobs/${job.id}`} className="text-accent-electric hover:opacity-80 transition-opacity">
                                         <ArrowRight size={18} />
                                     </Link>
                                 </div>
@@ -64,9 +64,9 @@ export const DailyPulse: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="glass" style={{ padding: '32px' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '20px' }}>Personal Performance</h3>
-                    <p style={{ color: 'var(--text-muted)' }}>Great job! You've completed 4 tasks this week.</p>
+                <div className="glass p-8">
+                    <h3 className="text-xl font-semibold mb-5">Personal Performance</h3>
+                    <p className="text-text-muted">Great job! You've completed 4 tasks this week.</p>
                 </div>
             </div>
         </div>
