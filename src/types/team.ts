@@ -12,6 +12,7 @@ export interface UserProfile {
     departmentId?: string; // Null if not scoped
     phoneNumber?: string;
     photoURL?: string;
+    onboardingCompleted?: boolean;
     createdAt: any; // Using any for broad compatibility with FieldValue and Timestamp
     updatedAt: any;
 }

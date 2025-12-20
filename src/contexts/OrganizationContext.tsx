@@ -42,23 +42,6 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             return;
         }
 
-        // Default active office based on role
-        if (profile.role === 'OWNER' || profile.role === 'ORG_ADMIN') {
-            if (activeOfficeId !== null) setActiveOfficeId(null);
-        } else {
-            const desiredOfficeId = profile.officeId || null;
-            if (activeOfficeId !== desiredOfficeId) setActiveOfficeId(desiredOfficeId);
-        }
-
-        // Default Active Department
-        // If MEMBER or DEPT_MANAGER, force to their department.
-        // If Overview-level (Owner, Admin, GM), force reset to Overview (null) to clear any stale state.
-        if ((profile.role === 'MEMBER' || profile.role === 'DEPT_MANAGER') && profile.departmentId) {
-            setManualDepartmentId(profile.departmentId);
-        } else {
-            setManualDepartmentId(null);
-        }
-
         // Listen to organization doc
         const unsubscribeOrg = onSnapshot(doc(db, 'organizations', profile.orgId), (snap) => {
             if (snap.exists()) {
@@ -85,7 +68,7 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             unsubscribeOffices();
             unsubscribeDepts();
         };
-    }, [profile?.orgId, profile?.role, profile?.officeId, profile?.departmentId, activeOfficeId, loading]);
+    }, [profile?.orgId, loading]);
 
     const activeOffice = offices.find(o => o.id === activeOfficeId);
 

@@ -44,10 +44,14 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
     const handleSwitch = (officeId: string | null, departmentId: string | null = null) => {
         if (officeId) {
             setActiveDepartmentId(departmentId);
-            navigate(`/office/${officeId}/dashboard`);
+            if (departmentId) {
+                navigate(`/office/${officeId}/department/${departmentId}`);
+            } else {
+                navigate(`/office/${officeId}/dashboard`);
+            }
         } else {
             setActiveDepartmentId(null);
-            navigate('/');
+            navigate('/'); // Global Dashboard
         }
         setIsOpen(false);
     };
@@ -106,12 +110,14 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
         );
     };
 
+    const isRestricted = userRole === 'MEMBER' || userRole === 'DEPT_MANAGER';
+
     return (
         <div className="relative mb-8">
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-full p-3 bg-[rgba(255,255,255,0.03)] rounded-2xl border border-white/10 flex items-center gap-3 cursor-pointer transition-all duration-200 text-left ${isOpen ? 'bg-[rgba(255,255,255,0.08)] border-accent-electric' : ''
-                    }`}
+                onClick={() => !isRestricted && setIsOpen(!isOpen)}
+                className={`w-full p-3 bg-[rgba(255,255,255,0.03)] rounded-2xl border border-white/10 flex items-center gap-3 transition-all duration-200 text-left ${isOpen ? 'bg-[rgba(255,255,255,0.08)] border-accent-electric' : ''
+                    } ${isRestricted ? 'cursor-default opacity-80' : 'cursor-pointer'}`}
             >
                 <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${activeDepartmentId
@@ -129,7 +135,9 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
                         {activeDepartment ? 'Department View' : (activeOfficeId ? 'Branch Hub' : 'Enterprise Global')}
                     </div>
                 </div>
-                <ChevronDown size={14} className={`text-text-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                {!isRestricted && (
+                    <ChevronDown size={14} className={`text-text-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                )}
             </button>
 
             {isOpen && (

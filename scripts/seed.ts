@@ -131,6 +131,7 @@ async function seed() {
                 orgId: orgId,
                 officeId: u.officeId || null,
                 departmentId: u.departmentId || null,
+                onboardingCompleted: true,
                 createdAt: FieldValue.serverTimestamp(),
                 updatedAt: FieldValue.serverTimestamp()
             });
@@ -164,10 +165,42 @@ async function seed() {
                 property: { address: '123 Fake St', city: 'City', state: 'ST', zip: '12345' },
                 insurance: { carrier: 'State Farm', claimNumber: `CLM-${j.id}` },
                 assignedUserIds: j.assignedTo,
+                financials: {
+                    revenue: Math.floor(Math.random() * 45000) + 5000, // Random $5k - $50k
+                    paid: 0,
+                    balance: 0
+                },
                 createdBy: 'owner_user_001',
                 createdAt: FieldValue.serverTimestamp(),
                 updatedAt: FieldValue.serverTimestamp()
             });
+        }
+
+        // 6. Tasks
+        console.log('✅ Creating Tasks...');
+        const tasks = [
+            { id: 'task_001', userId: 'owner_user_001', title: 'Review Q3 Financials', completed: false, dueDate: FieldValue.serverTimestamp() },
+            { id: 'task_002', userId: 'owner_user_001', title: 'Approve New Hires', completed: true, dueDate: FieldValue.serverTimestamp() },
+            { id: 'task_003', userId: 'gm_main_001', title: 'Weekly Staff Meeting', completed: false, dueDate: FieldValue.serverTimestamp() },
+            { id: 'task_004', userId: 'gm_main_001', title: 'Client Follow-up: Smith Job', completed: false, dueDate: FieldValue.serverTimestamp() },
+        ];
+        for (const t of tasks) {
+            await db.collection('tasks').doc(t.id).set({
+                ...t,
+                createdAt: FieldValue.serverTimestamp()
+            });
+        }
+
+        // 7. Activity Logs
+        console.log('📜 Creating Activity Logs...');
+        const activities = [
+            { id: 'act_001', orgId, userId: 'owner_user_001', userName: 'Alice Owner', action: 'Created new job: Main Mit Customer 1', type: 'JOB', timestamp: FieldValue.serverTimestamp() },
+            { id: 'act_002', orgId, userId: 'mem_main_mit_001', userName: 'Mike Tech', action: 'Updated status to Mitigation', type: 'STATUS', timestamp: FieldValue.serverTimestamp() },
+            { id: 'act_003', orgId, userId: 'gm_main_001', userName: 'Charlie GM', action: 'Added note to job CLM-job_main_mit_02', type: 'NOTE', timestamp: FieldValue.serverTimestamp() },
+            { id: 'act_004', orgId, userId: 'system', userName: 'System', action: 'Weekly report generated', type: 'SYSTEM', timestamp: FieldValue.serverTimestamp() },
+        ];
+        for (const a of activities) {
+            await db.collection('activity_logs').doc(a.id).set(a);
         }
 
         console.log('\n✅ Seeding complete!');

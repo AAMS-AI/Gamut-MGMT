@@ -1,11 +1,11 @@
 import React from 'react';
 import { LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { type SidebarItemProps, SidebarItem } from '@/components/layout/SidebarItem';
+import { SidebarItem } from '@/components/layout/SidebarItem';
 import { SidebarContextSwitcher } from '@/components/layout/SidebarContextSwitcher';
 import { type Office, type Department, type Organization } from '@/types/org';
 import { type UserProfile } from '@/types/team';
-
+import { type NavItem } from '@/config/navConfig';
 interface SidebarProps {
     profile: UserProfile | null;
     organization: Organization | null;
@@ -15,7 +15,13 @@ interface SidebarProps {
     activeDepartmentId: string | null;
     setActiveDepartmentId: (id: string | null) => void;
     signOut: () => Promise<void>;
-    navItems: Omit<SidebarItemProps, 'active'>[];
+    navGroups: {
+        primary: NavItem[];
+        organize: NavItem[];
+        measure: NavItem[];
+        configure: NavItem[];
+        utilities: NavItem[];
+    };
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -27,12 +33,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
     activeDepartmentId,
     setActiveDepartmentId,
     signOut,
-    navItems
+    navGroups
 }) => {
     const location = useLocation();
 
+    const renderNavSection = (items: NavItem[], title?: string) => {
+        if (!items || items.length === 0) return null;
+        return (
+            <div className="mb-6">
+                {title && (
+                    <h3 className="px-4 text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        {title}
+                    </h3>
+                )}
+                <div className="space-y-0.5">
+                    {items.map((item) => (
+                        <SidebarItem
+                            key={item.to}
+                            icon={item.icon}
+                            label={item.label}
+                            to={item.to}
+                            active={location.pathname === item.to}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-[#050505] shadow-2xl transition-transform duration-300 will-change-transform isolate" style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}>
+        <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-black/40 backdrop-blur-xl shadow-2xl transition-transform duration-300 will-change-transform isolate" style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}>
             <div className="mb-8 flex items-center gap-3 px-1">
                 <img src="/logo.png" alt="Gamut" className="w-8 h-8 object-contain drop-shadow-[0_0_5px_rgba(0,242,255,0.5)]" />
                 <h1 className="text-xl font-extrabold tracking-tight m-0 bg-linear-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
@@ -53,14 +83,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 userProfile={profile}
             />
 
-            <nav className="flex-1">
-                {navItems.map((item) => (
-                    <SidebarItem
-                        key={item.to}
-                        {...item}
-                        active={location.pathname === item.to}
-                    />
-                ))}
+            <nav className="flex-1 overflow-y-auto -mx-4 px-4 custom-scrollbar">
+                {renderNavSection(navGroups.primary)}
+                {renderNavSection(navGroups.organize, "Organize")}
+                {renderNavSection(navGroups.measure, "Measure")}
+                {renderNavSection(navGroups.configure, "Configure")}
+
+                {/* Utilities at bottom or separate? Let's put them in flow for now */}
+                {navGroups.utilities?.length > 0 && <div className="my-4 border-t border-white/5 mx-2" />}
+                {renderNavSection(navGroups.utilities, "Utilities")}
             </nav>
 
             <div className="mt-auto border-t border-white/10 pt-6">
