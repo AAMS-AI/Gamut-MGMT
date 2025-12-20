@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogOut } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { type SidebarItemProps, SidebarItem } from '@/components/layout/SidebarItem';
 import { SidebarContextSwitcher } from '@/components/layout/SidebarContextSwitcher';
 import { type Office, type Department, type Organization } from '@/types/org';
@@ -32,9 +32,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const location = useLocation();
 
     return (
-        <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-black/40 backdrop-blur-3xl shadow-2xl">
+        <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-[#050505] shadow-2xl transition-transform duration-300 will-change-transform isolate" style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}>
             <div className="mb-8 flex items-center gap-3 px-1">
-                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent-primary to-accent-electric flex items-center justify-center text-white font-bold text-base shadow-[0_0_15px_rgba(0,242,255,0.3)]">G</div>
+                <img src="/logo.png" alt="Gamut" className="w-8 h-8 object-contain drop-shadow-[0_0_5px_rgba(0,242,255,0.5)]" />
                 <h1 className="text-xl font-extrabold tracking-tight m-0 bg-linear-to-br from-accent-primary to-accent-electric text-transparent bg-clip-text">GAMUT</h1>
             </div>
 
@@ -64,12 +64,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </nav>
 
             <div className="mt-auto border-t border-white/10 pt-6">
-                <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-[10px] bg-bg-tertiary flex items-center justify-center text-sm font-semibold">
-                        {profile?.displayName?.[0] || 'U'}
+                <Link to="/profile" className="flex items-center gap-3 mb-5 p-2 -mx-2 rounded-xl transition-colors duration-200 hover:bg-white/5 no-underline group cursor-pointer">
+                    <div className="w-10 h-10 rounded-[10px] bg-bg-tertiary flex items-center justify-center text-sm font-semibold text-white group-hover:text-accent-electric transition-colors overflow-hidden">
+                        {profile?.photoURL ? (
+                            <img src={profile.photoURL} alt={profile.displayName || 'User'} className="w-full h-full object-cover" />
+                        ) : (
+                            profile?.displayName?.[0] || 'U'
+                        )}
                     </div>
                     <div className="overflow-hidden">
-                        <div className="text-sm font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+                        <div className="text-sm font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-accent-electric transition-colors">
                             {profile?.displayName || 'User'}
                         </div>
                         <div className="text-xs text-text-muted capitalize">
@@ -81,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         )}
                     </div>
-                </div>
+                </Link>
                 <button
                     onClick={signOut}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#ff4444] bg-transparent border-none transition-all duration-200 cursor-pointer hover:bg-[rgba(255,68,68,0.1)]"

@@ -14,6 +14,7 @@ import { StaffDirectory } from '@/pages/team/StaffDirectory';
 import { OfficeDepartments } from '@/pages/org/OfficeDepartments';
 import { GlobalUserTable } from '@/pages/team/GlobalUserTable';
 import { BranchDashboard } from '@/pages/dashboard/BranchDashboard';
+import { ProfilePage } from '@/pages/profile/ProfilePage';
 
 
 const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -33,6 +34,7 @@ function App() {
 
             {/* --- Global Context Routes --- */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute><JobsList /></ProtectedRoute>} />
             <Route path="/org" element={<ProtectedRoute><OrgManagement /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute><GlobalUserTable /></ProtectedRoute>} />

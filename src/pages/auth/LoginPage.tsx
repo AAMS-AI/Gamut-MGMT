@@ -67,7 +67,7 @@ export const LoginPage: React.FC = () => {
     return (
         <div className="h-screen flex items-center justify-center bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#0a0a0c_100%)] p-6">
             <div className="glass p-10 w-full max-w-md border border-white/10 shadow-2xl">
-                <h1 className="text-center mb-2 gradient-text text-5xl font-black tracking-tighter">GAMUT</h1>
+                <img src="/logo.png" alt="Gamut Logo" className="mx-auto mb-8 h-24 object-contain drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
                 <p className="text-center text-text-secondary mb-10 text-sm font-medium tracking-wide">
                     Restoration Management Reimagined
                 </p>

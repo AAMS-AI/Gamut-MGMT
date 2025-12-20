@@ -44,10 +44,10 @@
   /* Cyan Electric */
   --accent-glow: rgba(99, 102, 241, 0.5);
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.1);
 
   --status-fnol: #3b82f6;
   --status-mitigation: #f59e0b;
@@ -80,22 +80,26 @@ a {
 
 /* Snazzy Utilities */
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  background-clip: padding-box;
+  isolation: isolate;
 }
 
 .glass-premium {
-  background: linear-gradient(135deg, var(--glass-bg), var(--glass-highlight));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.12));
   border: 1px solid var(--glass-border);
   border-radius: 20px;
   position: relative;
   overflow: hidden;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  background-clip: padding-box;
+  isolation: isolate;
 }
 
 .glass-premium::before {

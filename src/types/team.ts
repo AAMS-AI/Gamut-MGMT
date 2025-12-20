@@ -10,6 +10,8 @@ export interface UserProfile {
     orgId: string;
     officeId?: string; // Null for OWNER/ORG_ADMIN if not scoped
     departmentId?: string; // Null if not scoped
+    phoneNumber?: string;
+    photoURL?: string;
     createdAt: any; // Using any for broad compatibility with FieldValue and Timestamp
     updatedAt: any;
 }

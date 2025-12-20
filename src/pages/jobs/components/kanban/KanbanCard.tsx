@@ -42,10 +42,10 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false }
             style={style}
             {...attributes}
             {...listeners}
-            className={`glass-premium group transition-all duration-300 ${isDragging ? 'z-50' : 'hover-glow'}`}
+            className={`glass-premium group transition-[transform,box-shadow,border-color] duration-300 ${isDragging ? 'z-50' : 'hover-glow'}`}
         >
             <div
-                className={`p-5 rounded-2xl transition-all duration-300 border-l-[3px] ${isOverlay ? 'bg-white/10 shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'} ${isStagnant ? 'border-red-500 shadow-[inset_10px_0_20px_rgba(239,68,68,0.05)]' : 'border-transparent group-hover:border-accent-electric/30'}`}
+                className={`p-5 rounded-2xl transition-[border-color,box-shadow] duration-300 border-l-[3px] ${isOverlay ? 'bg-white/10 shadow-2xl scale-105 cursor-grabbing' : 'bg-transparent cursor-grab'} ${isStagnant ? 'border-red-500 shadow-[inset_10px_0_20px_rgba(239,68,68,0.05)]' : 'border-transparent group-hover:border-accent-electric/30'}`}
             >
                 <div className="flex justify-between items-center mb-4">
                     <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 group-hover:text-text-secondary transition-colors">

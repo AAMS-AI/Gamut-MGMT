@@ -90,7 +90,7 @@ export const BranchHub: React.FC = () => {
                     { label: 'In Production', value: stats.active, icon: TrendingUp, color: 'var(--accent-primary)', glow: 'rgba(99, 102, 241, 0.2)' },
                     { label: 'Recent Closeouts', value: stats.completed, icon: CheckCircle2, color: 'var(--status-closeout)', glow: 'rgba(168, 85, 247, 0.2)' },
                 ].map((stat, i) => (
-                    <div key={i} className="glass-premium p-6 group hover-glow transition-all duration-500 overflow-hidden">
+                    <div key={i} className="glass-premium p-6 group hover-glow transition-[transform,box-shadow,border-color] duration-300 overflow-hidden">
                         <div className="absolute -top-4 -right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-all duration-700 group-hover:scale-125 group-hover:rotate-12" style={{ color: stat.color }}>
                             <stat.icon size={100} />
                         </div>
@@ -118,7 +118,7 @@ export const BranchHub: React.FC = () => {
                             const deptJobs = jobs.filter(j => j.departmentId === dept.id);
                             const percentage = (deptJobs.length / (stats.total || 1)) * 100;
                             return (
-                                <div key={dept.id} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-all duration-300 group">
+                                <div key={dept.id} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-colors duration-300 group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <div className="font-bold text-white tracking-tight">{dept.name}</div>
