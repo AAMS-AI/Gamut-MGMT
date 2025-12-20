@@ -5,7 +5,18 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'; // Updated import
 
 import type { UserRole } from '@/types/team';
-import { DEMO_USERS } from '@/demo/demoUsers';
+
+
+const DemoBtn = ({ label, email, setCreds }: { label: string; email: string; setCreds: (e: string) => void }) => (
+    <button
+        type="button"
+        onClick={() => setCreds(email)}
+        className="p-2.5 text-[0.7rem] bg-white/5 border border-white/10 rounded-lg text-text-secondary hover:border-accent-electric hover:text-white transition-all text-center truncate font-medium hover:bg-white/10"
+        title={email}
+    >
+        {label}
+    </button>
+);
 
 export const LoginPage: React.FC = () => {
     const [isRegister, setIsRegister] = useState(false);
@@ -14,7 +25,13 @@ export const LoginPage: React.FC = () => {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [demoTab, setDemoTab] = useState<'single' | 'multi'>('single');
     const navigate = useNavigate();
+
+    const setCreds = (email: string) => {
+        setEmail(email);
+        setPassword('password123');
+    };
 
     React.useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -151,23 +168,49 @@ export const LoginPage: React.FC = () => {
 
                 {!isRegister && (
                     <div className="mt-10 border-t border-white/5 pt-8">
-                        <p className="text-[0.65rem] text-text-muted mb-4 uppercase tracking-[0.2em] font-bold text-center">
-                            Demo Accounts (password123)
-                        </p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            {DEMO_USERS.map((demo) => (
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-[0.65rem] text-text-muted uppercase tracking-[0.2em] font-bold">
+                                Demo Environments
+                            </p>
+                            <div className="flex bg-white/5 rounded-lg p-0.5">
                                 <button
-                                    key={demo.email}
-                                    onClick={() => {
-                                        setEmail(demo.email);
-                                        setPassword('password123');
-                                    }}
-                                    className="p-2.5 text-[0.7rem] bg-white/5 border border-white/10 rounded-lg text-text-secondary hover:border-accent-electric hover:text-white transition-all text-center truncate font-medium"
-                                    title={demo.email}
+                                    type="button"
+                                    onClick={() => setDemoTab('single')}
+                                    className={`text-[0.65rem] px-2 py-1 rounded-md font-bold transition-all ${demoTab === 'single' ? 'bg-accent-electric text-black shadow-lg shadow-accent-electric/20' : 'text-text-muted hover:text-white'}`}
                                 >
-                                    {demo.label}
+                                    SINGLE
                                 </button>
-                            ))}
+                                <button
+                                    type="button"
+                                    onClick={() => setDemoTab('multi')}
+                                    className={`text-[0.65rem] px-2 py-1 rounded-md font-bold transition-all ${demoTab === 'multi' ? 'bg-accent-electric text-black shadow-lg shadow-accent-electric/20' : 'text-text-muted hover:text-white'}`}
+                                >
+                                    MULTI
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            {/* Single Office Demos */}
+                            {demoTab === 'single' && (
+                                <>
+                                    <DemoBtn label="Owner (Oscar)" email="owner@single.com" setCreds={setCreds} />
+                                    <DemoBtn label="GM (Gary)" email="gm@single.com" setCreds={setCreds} />
+                                    <DemoBtn label="Mgr (Mary Mit)" email="mgr.mit@single.com" setCreds={setCreds} />
+                                    <DemoBtn label="Member (Mike)" email="tech.mit@single.com" setCreds={setCreds} />
+                                </>
+                            )}
+
+                            {/* Multi Office Demos */}
+                            {demoTab === 'multi' && (
+                                <>
+                                    <DemoBtn label="Global Owner" email="owner@multi.com" setCreds={setCreds} />
+                                    <DemoBtn label="GM East" email="gm1@multi.com" setCreds={setCreds} />
+                                    <DemoBtn label="GM West" email="gm2@multi.com" setCreds={setCreds} />
+                                    <DemoBtn label="Mgr East" email="mgr1@multi.com" setCreds={setCreds} />
+                                    <DemoBtn label="Mgr West" email="mgr2@multi.com" setCreds={setCreds} />
+                                </>
+                            )}
                         </div>
                     </div>
                 )}

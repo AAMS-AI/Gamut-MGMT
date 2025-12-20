@@ -9,7 +9,9 @@
     "lint": "tsx scripts/lint.ts",
     "preview": "vite preview --config config/vite.config.ts",
     "emulators": "tsx scripts/emulators.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "seed:single": "tsx scripts/seed-single.ts",
+    "seed:multi": "tsx scripts/seed-multi.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

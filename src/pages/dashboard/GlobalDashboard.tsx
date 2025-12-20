@@ -9,7 +9,7 @@ import { useOrganization } from '@/contexts/OrganizationContext';
 import { HubPulseContainer } from './components/HubPulseContainer';
 import { type HubPulseEntity } from './components/PulseExecutive';
 
-export const Dashboard: React.FC = () => {
+export const GlobalDashboard: React.FC = () => {
     const { profile } = useAuth();
     const { departments, offices } = useOrganization();
 

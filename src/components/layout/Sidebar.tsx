@@ -61,6 +61,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         );
     };
 
+    const profileLink = activeOfficeId
+        ? `/office/${activeOfficeId}/profile`
+        : '/profile';
+
     return (
         <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-black/40 backdrop-blur-xl shadow-2xl transition-transform duration-300 will-change-transform isolate" style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}>
             <div className="mb-8 flex items-center gap-3 px-1">
@@ -95,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </nav>
 
             <div className="mt-auto border-t border-white/10 pt-6">
-                <Link to="/profile" className="flex items-center gap-3 mb-5 p-2 -mx-2 rounded-xl transition-colors duration-200 hover:bg-white/5 no-underline group cursor-pointer">
+                <Link to={profileLink} className="flex items-center gap-3 mb-5 p-2 -mx-2 rounded-xl transition-colors duration-200 hover:bg-white/5 no-underline group cursor-pointer">
                     <div className="w-10 h-10 rounded-[10px] bg-bg-tertiary flex items-center justify-center text-sm font-semibold text-white group-hover:text-accent-electric transition-colors overflow-hidden">
                         {profile?.photoURL ? (
                             <img src={profile.photoURL} alt={profile.displayName || 'User'} className="w-full h-full object-cover" />

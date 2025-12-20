@@ -7,7 +7,7 @@ import { useOrganization } from '@/contexts/OrganizationContext';
 import { useParams } from 'react-router-dom';
 import type { UserProfile } from '@/types/team';
 
-export const StaffDirectory: React.FC = () => {
+export const OfficeTeam: React.FC = () => {
     const { officeId } = useParams();
     const { profile } = useAuth();
     const { departments } = useOrganization();

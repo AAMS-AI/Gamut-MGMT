@@ -1,7 +1,7 @@
 import React from 'react';
 import { Users } from 'lucide-react';
 
-export const GlobalUserTable: React.FC = () => {
+export const GlobalTeam: React.FC = () => {
     return (
         <div className="flex flex-col gap-8">
             <header>

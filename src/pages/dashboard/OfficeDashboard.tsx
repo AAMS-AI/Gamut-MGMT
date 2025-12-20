@@ -9,7 +9,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { type HubPulseEntity } from './components/PulseExecutive';
 
-export const BranchDashboard: React.FC = () => {
+export const OfficeDashboard: React.FC = () => {
     const { officeId } = useParams();
     const { profile } = useAuth();
     const { departments, offices } = useOrganization();

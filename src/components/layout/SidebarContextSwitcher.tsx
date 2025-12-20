@@ -68,29 +68,9 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
             officeDepts = officeDepts.filter(d => d.id === userProfile.departmentId);
         }
 
-        const isActiveOffice = activeOfficeId === o.id;
-        const isOverviewActive = isActiveOffice && !activeDepartmentId;
-
         return (
             <div className="pl-3 mt-1 mb-2">
-                {userRole !== 'MEMBER' && userRole !== 'DEPT_MANAGER' && (
-                    <>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleSwitch(o.id, null);
-                            }}
-                            className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-white/5 hover:text-white mb-1 ${isOverviewActive
-                                ? 'bg-accent-electric/10 border-accent-electric/50 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.2)] font-bold'
-                                : 'border-transparent'
-                                }`}
-                        >
-                            <MapPin size={14} />
-                            <span className="text-xs font-semibold">Office Overview</span>
-                        </button>
-                        <div className="h-px bg-white/10 my-1 opacity-50" />
-                    </>
-                )}
+
                 {officeDepts.map(d => (
                     <button
                         key={d.id}

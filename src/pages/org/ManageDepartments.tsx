@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { type Department } from '@/types/org';
 import { Network } from 'lucide-react';
 
-export const OfficeDepartments: React.FC = () => {
+export const ManageDepartments: React.FC = () => {
     const { officeId } = useParams();
     const [depts, setDepts] = useState<Department[]>([]);
     const [loading, setLoading] = useState(true);

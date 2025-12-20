@@ -39,7 +39,7 @@ export const navConfig: NavItem[] = [
         label: 'Hub Pulse',
         icon: LayoutDashboard,
         to: '/',
-        rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
+        rolesAllowed: ['OWNER', 'ORG_ADMIN'], // Restricted: Lower roles use Dept/Office items
         context: ['global'],
         section: 'primary'
     },
@@ -205,14 +205,14 @@ export const navConfig: NavItem[] = [
         section: 'configure'
     },
 
-    // --- DEPARTMENT CONTEXT ---
+    // --- DEPARTMENT CONTEXT (Unified) ---
     {
         id: 'dept-dashboard',
         label: 'Hub Pulse',
         icon: LayoutDashboard,
         to: '/office/:officeId/department/:departmentId',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['department'],
+        context: ['global', 'department'], // Visible in Global too (using profile fallback)
         section: 'primary'
     },
     {
@@ -221,7 +221,7 @@ export const navConfig: NavItem[] = [
         icon: ClipboardList,
         to: '/office/:officeId/department/:departmentId/kanban',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['department'],
+        context: ['global', 'department'],
         section: 'primary'
     },
     {
@@ -230,7 +230,7 @@ export const navConfig: NavItem[] = [
         icon: Briefcase,
         to: '/office/:officeId/department/:departmentId/jobs',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['department'],
+        context: ['global', 'department'],
         section: 'primary'
     },
     {
@@ -239,7 +239,7 @@ export const navConfig: NavItem[] = [
         icon: Truck,
         to: '/office/:officeId/department/:departmentId/dispatch',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER'],
-        context: ['department'],
+        context: ['global', 'department'],
         section: 'primary'
     },
     {
@@ -248,7 +248,7 @@ export const navConfig: NavItem[] = [
         icon: CheckSquare,
         to: '/office/:officeId/department/:departmentId/tasks',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['department'],
+        context: ['global', 'department'],
         section: 'primary'
     },
     {
@@ -257,56 +257,68 @@ export const navConfig: NavItem[] = [
         icon: Users,
         to: '/office/:officeId/department/:departmentId/team',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER'],
-        context: ['department'],
+        context: ['global', 'department'],
         section: 'organize'
     },
 
-    // --- PERSONAL / MEMBER / MANAGER CONTEXT (Global Scope Access) ---
-    {
-        id: 'personal-dept',
-        label: 'My Department',
-        icon: LayoutDashboard, // Or Target/Home
-        to: '/office/:officeId/department/:departmentId',
-        rolesAllowed: ['DEPT_MANAGER', 'MEMBER'],
-        context: ['global'],
-        section: 'primary'
-    },
-    {
-        id: 'member-jobs',
-        label: 'My Assigned Jobs',
-        icon: Briefcase,
-        to: '/jobs?scope=my',
-        rolesAllowed: ['DEPT_MANAGER', 'MEMBER'],
-        context: ['global'],
-        section: 'primary'
-    },
-    {
-        id: 'member-tasks',
-        label: 'My Tasks',
-        icon: CheckSquare,
-        to: '/tasks?scope=my',
-        rolesAllowed: ['DEPT_MANAGER', 'MEMBER'],
-        context: ['global'],
-        section: 'primary'
-    },
-
     // Utilities
+    // Utilities (Global)
     {
-        id: 'util-uploads',
+        id: 'global-uploads',
         label: 'Quick Upload',
         icon: Upload,
         to: '/uploads',
-        rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['global', 'office', 'department'],
+        rolesAllowed: ['OWNER', 'ORG_ADMIN'],
+        context: ['global'],
         section: 'utilities'
     },
     {
-        id: 'util-help',
+        id: 'global-help',
         label: 'Help',
         icon: HelpCircle,
         to: '/help',
+        rolesAllowed: ['OWNER', 'ORG_ADMIN'],
+        context: ['global'],
+        section: 'utilities'
+    },
+
+    // Utilities (Office)
+    {
+        id: 'office-uploads',
+        label: 'Quick Upload',
+        icon: Upload,
+        to: '/office/:officeId/uploads',
+        rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN'],
+        context: ['office'],
+        section: 'utilities'
+    },
+    {
+        id: 'office-help',
+        label: 'Help',
+        icon: HelpCircle,
+        to: '/office/:officeId/help',
+        rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN'],
+        context: ['office'],
+        section: 'utilities'
+    },
+
+    // Utilities (Department)
+    {
+        id: 'dept-uploads',
+        label: 'Quick Upload',
+        icon: Upload,
+        to: '/office/:officeId/department/:departmentId/uploads',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['global', 'office', 'department'],
+        context: ['department'],
+        section: 'utilities'
+    },
+    {
+        id: 'dept-help',
+        label: 'Help',
+        icon: HelpCircle,
+        to: '/office/:officeId/department/:departmentId/help',
+        rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
+        context: ['department'],
         section: 'utilities'
     }
 ];
