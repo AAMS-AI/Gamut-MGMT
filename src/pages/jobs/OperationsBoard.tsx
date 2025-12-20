@@ -36,18 +36,34 @@ export const OperationsBoard: React.FC = () => {
     const activeOffice = officeId ? offices.find(o => o.id === officeId) : null;
 
     // --- Data Fetching ---
+    // Enforce Department Context for Managers, allow Global for Admins
+    const effectiveDepartmentId = (profile?.role === 'DEPT_MANAGER' || profile?.role === 'MEMBER')
+        ? profile.departmentId
+        : activeDepartmentId;
+
     useEffect(() => {
-        if (!profile || !officeId) return;
+        if (!profile) return;
 
-        const unsubscribe = jobService.subscribeToOfficeJobs(
-            profile.orgId,
-            officeId,
-            activeDepartmentId,
-            (list) => setJobs(list)
-        );
+        let unsubscribe;
 
-        return () => unsubscribe();
-    }, [profile, officeId, activeDepartmentId]);
+        if (officeId) {
+            // Office Context
+            unsubscribe = jobService.subscribeToOfficeJobs(
+                profile.orgId,
+                officeId,
+                effectiveDepartmentId || null,
+                (list) => setJobs(list)
+            );
+        } else {
+            // Global Context (Owner/Admin View)
+            unsubscribe = jobService.subscribeToOrganizationJobs(
+                profile.orgId,
+                (list) => setJobs(list)
+            );
+        }
+
+        return () => unsubscribe && unsubscribe();
+    }, [profile, officeId, effectiveDepartmentId]);
 
     // --- Lane Logic ---
     const lanes: Lane[] = [

@@ -51,9 +51,9 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         // Default Active Department
-        // If MEMBER, force to their department.
-        // If Non-MEMBER (Owner, Admin, etc), force reset to Overview (null) to clear any stale state from previous sessions.
-        if (profile.role === 'MEMBER' && profile.departmentId) {
+        // If MEMBER or DEPT_MANAGER, force to their department.
+        // If Overview-level (Owner, Admin, GM), force reset to Overview (null) to clear any stale state.
+        if ((profile.role === 'MEMBER' || profile.role === 'DEPT_MANAGER') && profile.departmentId) {
             setManualDepartmentId(profile.departmentId);
         } else {
             setManualDepartmentId(null);
@@ -93,6 +93,8 @@ export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const activeDepartment = departments.find(d => d.id === activeDepartmentId);
 
     const setActiveDepartmentId = (id: string | null) => {
+        // Explicitly set the manual department ID. 
+        // This overrides any default logic until the office context changes.
         setManualDepartmentId(id);
     };
 

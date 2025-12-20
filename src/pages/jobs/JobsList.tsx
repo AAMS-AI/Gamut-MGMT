@@ -34,10 +34,18 @@ const JobsList: React.FC = () => {
             // Department Context
             if (activeDepartmentId) {
                 q = query(q, where('departmentId', '==', activeDepartmentId));
+            } else if ((profile.role === 'MEMBER' || profile.role === 'DEPT_MANAGER') && profile.departmentId) {
+                // If no active department selected but user is member or manager, lock to their department
+                q = query(q, where('departmentId', '==', profile.departmentId));
             }
         } else if (profile.role === 'MEMBER') {
-            // Members only see assigned jobs (fallback if no officeId)
-            q = query(q, where('assignedUserIds', 'array-contains', profile.uid));
+            // Members see ALL claims in their department
+            if (profile.departmentId) {
+                q = query(q, where('departmentId', '==', profile.departmentId));
+            } else {
+                // Fallback only if they somehow don't have a department
+                q = query(q, where('assignedUserIds', 'array-contains', profile.uid));
+            }
         }
 
         const unsubscribe = onSnapshot(q, (snap) => {

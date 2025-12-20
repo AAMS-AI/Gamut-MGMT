@@ -60,7 +60,7 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
     const renderOfficeContent = (o: Office) => {
         let officeDepts = departments.filter(d => d.officeId === o.id);
 
-        if (userRole === 'MEMBER' && userProfile?.departmentId) {
+        if ((userRole === 'MEMBER' || userRole === 'DEPT_MANAGER') && userProfile?.departmentId) {
             officeDepts = officeDepts.filter(d => d.id === userProfile.departmentId);
         }
 
@@ -69,10 +69,13 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
 
         return (
             <div className="pl-3 mt-1 mb-2">
-                {userRole !== 'MEMBER' && (
+                {userRole !== 'MEMBER' && userRole !== 'DEPT_MANAGER' && (
                     <>
                         <button
-                            onClick={() => handleSwitch(o.id, null)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleSwitch(o.id, null);
+                            }}
                             className={`w-full p-2.5 flex items-center gap-2.5 bg-transparent border rounded-lg text-text-secondary cursor-pointer text-left transition-all duration-200 hover:bg-white/5 hover:text-white mb-1 ${isOverviewActive
                                 ? 'bg-accent-electric/10 border-accent-electric/50 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.2)] font-bold'
                                 : 'border-transparent'

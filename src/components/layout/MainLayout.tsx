@@ -35,18 +35,41 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const activeOffice = offices.find(o => o.id === effectiveOfficeId);
 
     // --- Dynamic Navigation ---
-    const navItems = effectiveOfficeId ? [
-        { icon: LayoutDashboard, label: 'Hub Pulse', to: `/office/${effectiveOfficeId}/dashboard` },
-        { icon: Briefcase, label: 'Claims', to: `/office/${effectiveOfficeId}/jobs` },
-        { icon: ClipboardList, label: 'Operations', to: `/office/${effectiveOfficeId}/ops` },
-        { icon: Network, label: 'Departments', to: `/office/${effectiveOfficeId}/depts` },
-        { icon: Users, label: 'Staff Roster', to: `/office/${effectiveOfficeId}/team` },
-    ] : [
-        { icon: Building2, label: 'Enterprise Dash', to: '/' },
-        { icon: Briefcase, label: 'All Claims', to: '/jobs' },
-        { icon: Building2, label: 'Branch Directory', to: '/org' },
-        { icon: Users, label: 'Global Staff', to: '/users' },
-    ];
+    // --- Dynamic Navigation ---
+    let navItems;
+
+    if (effectiveOfficeId) {
+        // Unified Navigation for All Roles (GM, Manager, Member)
+        // Access control is handled by the pages themselves or the data filtering
+        navItems = [
+            { icon: LayoutDashboard, label: 'Hub Pulse', to: `/office/${effectiveOfficeId}/dashboard` },
+            { icon: Briefcase, label: 'Claims', to: `/office/${effectiveOfficeId}/jobs` },
+            { icon: ClipboardList, label: 'Kanban Board', to: `/office/${effectiveOfficeId}/ops` },
+        ];
+
+        // "Departments" is for Admins/GMs only (Configuration)
+        if (profile?.role !== 'MEMBER' && profile?.role !== 'DEPT_MANAGER') {
+            navItems.push({ icon: Network, label: 'Departments', to: `/office/${effectiveOfficeId}/depts` });
+        }
+
+        // Everyone sees Roster
+        navItems.push({ icon: Users, label: 'Staff Roster', to: `/office/${effectiveOfficeId}/team` });
+    } else {
+        if (profile?.role === 'MEMBER') {
+            // Member in global context - likely will be redirected, but show minimal interface for now
+            navItems = [
+                { icon: Briefcase, label: 'My Claims', to: '/jobs' },
+            ];
+        } else {
+            navItems = [
+                { icon: LayoutDashboard, label: 'Hub Pulse', to: '/' },
+                { icon: Briefcase, label: 'Claims', to: '/jobs' },
+                { icon: ClipboardList, label: 'Kanban Board', to: '/ops' },
+                { icon: Building2, label: 'Branches', to: '/org' },
+                { icon: Users, label: 'Staff Roster', to: '/users' },
+            ];
+        }
+    }
 
     return (
         <div className="flex min-h-screen bg-black text-white font-sans mesh-gradient relative overflow-hidden">

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'; // Updated import
+
 import type { UserRole } from '@/types/team';
 import { DEMO_USERS } from '@/demo/demoUsers';
 
@@ -16,8 +17,23 @@ export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
 
     React.useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
+                // Fetch user profile to determine redirect
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data() as { role?: string; officeId?: string };
+                        if ((userData.role === 'MEMBER' || userData.role === 'DEPT_MANAGER' || userData.role === 'OFFICE_ADMIN') && userData.officeId) {
+                            navigate(`/office/${userData.officeId}/dashboard`);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile for redirect:", error);
+                }
+
+                // Default fallback
                 navigate('/');
             }
         });
@@ -55,7 +71,7 @@ export const LoginPage: React.FC = () => {
                 });
             } else {
                 await signInWithEmailAndPassword(auth, email, password);
-                navigate('/');
+                // Navigation handled by onAuthStateChanged
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');

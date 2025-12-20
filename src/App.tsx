@@ -37,6 +37,7 @@ function App() {
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute><JobsList /></ProtectedRoute>} />
             <Route path="/org" element={<ProtectedRoute><OrgManagement /></ProtectedRoute>} />
+            <Route path="/ops" element={<ProtectedRoute><OperationsBoard /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute><GlobalUserTable /></ProtectedRoute>} />
 
             {/* --- Branch Context Routes --- */}

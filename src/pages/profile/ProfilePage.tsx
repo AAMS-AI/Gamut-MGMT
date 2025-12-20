@@ -48,9 +48,11 @@ export const ProfilePage: React.FC = () => {
     // Derived helpers
     const getOfficeName = (id?: string) => offices.find(o => o.id === id)?.name || 'N/A';
     const getDeptName = (id?: string) => departments.find(d => d.id === id)?.name || 'N/A';
-    const formatDate = (timestamp: any) => {
+    const formatDate = (timestamp: { toDate?: () => Date } | Date | null | undefined) => {
         if (!timestamp) return 'N/A';
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        const date = (timestamp as { toDate?: () => Date }).toDate
+            ? (timestamp as { toDate: () => Date }).toDate()
+            : new Date(timestamp as Date);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
@@ -152,12 +154,13 @@ export const ProfilePage: React.FC = () => {
             setSuccessMsg('Email updated! Please verify if a confirmation was sent.');
             setIsEditingEmail(false);
             setTimeout(() => setSuccessMsg(''), 5000);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            if (err.code === 'auth/requires-recent-login') {
+            const error = err as { code?: string; message?: string };
+            if (error.code === 'auth/requires-recent-login') {
                 setErrorMsg('Security Requirement: Please logout and login again to change your email.');
             } else {
-                setErrorMsg(err.message || 'Failed to update email');
+                setErrorMsg(error.message || 'Failed to update email');
             }
         } finally {
             setLoading(false);
@@ -271,8 +274,8 @@ export const ProfilePage: React.FC = () => {
                         <button
                             onClick={() => setActiveTab('overview')}
                             className={`py-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'overview'
-                                    ? 'border-accent-electric text-accent-electric'
-                                    : 'border-transparent text-text-muted hover:text-white hover:border-white/20'
+                                ? 'border-accent-electric text-accent-electric'
+                                : 'border-transparent text-text-muted hover:text-white hover:border-white/20'
                                 }`}
                         >
                             <User size={16} /> Overview
@@ -280,8 +283,8 @@ export const ProfilePage: React.FC = () => {
                         <button
                             onClick={() => setActiveTab('settings')}
                             className={`py-4 text-sm font-semibold border-b-2 transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'settings'
-                                    ? 'border-accent-electric text-accent-electric'
-                                    : 'border-transparent text-text-muted hover:text-white hover:border-white/20'
+                                ? 'border-accent-electric text-accent-electric'
+                                : 'border-transparent text-text-muted hover:text-white hover:border-white/20'
                                 }`}
                         >
                             <Settings size={16} /> Account Settings
