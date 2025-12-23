@@ -2,12 +2,41 @@
 
 export type JobStatus = 'FNOL' | 'MITIGATION' | 'RECONSTRUCTION' | 'REVIEW' | 'CLOSEOUT';
 
+
+export interface JobAssignments {
+    supervisorId?: string;
+    mitigationManagerId?: string;
+    inspectorId?: string;
+    marketingRepId?: string;
+    coordinatorId?: string;
+    leadTechnicianId?: string;
+}
+
+export interface JobDetails {
+    propertyType: string;
+    yearBuilt?: number;
+    lossCategory: string;
+    deductible?: string;
+    policyNumber?: string;
+    lockBoxCode?: string;
+    gateEntryCode?: string;
+    mortgageCompany?: string;
+    loanNumber?: string;
+    billingContact?: string;
+    billingNotes?: string;
+    notes?: string;
+}
+
 export interface Job {
     id: string;
     orgId: string;
     officeId: string;
     departmentId: string;
     status: JobStatus;
+
+    // Core Identifiers
+    jobName: string;
+    isCustomJobName: boolean;
 
     // Customer Info
     customer: {
@@ -22,6 +51,7 @@ export interface Job {
         city: string;
         state: string;
         zip: string;
+        county?: string;
     };
 
     // Insurance Info
@@ -32,11 +62,16 @@ export interface Job {
         adjusterPhone?: string;
     };
 
-    assignedUserIds: string[];
+    // New Blocks
+    assignments: JobAssignments;
+    details: JobDetails;
+
+    assignedUserIds: string[]; // Keep for compatibility/queries (union of all assignments)
     createdBy: string;
     createdAt: any;
     updatedAt: any;
 }
+
 
 export interface Note {
     id: string;

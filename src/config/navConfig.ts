@@ -2,7 +2,7 @@ import {
     LayoutDashboard,
     Briefcase,
     ClipboardList,
-    CheckSquare,
+    // CheckSquare,
     Activity,
     Upload,
     HelpCircle,
@@ -11,7 +11,7 @@ import {
     Settings,
     Building2,
     Network,
-    Truck,
+    // Truck,
     CreditCard,
     type LucideIcon
 } from 'lucide-react';
@@ -61,6 +61,7 @@ export const navConfig: NavItem[] = [
         context: ['global'],
         section: 'primary'
     },
+    /* REMOVED FOR NOW
     {
         id: 'global-dispatch',
         label: 'Dispatch',
@@ -70,6 +71,7 @@ export const navConfig: NavItem[] = [
         context: ['global'],
         section: 'primary'
     },
+    */
 
     // Organize (Global)
     {
@@ -168,6 +170,7 @@ export const navConfig: NavItem[] = [
         context: ['office'],
         section: 'primary'
     },
+    /* REMOVED FOR NOW
     {
         id: 'office-dispatch',
         label: 'Dispatch',
@@ -177,6 +180,7 @@ export const navConfig: NavItem[] = [
         context: ['office'],
         section: 'primary'
     },
+    */
     {
         id: 'office-departments',
         label: 'Departments',
@@ -212,7 +216,7 @@ export const navConfig: NavItem[] = [
         icon: LayoutDashboard,
         to: '/office/:officeId/department/:departmentId',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['global', 'department'], // Visible in Global too (using profile fallback)
+        context: ['department'], // Visible ONLY in Department context
         section: 'primary'
     },
     {
@@ -221,7 +225,7 @@ export const navConfig: NavItem[] = [
         icon: ClipboardList,
         to: '/office/:officeId/department/:departmentId/kanban',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['global', 'department'],
+        context: ['department'],
         section: 'primary'
     },
     {
@@ -230,9 +234,10 @@ export const navConfig: NavItem[] = [
         icon: Briefcase,
         to: '/office/:officeId/department/:departmentId/jobs',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER'],
-        context: ['global', 'department'],
+        context: ['department'],
         section: 'primary'
     },
+    /* REMOVED FOR NOW
     {
         id: 'dept-dispatch',
         label: 'Dispatch',
@@ -251,13 +256,14 @@ export const navConfig: NavItem[] = [
         context: ['global', 'department'],
         section: 'primary'
     },
+    */
     {
         id: 'dept-team',
         label: 'Team',
         icon: Users,
         to: '/office/:officeId/department/:departmentId/team',
         rolesAllowed: ['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER'],
-        context: ['global', 'department'],
+        context: ['department'],
         section: 'organize'
     },
 

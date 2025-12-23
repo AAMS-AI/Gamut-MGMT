@@ -1,29 +1,30 @@
 import React from 'react';
 import {
     Briefcase,
-    CheckSquare,
+    // CheckSquare,
     User
 } from 'lucide-react';
 import { StatCard } from '@/components/ui/StatCard';
 
 import { RecentActivity } from './RecentActivity';
-import { TasksWidget } from './TasksWidget';
-import { type Job, type Task } from '@/types/jobs';
+// import { TasksWidget } from './TasksWidget';
+import { type Job } from '@/types/jobs';
+// import { type Task } from '@/types/jobs';
 
 export interface PulseMemberProps {
     jobs: Job[];
-    tasks: Task[];
+    // tasks: Task[];
     username: string;
 }
 
 export const PulseMember: React.FC<PulseMemberProps> = ({
     jobs,
-    tasks,
+    // tasks,
     username
 }) => {
     // Member only cares about their active jobs
     const myActiveJobs = jobs.filter(j => j.status !== 'CLOSEOUT');
-    const myCompletedTasks = tasks.filter(t => t.completed).length;
+    // const myCompletedTasks = tasks.filter(t => t.completed).length;
 
     return (
         <div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -41,8 +42,8 @@ export const PulseMember: React.FC<PulseMemberProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {[
                     { label: 'My Active Jobs', value: myActiveJobs.length, icon: Briefcase, color: 'var(--accent-electric)' },
-                    { label: 'My Pending Tasks', value: tasks.filter(t => !t.completed).length, icon: CheckSquare, color: 'var(--status-review)' },
-                    { label: 'Tasks Completed', value: myCompletedTasks, icon: CheckSquare, color: 'var(--status-success)' },
+                    // { label: 'My Pending Tasks', value: tasks.filter(t => !t.completed).length, icon: CheckSquare, color: 'var(--status-review)' },
+                    // { label: 'Tasks Completed', value: myCompletedTasks, icon: CheckSquare, color: 'var(--status-success)' },
                 ].map((stat, i) => (
                     <StatCard key={i} {...stat} />
                 ))}
@@ -55,7 +56,7 @@ export const PulseMember: React.FC<PulseMemberProps> = ({
                 <div className="flex flex-col gap-6">
 
                     <div className="flex-1">
-                        <TasksWidget tasks={tasks} />
+                        {/* <TasksWidget tasks={tasks} /> */}
                     </div>
                 </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+// import { collection, onSnapshot } from 'firebase/firestore';
+// import { db } from '@/lib/firebase';
 import { type Job } from '@/types/jobs';
 
 import { jobService } from '@/pages/jobs/jobService';
@@ -68,18 +68,18 @@ export const GlobalDashboard: React.FC = () => {
         return () => unsubscribe();
     }, [profile, isGlobal, isGM, isManager, isMember]);
 
-    const [tasks, setTasks] = useState<any[]>([]);
+    // const [tasks, setTasks] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (!profile?.uid) return;
-        const unsub = onSnapshot(collection(db, 'tasks'), (snap) => {
-            const userTasks = snap.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .filter((t: any) => t.userId === profile.uid || t.assignedTo === profile.uid);
-            setTasks(userTasks);
-        });
-        return () => unsub();
-    }, [profile?.uid]);
+    // useEffect(() => {
+    //     if (!profile?.uid) return;
+    //     const unsub = onSnapshot(collection(db, 'tasks'), (snap) => {
+    //         const userTasks = snap.docs
+    //             .map(d => ({ id: d.id, ...d.data() }))
+    //             .filter((t: any) => t.userId === profile.uid || t.assignedTo === profile.uid);
+    //         setTasks(userTasks);
+    //     });
+    //     return () => unsub();
+    // }, [profile?.uid]);
 
     // Prepare View Config
     let entities: HubPulseEntity[] = [];
@@ -137,7 +137,7 @@ export const GlobalDashboard: React.FC = () => {
         <HubPulseContainer
             role={profile?.role || 'MEMBER'}
             jobs={jobs}
-            tasks={tasks}
+            tasks={[]}
             title={title}
             subtitle={subtitle}
             username={profile?.displayName}

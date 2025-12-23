@@ -5,8 +5,8 @@ import { useOrganization } from '@/contexts/OrganizationContext';
 import { jobService } from '@/pages/jobs/jobService';
 import { type Job } from '@/types/jobs';
 import { HubPulseContainer } from './components/HubPulseContainer';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+// import { collection, onSnapshot } from 'firebase/firestore';
+// import { db } from '@/lib/firebase';
 import { type HubPulseEntity } from './components/PulseExecutive';
 
 export const OfficeDashboard: React.FC = () => {
@@ -59,21 +59,21 @@ export const OfficeDashboard: React.FC = () => {
         return () => unsubscribe();
     }, [profile?.orgId, officeId, profile?.role, profile?.officeId, profile?.uid, navigate]);
 
-    const [tasks, setTasks] = useState<any[]>([]);
+    // const [tasks, setTasks] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (!profile?.uid) return;
+    // useEffect(() => {
+    //     if (!profile?.uid) return;
 
-        // Fetch tasks
-        const unsub = onSnapshot(collection(db, 'tasks'), (snap) => {
-            const userTasks = snap.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .filter((t: any) => t.userId === profile.uid || t.assignedTo === profile.uid);
-            setTasks(userTasks);
-        });
+    //     // Fetch tasks
+    //     const unsub = onSnapshot(collection(db, 'tasks'), (snap) => {
+    //         const userTasks = snap.docs
+    //             .map(d => ({ id: d.id, ...d.data() }))
+    //             .filter((t: any) => t.userId === profile.uid || t.assignedTo === profile.uid);
+    //         setTasks(userTasks);
+    //     });
 
-        return () => unsub();
-    }, [profile?.uid]);
+    //     return () => unsub();
+    // }, [profile?.uid]);
 
     // Data Prep for Executive View
     const activeOfficeDepts = departments.filter(d => d.officeId === officeId);
@@ -101,7 +101,7 @@ export const OfficeDashboard: React.FC = () => {
         <HubPulseContainer
             role={profile?.role || 'MEMBER'}
             jobs={jobs}
-            tasks={tasks}
+            tasks={[]}
             title={pageTitle}
             subtitle={pageSubtitle}
             username={profile?.displayName || 'User'}

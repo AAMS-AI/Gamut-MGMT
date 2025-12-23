@@ -98,7 +98,7 @@ function App() {
             <Route path="/" element={<ProtectedRoute><GlobalDashboard /></ProtectedRoute>} />
             <Route path="/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobsList /></ProtectedRoute>} />
-            <Route path="/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Dispatch Command" /></ProtectedRoute>} />
+            {/* <Route path="/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Dispatch Command" /></ProtectedRoute>} /> */}
 
             <Route path="/offices" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Offices Management" /></ProtectedRoute>} />
             <Route path="/departments" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Departments Management" /></ProtectedRoute>} />
@@ -114,14 +114,14 @@ function App() {
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/uploads" element={<ProtectedRoute><PlaceholderPage title="Quick Uploads" /></ProtectedRoute>} />
             <Route path="/help" element={<ProtectedRoute><PlaceholderPage title="Help & Support" /></ProtectedRoute>} />
-            <Route path="/tasks" element={<ProtectedRoute><PlaceholderPage title="My Tasks" /></ProtectedRoute>} />
+            {/* <Route path="/tasks" element={<ProtectedRoute><PlaceholderPage title="My Tasks" /></ProtectedRoute>} /> */}
 
             {/* --- Office Context --- */}
             <Route path="/office/:officeId/dashboard" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><OfficeDashboard /></ProtectedRoute>} />
             <Route path="/office/:officeId/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/office/:officeId/ops" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><OperationsBoard /></ProtectedRoute>} /> {/* Legacy/Alias */}
             <Route path="/office/:officeId/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><JobsList /></ProtectedRoute>} />
-            <Route path="/office/:officeId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><PlaceholderPage title="Office Dispatch" /></ProtectedRoute>} />
+            {/* <Route path="/office/:officeId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><PlaceholderPage title="Office Dispatch" /></ProtectedRoute>} /> */}
 
             <Route path="/office/:officeId/depts" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><ManageDepartments /></ProtectedRoute>} />
             <Route path="/office/:officeId/departments" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><ManageDepartments /></ProtectedRoute>} /> {/* Alias */}
@@ -138,8 +138,8 @@ function App() {
             <Route path="/office/:officeId/department/:departmentId" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><DepartmentDashboard /></ProtectedRoute>} />
             <Route path="/office/:officeId/department/:departmentId/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/office/:officeId/department/:departmentId/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobsList /></ProtectedRoute>} />
-            <Route path="/office/:officeId/department/:departmentId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER']}><PlaceholderPage title="Department Assignment" /></ProtectedRoute>} />
-            <Route path="/office/:officeId/department/:departmentId/tasks" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><PlaceholderPage title="Department Tasks" /></ProtectedRoute>} />
+            {/* <Route path="/office/:officeId/department/:departmentId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER']}><PlaceholderPage title="Department Assignment" /></ProtectedRoute>} /> */}
+            {/* <Route path="/office/:officeId/department/:departmentId/tasks" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><PlaceholderPage title="Department Tasks" /></ProtectedRoute>} /> */}
             <Route path="/office/:officeId/department/:departmentId/team" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER']}><OfficeTeam /></ProtectedRoute>} />
 
             {/* Context-Aware Utilities (Department) */}
