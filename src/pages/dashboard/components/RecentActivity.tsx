@@ -44,10 +44,15 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({ jobs }) => {
                     const config = getStatusConfig(job.status);
                     const Icon = config.icon;
 
+                    // Context-aware link construction
+                    const jobLink = job.officeId && job.departmentId
+                        ? `/office/${job.officeId}/department/${job.departmentId}/jobs`
+                        : `/jobs`; // Fallback only if data missing
+
                     return (
                         <Link
                             key={job.id}
-                            to={`/jobs/${job.id}`}
+                            to={jobLink}
                             className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 no-underline group"
                         >
                             <div className={`p-2 rounded-full ${config.bg} ${config.color} shrink-0`}>

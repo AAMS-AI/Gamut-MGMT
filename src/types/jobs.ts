@@ -5,17 +5,20 @@ export type JobStatus = 'FNOL' | 'MITIGATION' | 'RECONSTRUCTION' | 'REVIEW' | 'C
 
 export interface JobAssignments {
     supervisorId?: string;
+    leadTechnicianId?: string;
+    teamMemberIds?: string[]; // Additional team members
+    // Deprecated/Legacy fields (kept optional for backward compat if needed, but removing from UI)
     mitigationManagerId?: string;
     inspectorId?: string;
     marketingRepId?: string;
     coordinatorId?: string;
-    leadTechnicianId?: string;
 }
 
 export interface JobDetails {
     propertyType: string;
     yearBuilt?: number;
     lossCategory: string;
+    lossDescription?: string; // Added description
     deductible?: string;
     policyNumber?: string;
     lockBoxCode?: string;
@@ -62,6 +65,10 @@ export interface Job {
         adjusterPhone?: string;
     };
 
+    dates?: {
+        lossDate?: any;
+    };
+
     // New Blocks
     assignments: JobAssignments;
     details: JobDetails;
@@ -97,13 +104,4 @@ export interface Task {
     dueDate?: any;
     assignedTo?: string;
     createdAt: any;
-}
-
-export interface ActivityLog {
-    id: string;
-    jobId: string;
-    userId: string;
-    userName: string;
-    action: string; // e.g., "Status changed to Reconstruction"
-    timestamp: any;
 }

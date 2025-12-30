@@ -178,7 +178,27 @@ export const SidebarContextSwitcher: React.FC<SidebarContextSwitcherProps> = ({
                                 })}
                             </>
                         ) : (
-                            activeOffice && renderOfficeContent(activeOffice)
+                            activeOffice && (
+                                <>
+                                    {/* Link back to Office Overview (Pulse) */}
+                                    <button
+                                        onClick={() => handleSwitch(activeOffice.id, null)}
+                                        className={`w-full p-2.5 flex items-center gap-2.5 mb-2 rounded-lg cursor-pointer text-left transition-all duration-200 border ${!activeDepartmentId
+                                            ? 'bg-accent-electric/10 border-accent-electric/50 text-accent-electric shadow-[0_0_10px_rgba(0,242,255,0.15)] font-bold'
+                                            : 'bg-transparent border-transparent text-text-secondary hover:bg-white/5 hover:text-white'
+                                            }`}
+                                    >
+                                        <MapPin size={14} />
+                                        <span className="text-[0.8125rem] font-semibold">{activeOffice.name} (Overview)</span>
+                                    </button>
+
+                                    {/* Departments List */}
+                                    <div className="px-1">
+                                        <div className="text-[0.6rem] font-bold text-text-muted uppercase tracking-wider mb-1 pl-2">Departments</div>
+                                        {renderOfficeContent(activeOffice)}
+                                    </div>
+                                </>
+                            )
                         )}
                     </div>
                 </>
