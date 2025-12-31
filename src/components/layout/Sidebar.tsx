@@ -61,9 +61,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         );
     };
 
-    const profileLink = activeOfficeId
-        ? `/office/${activeOfficeId}/profile`
-        : '/profile';
+    let profileLink = '/profile';
+    if (activeOfficeId && activeDepartmentId) {
+        profileLink = `/office/${activeOfficeId}/department/${activeDepartmentId}/profile`;
+    } else if (activeOfficeId) {
+        profileLink = `/office/${activeOfficeId}/profile`;
+    }
 
     return (
         <aside className="w-72 border-r border-white/5 p-6 flex flex-col fixed h-screen z-20 bg-black/40 backdrop-blur-xl shadow-2xl transition-transform duration-300 will-change-transform isolate" style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}>
