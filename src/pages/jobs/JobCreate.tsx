@@ -243,7 +243,7 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
         : orgUsers;
 
     return createPortal(
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] backdrop-blur-md p-4 md:p-8 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-100 backdrop-blur-md p-4 md:p-8 overflow-y-auto">
             <div className="glass w-full max-w-7xl relative border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col max-h-full">
 
                 {/* Header */}

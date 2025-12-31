@@ -96,7 +96,7 @@ export const JobDetailsPane: React.FC<JobDetailsPaneProps> = ({ jobId, onClose }
     const supervisor = users.find(u => u.uid === job.assignments?.supervisorId);
 
     return createPortal(
-        <div className="fixed right-0 top-0 bottom-0 w-full max-w-2xl md:w-[600px] bg-[#0f172a] shadow-2xl border-l border-white/10 z-[100] flex flex-col transform transition-transform duration-300">
+        <div className="fixed right-0 top-0 bottom-0 w-full max-w-2xl md:w-[600px] bg-[#0f172a] shadow-2xl border-l border-white/10 z-100 flex flex-col transform transition-transform duration-300">
             {/* Header */}
             <div className="flex-none p-6 border-b border-white/5 flex items-start justify-between bg-black/20">
                 <div>
