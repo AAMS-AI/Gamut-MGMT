@@ -5,16 +5,24 @@ import {
     query,
     where,
     addDoc,
+    doc,
+    updateDoc,
     serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { type Office, type Department } from '@/types/org';
-import { type JobStatus, type JobAssignments } from '@/types/jobs';
+import { type JobStatus, type JobAssignments, type Job } from '@/types/jobs';
 import { type UserProfile } from '@/types/team';
 import { ShieldAlert, Info, Users, Building, X, FileText } from 'lucide-react';
 
-export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+interface JobCreateProps {
+    onClose: () => void;
+    initialData?: Job;
+    jobId?: string;
+}
+
+export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobId }) => {
     const { profile } = useAuth();
     const [offices, setOffices] = useState<Office[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -96,57 +104,67 @@ export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Auto-set Supervisor when department changes
     useEffect(() => {
         if (departmentId && orgUsers.length > 0) {
-            const supervisor = orgUsers.find(u => u.departmentId === departmentId && u.role === 'DEPT_MANAGER');
-            if (supervisor) {
-                setAssignments(prev => ({ ...prev, supervisorId: supervisor.uid }));
-            } else {
-                setAssignments(prev => ({ ...prev, supervisorId: '' }));
+            // Only auto-set if not already set (or creation mode)
+            if (!assignments.supervisorId && !initialData) {
+                const supervisor = orgUsers.find(u => u.departmentId === departmentId && u.role === 'DEPT_MANAGER');
+                if (supervisor) {
+                    setAssignments(prev => ({ ...prev, supervisorId: supervisor.uid }));
+                }
             }
         }
-    }, [departmentId, orgUsers]);
+    }, [departmentId, orgUsers, assignments.supervisorId, initialData]);
 
-
-    // --- HANDLERS ---
-    const handleAssignmentChange = (field: string, value: any) => {
-        setAssignments(prev => ({ ...prev, [field]: value }));
-    };
+    // --- Form Population Effect ---
+    useEffect(() => {
+        if (initialData) {
+            setOfficeId(initialData.officeId);
+            setDepartmentId(initialData.departmentId);
+            setCustomerName(initialData.customer.name);
+            setCustomerPhone(initialData.customer.phone);
+            setAddress(initialData.property.address);
+            setCity(initialData.property.city);
+            setState(initialData.property.state);
+            setZip(initialData.property.zip);
+            setCounty(initialData.property.county || '');
+            setCarrier(initialData.insurance?.carrier || '');
+            setClaimNumber(initialData.insurance?.claimNumber || '');
+            setLossCategory(initialData.details?.lossCategory || '');
+            setLossDescription(initialData.details?.lossDescription || '');
+            setNotes(initialData.details?.notes || '');
+            if (initialData.dates?.lossDate) {
+                setLossDate(new Date(initialData.dates.lossDate.seconds * 1000).toISOString().split('T')[0]);
+            }
+            if (initialData.dates?.fnolReceivedDate) {
+                const d = new Date(initialData.dates.fnolReceivedDate.seconds * 1000);
+                // Adjust for timezone offset to display correctly in datetime-local
+                const offset = d.getTimezoneOffset();
+                const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+                setFnolReceivedDate(localDate.toISOString().slice(0, 16));
+            }
+            if (initialData.assignments) {
+                setAssignments(initialData.assignments);
+            }
+        }
+    }, [initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!profile) return;
         setLoading(true);
 
         try {
-            // Collect all assigned user IDs
-            // 1. Supervisor (Auto)
-            // 2. Lead Tech
-            // 3. Team Members
-            const assignedIds = new Set<string>();
-            if (assignments.supervisorId) assignedIds.add(assignments.supervisorId);
-            if (assignments.leadTechnicianId) assignedIds.add(assignments.leadTechnicianId);
-            assignments.teamMemberIds?.forEach(id => assignedIds.add(id));
-
-            // Ensure creator is in list if needed, or just let them stay as owner
-            // assignedIds.add(profile.uid); 
-
-            const finalAssignedIds = Array.from(assignedIds);
-
-
-            // Auto-generate job name
-            const jobName = customerName || 'New Job';
-
-            await addDoc(collection(db, 'jobs'), {
-                orgId: profile.orgId,
+            const commonData = {
+                // Metadata
                 officeId,
                 departmentId,
-                status: 'FNOL' as JobStatus,
-                jobName,
-                isCustomJobName: false,
+
+                // Customer
                 customer: {
                     name: customerName,
                     phone: customerPhone,
                     email: ''
                 },
+
+                // Property
                 property: {
                     address,
                     city,
@@ -154,33 +172,69 @@ export const JobCreate: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     zip,
                     county
                 },
+
+                // Insurance / Loss
                 insurance: {
                     carrier,
-                    claimNumber
+                    claimNumber,
+                    policyNumber: ''
                 },
+
+                details: {
+                    type: lossCategory,
+                    lossDescription,
+                    notes
+                },
+
                 dates: {
                     lossDate: lossDate ? new Date(lossDate) : null,
                     fnolReceivedDate: fnolReceivedDate ? new Date(fnolReceivedDate) : null
                 },
-                assignments,
-                details: {
-                    propertyType: 'Residential', // Defaulting for cleanliness as removed from UI
-                    lossCategory,
-                    lossDescription,
-                    notes // Persist internal notes
-                },
-                assignedUserIds: finalAssignedIds,
-                createdBy: profile.uid,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp()
-            });
+
+                // Status
+                status: initialData?.status || 'FNOL' as JobStatus,
+
+                // Assignments
+                assignments: assignments,
+                assignedUserIds: [
+                    assignments.supervisorId,
+                    assignments.leadTechnicianId,
+                    ...(assignments.teamMemberIds || [])
+                ].filter(Boolean)
+            };
+
+            if (jobId) {
+                // UPDATE EXISITING
+                await updateDoc(doc(db, 'jobs', jobId), {
+                    ...commonData,
+                    updatedAt: serverTimestamp()
+                });
+            } else {
+                // CREATE NEW
+                await addDoc(collection(db, 'jobs'), {
+                    ...commonData,
+                    orgId: profile?.orgId,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    status: 'FNOL'
+                });
+            }
+
             onClose();
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.error("Error creating/updating job:", error);
         } finally {
             setLoading(false);
         }
     };
+
+
+    // --- HANDLERS ---
+    const handleAssignmentChange = (field: string, value: any) => {
+        setAssignments(prev => ({ ...prev, [field]: value }));
+    };
+
+
 
     // Helper: Filter users by office (optional, strict) or just show all
     const availableUsers = officeId

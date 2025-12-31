@@ -2,10 +2,13 @@ import React from 'react';
 import {
     Briefcase,
     Users,
-    // ClipboardList,
     AlertTriangle,
-    Clock
+    Clock,
+    Megaphone
 } from 'lucide-react';
+import { type Department } from '@/types/org';
+import { type UserProfile } from '@/types/team';
+import { JobRow } from '@/pages/jobs/components/JobRow';
 import { type Job } from '@/types/jobs';
 import { type Task } from '@/types/jobs';
 import { type DashboardMetrics } from '@/utils/dashboardMetrics';
@@ -16,15 +19,50 @@ export interface PulseManagerProps {
     stats: DashboardMetrics;
     jobs: Job[];
     tasks: Task[];
+    departments: Department[];
+    users: UserProfile[];
 }
 
 export const PulseManager: React.FC<PulseManagerProps> = ({
     stats,
     jobs,
+    departments,
+    users
     // tasks
 }) => {
+    const unassignedJobs = jobs.filter(j => !j.assignments?.leadTechnicianId);
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* ACTION REQUIRED BANNER */}
+            {unassignedJobs.length > 0 && (
+                <div className="glass border-red-500/30 p-6 rounded-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <Megaphone size={100} className="text-red-500" />
+                    </div>
+
+                    <div className="flex items-center gap-2 text-red-400 mb-4">
+                        <AlertTriangle size={20} className="animate-pulse" />
+                        <h3 className="text-sm font-black uppercase tracking-widest">Action Required</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                        {unassignedJobs.slice(0, 3).map(job => (
+                            <JobRow
+                                key={job.id}
+                                job={job}
+                                departments={departments}
+                                users={users}
+                            />
+                        ))}
+                        {unassignedJobs.length > 3 && (
+                            <div className="text-center pt-2">
+                                <span className="text-xs text-text-muted font-medium">+{unassignedJobs.length - 3} more unassigned jobs</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
             {/* 1. TOP OPERATIONAL KPI GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 

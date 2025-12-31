@@ -4,17 +4,25 @@ import { OrgInfoStep } from './steps/OrgInfoStep';
 import { FirstOfficeStep } from './steps/FirstOfficeStep';
 import { TeamInviteStep } from './steps/TeamInviteStep';
 import { CompletionStep } from './steps/CompletionStep';
+import { PersonalDetailsStep } from './steps/PersonalDetailsStep';
 import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 
-type Step = 'ORG_INFO' | 'FIRST_OFFICE' | 'TEAM_INVITE' | 'COMPLETION';
+type Step = 'ORG_INFO' | 'FIRST_OFFICE' | 'TEAM_INVITE' | 'COMPLETION' | 'PERSONAL_DETAILS';
 
 export const OnboardingWizard: React.FC = () => {
-    const [currentStep, setCurrentStep] = useState<Step>('ORG_INFO');
-    const { user } = useAuth();
+    const { user, profile } = useAuth(); // Need profile for role check
     const navigate = useNavigate();
+
+    // Determine initial step
+    const [currentStep, setCurrentStep] = useState<Step>(() => {
+        if (profile?.role === 'OWNER' || profile?.role === 'ORG_ADMIN') {
+            return 'ORG_INFO';
+        }
+        return 'PERSONAL_DETAILS';
+    });
 
     const handleComplete = async () => {
         if (!user) return;
@@ -42,6 +50,10 @@ export const OnboardingWizard: React.FC = () => {
                 return <FirstOfficeStep onNext={() => nextStep('TEAM_INVITE')} />;
             case 'TEAM_INVITE':
                 return <TeamInviteStep onNext={() => nextStep('COMPLETION')} />;
+
+            case 'PERSONAL_DETAILS':
+                return <PersonalDetailsStep onNext={() => nextStep('COMPLETION')} />;
+
             case 'COMPLETION':
                 return <CompletionStep onFinish={handleComplete} />;
             default:

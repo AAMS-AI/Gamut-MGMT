@@ -4,7 +4,7 @@ import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { type Job } from '@/types/jobs';
 import { KanbanCard } from '@/pages/jobs/components/kanban/KanbanCard';
 
-export type LaneId = 'unassigned' | 'in_progress' | 'review' | 'done';
+export type LaneId = 'assigned' | 'in_progress' | 'review' | 'done';
 
 export interface Lane {
     id: LaneId;

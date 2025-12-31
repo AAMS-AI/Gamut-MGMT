@@ -52,13 +52,21 @@ export const OperationsBoard: React.FC = () => {
                 profile.orgId,
                 officeId,
                 effectiveDepartmentId || null,
-                (list) => setJobs(list)
+                (list: Job[]) => {
+                    // Filter out unassigned jobs for the board view as requested
+                    const assignedOnly = list.filter(j => !!j.assignments?.leadTechnicianId);
+                    setJobs(assignedOnly);
+                }
             );
         } else {
             // Global Context (Owner/Admin View)
             unsubscribe = jobService.subscribeToOrganizationJobs(
                 profile.orgId,
-                (list) => setJobs(list)
+                (list: Job[]) => {
+                    // Filter out unassigned jobs for the board view as requested
+                    const assignedOnly = list.filter(j => !!j.assignments?.leadTechnicianId);
+                    setJobs(assignedOnly);
+                }
             );
         }
 
@@ -67,7 +75,7 @@ export const OperationsBoard: React.FC = () => {
 
     // --- Lane Logic ---
     const lanes: Lane[] = [
-        { id: 'unassigned', title: 'Unassigned / New', colors: 'var(--status-fnol)' },
+        { id: 'assigned', title: 'Assigned / Ready', colors: 'var(--status-fnol)' },
         { id: 'in_progress', title: 'Field Operations', colors: 'var(--status-mitigation)' },
         { id: 'review', title: 'Manager Review', colors: '#eab308' }, // Yellow
         { id: 'done', title: 'Ready for Billing', colors: 'var(--status-reconstruction)' },
@@ -76,12 +84,13 @@ export const OperationsBoard: React.FC = () => {
     const getLaneId = (job: Job): LaneId => {
         if (job.status === 'CLOSEOUT') return 'done';
         if (job.status === 'REVIEW') return 'review';
-        if (job.assignedUserIds?.length > 0 && (job.status === 'MITIGATION' || job.status === 'RECONSTRUCTION')) return 'in_progress';
-        return 'unassigned';
+        if (job.status === 'MITIGATION' || job.status === 'RECONSTRUCTION') return 'in_progress';
+        return 'assigned';
     };
 
     const groupedJobs = useMemo(() => {
-        const groups: Record<LaneId, Job[]> = { unassigned: [], in_progress: [], review: [], done: [] };
+        const groups: Record<LaneId, Job[]> = { assigned: [], in_progress: [], review: [], done: [] };
+
         jobs.forEach(job => {
             const lane = getLaneId(job);
             groups[lane].push(job);
@@ -126,8 +135,8 @@ export const OperationsBoard: React.FC = () => {
             if (currentLaneId !== targetLaneId) {
                 const updates: Partial<Job> = {};
 
-                if (targetLaneId === 'unassigned') {
-                    updates.assignedUserIds = [];
+                if (targetLaneId === 'assigned') {
+                    updates.status = 'FNOL';
                 } else if (targetLaneId === 'in_progress') {
                     if (draggedJob.status !== 'MITIGATION' && draggedJob.status !== 'RECONSTRUCTION') {
                         updates.status = 'MITIGATION';

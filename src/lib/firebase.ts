@@ -3,7 +3,7 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 
-const firebaseConfig = {
+export const firebaseConfig = {
     apiKey: "demo-gamut-key",
     authDomain: "gamut-demo.firebaseapp.com",
     projectId: "gamut-demo",

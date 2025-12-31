@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PulseExecutive, type HubPulseEntity } from './PulseExecutive';
 import { PulseManager } from './PulseManager';
 import { PulseMember } from './PulseMember';
 import { calculateMetrics } from '@/utils/dashboardMetrics';
 import { type Job, type Task } from '@/types/jobs';
-import { type UserRole } from '@/types/team';
+import { type UserRole, type UserProfile } from '@/types/team';
+import { useOrganization } from '@/contexts/OrganizationContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface HubPulseContainerProps {
     role: UserRole;
@@ -32,6 +36,21 @@ export const HubPulseContainer: React.FC<HubPulseContainerProps> = ({
 }) => {
     // 1. Calculate Standard Metrics
     const metrics = calculateMetrics(jobs);
+
+    // 2. Context Data for Row Rendering
+    const { departments } = useOrganization();
+    const { profile } = useAuth();
+    const [users, setUsers] = useState<UserProfile[]>([]);
+
+    useEffect(() => {
+        if (!profile?.orgId) return;
+        // Fetch Users for resolution
+        const qUsers = query(collection(db, 'users'), where('orgId', '==', profile.orgId));
+        const unsubscribe = onSnapshot(qUsers, (snap) => {
+            setUsers(snap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile)));
+        });
+        return () => unsubscribe();
+    }, [profile?.orgId]);
 
     return (
         <div className="min-h-screen bg-transparent text-text-primary p-4 md:p-8 font-sans selection:bg-accent-electric selection:text-black">
@@ -66,6 +85,8 @@ export const HubPulseContainer: React.FC<HubPulseContainerProps> = ({
                     stats={metrics} // Pass calculated metrics
                     jobs={jobs}
                     tasks={tasks}
+                    departments={departments}
+                    users={users}
                 />
             )}
 

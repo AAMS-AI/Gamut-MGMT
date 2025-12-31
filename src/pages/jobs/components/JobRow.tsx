@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Briefcase, ChevronRight, Clock, MapPin, Building, User, FileText } from 'lucide-react';
 import { type Job } from '@/types/jobs';
 import { type Department } from '@/types/org';
@@ -13,6 +13,19 @@ interface JobRowProps {
 
 export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
     const navigate = useNavigate();
+    const params = useParams();
+
+    // Context-Aware Navigation
+    const handleNavigation = () => {
+        const { officeId, departmentId } = params;
+        if (officeId && departmentId) {
+            navigate(`/office/${officeId}/department/${departmentId}/jobs/${job.id}`);
+        } else if (officeId) {
+            navigate(`/office/${officeId}/jobs/${job.id}`);
+        } else {
+            navigate(`/jobs/${job.id}`);
+        }
+    };
 
     // Resolve Helpers
     const departmentName = departments.find(d => d.id === job.departmentId)?.name || 'Unknown Dept';
@@ -20,7 +33,7 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
 
     return (
         <div
-            onClick={() => navigate(`/jobs/${job.id}`)}
+            onClick={handleNavigation}
             className="glass p-5 flex flex-col md:flex-row items-start md:items-center gap-6 cursor-pointer hover:bg-white/5 transition-all group border border-white/5 hover:border-accent-electric/20 relative overflow-hidden"
         >
             {/* Status Indicator Bar (Left Border effect) */}
@@ -65,8 +78,8 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
 
                     {/* Lead Tech */}
                     <div className="flex items-center gap-2 text-text-muted">
-                        <User size={14} className="text-status-mitigation shrink-0" />
-                        <span className={`truncate ${leadTech ? 'text-white' : 'text-text-muted italic'}`}>
+                        <User size={14} className={`${!leadTech ? 'text-red-500' : 'text-status-mitigation'} shrink-0`} />
+                        <span className={`truncate ${leadTech ? 'text-white' : 'text-red-400 font-bold'}`}>
                             {leadTech ? leadTech.displayName : 'Unassigned'}
                         </span>
                     </div>

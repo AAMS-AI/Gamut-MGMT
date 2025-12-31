@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Mail, Phone, Shield } from 'lucide-react';
+import { Users, Mail, Phone, Shield, Plus } from 'lucide-react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { useParams } from 'react-router-dom';
 import type { UserProfile } from '@/types/team';
+import { ManageUserModal } from './components/ManageUserModal';
+import { Edit2 } from 'lucide-react';
 
 export const OfficeTeam: React.FC = () => {
     const { officeId } = useParams();
@@ -13,6 +15,8 @@ export const OfficeTeam: React.FC = () => {
     const { departments } = useOrganization();
     const [staff, setStaff] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showManageModal, setShowManageModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<UserProfile | undefined>(undefined);
 
     useEffect(() => {
         if (!officeId || !profile) return;
@@ -49,6 +53,11 @@ export const OfficeTeam: React.FC = () => {
         return departments.find(d => d.id === deptId)?.name || 'Unknown Dept';
     };
 
+    const handleManageUser = (user?: UserProfile) => {
+        setSelectedUser(user);
+        setShowManageModal(true);
+    };
+
     if (loading) return <div className="p-8 text-accent-electric animate-pulse">Loading roster...</div>;
 
     return (
@@ -67,6 +76,30 @@ export const OfficeTeam: React.FC = () => {
                 </p>
             </header>
 
+            {/* Actions Bar */}
+            {profile?.role !== 'MEMBER' && (
+                <div className="flex justify-end">
+                    <button
+                        onClick={() => handleManageUser(undefined)}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-accent-electric text-black font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-accent-electric/20"
+                    >
+                        <Plus size={18} />
+                        Add Team Member
+                    </button>
+                </div>
+            )}
+
+            {showManageModal && (
+                <ManageUserModal
+                    initialData={selectedUser}
+                    onClose={() => setShowManageModal(false)}
+                    onSuccess={() => {
+                        setShowManageModal(false);
+                        window.location.reload();
+                    }}
+                />
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {staff.length === 0 ? (
                     <div className="glass p-12 text-center text-text-muted col-span-full border border-white/5">
@@ -75,7 +108,17 @@ export const OfficeTeam: React.FC = () => {
                 ) : (
                     staff.map((user) => (
                         <div key={user.uid} className="glass p-6 border border-white/5 hover:border-accent-electric/20 transition-all group flex flex-col gap-4">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 relative">
+                                {/* Edit Button Overlay (Admins Only) */}
+                                {profile?.role !== 'MEMBER' && (
+                                    <button
+                                        onClick={() => handleManageUser(user)}
+                                        className="absolute top-0 right-0 p-2 text-text-muted hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                )}
+
                                 <div className="w-12 h-12 rounded-xl bg-bg-tertiary flex items-center justify-center text-lg font-bold text-white shadow-lg overflow-hidden">
                                     {user.photoURL ? (
                                         <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
@@ -114,6 +157,6 @@ export const OfficeTeam: React.FC = () => {
                     ))
                 )}
             </div>
-        </div>
+        </div >
     );
 };

@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { GlobalDashboard } from '@/pages/dashboard/GlobalDashboard';
 import JobsList from '@/pages/jobs/JobsList';
+import { JobDetails } from '@/pages/jobs/JobDetails';
 import { OrgManagement } from '@/pages/org/OrgManagement';
 
 // New Components
@@ -95,9 +96,11 @@ function App() {
             } />
 
             {/* --- Global & Enterprise Context --- */}
-            <Route path="/" element={<ProtectedRoute><GlobalDashboard /></ProtectedRoute>} />
+            <Route path="/" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><GlobalDashboard /></ProtectedRoute>} />
             <Route path="/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobsList /></ProtectedRoute>} />
+            <Route path="/jobs/:jobId" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobDetails /></ProtectedRoute>} />
+
             {/* <Route path="/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Dispatch Command" /></ProtectedRoute>} /> */}
 
             <Route path="/offices" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN']}><PlaceholderPage title="Offices Management" /></ProtectedRoute>} />
@@ -121,6 +124,8 @@ function App() {
             <Route path="/office/:officeId/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/office/:officeId/ops" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><OperationsBoard /></ProtectedRoute>} /> {/* Legacy/Alias */}
             <Route path="/office/:officeId/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><JobsList /></ProtectedRoute>} />
+            <Route path="/office/:officeId/jobs/:jobId" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><JobDetails /></ProtectedRoute>} />
+
             {/* <Route path="/office/:officeId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><PlaceholderPage title="Office Dispatch" /></ProtectedRoute>} /> */}
 
             <Route path="/office/:officeId/depts" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN']}><ManageDepartments /></ProtectedRoute>} />
@@ -138,6 +143,7 @@ function App() {
             <Route path="/office/:officeId/department/:departmentId" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><DepartmentDashboard /></ProtectedRoute>} />
             <Route path="/office/:officeId/department/:departmentId/kanban" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><OperationsBoard /></ProtectedRoute>} />
             <Route path="/office/:officeId/department/:departmentId/jobs" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobsList /></ProtectedRoute>} />
+            <Route path="/office/:officeId/department/:departmentId/jobs/:jobId" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><JobDetails /></ProtectedRoute>} />
             {/* <Route path="/office/:officeId/department/:departmentId/dispatch" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER']}><PlaceholderPage title="Department Assignment" /></ProtectedRoute>} /> */}
             {/* <Route path="/office/:officeId/department/:departmentId/tasks" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER', 'MEMBER']}><PlaceholderPage title="Department Tasks" /></ProtectedRoute>} /> */}
             <Route path="/office/:officeId/department/:departmentId/team" element={<ProtectedRoute allowedRoles={['OWNER', 'ORG_ADMIN', 'OFFICE_ADMIN', 'DEPT_MANAGER']}><OfficeTeam /></ProtectedRoute>} />
