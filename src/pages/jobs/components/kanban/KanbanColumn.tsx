@@ -25,14 +25,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ lane, jobs, onAdd, o
     return (
         <div ref={setNodeRef} className="flex flex-col min-w-[320px] h-full group/column">
             {/* Header */}
-            <div className="flex items-center justify-between mb-3 px-1">
-                <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-bold text-white m-0">
-                        {lane.title}
-                    </h3>
-                    <span className="text-xs text-text-secondary font-medium">
-                        {jobs.length}
-                    </span>
+            <div className="mb-4 flex items-center justify-between px-2">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lane.colors }} />
+                    <h3 className="text-sm font-bold uppercase text-white m-0">{lane.title}</h3>
+                    <span className="text-xs text-text-muted font-medium">{jobs.length}</span>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover/column:opacity-100 transition-opacity">
                     <MoreHorizontal size={16} className="text-text-muted cursor-pointer hover:text-white transition-colors" />
@@ -45,7 +42,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({ lane, jobs, onAdd, o
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 rounded-2xl flex flex-col gap-3 min-h-[500px]">
+            <div className="flex-1 bg-white/5 rounded-2xl p-3 flex flex-col gap-3 min-h-[500px]">
                 {/* Asana-style 'Quick Add' at top of list */}
                 {onAdd && (
                     <button

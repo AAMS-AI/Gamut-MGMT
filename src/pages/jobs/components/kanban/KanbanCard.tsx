@@ -10,36 +10,25 @@ interface KanbanCardProps {
     onClick?: () => void;
 }
 
-export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false, onClick }) => {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging
-    } = useSortable({ id: job.id, data: { type: 'Job', job } });
+// Internal View Component
+export const KanbanCardView: React.FC<{
+    job: Job;
+    isOverlay?: boolean;
+    onClick?: () => void;
+    innerRef?: (node: HTMLElement | null) => void;
+    style?: React.CSSProperties;
+    attributes?: any;
+    listeners?: any;
+    isDragging?: boolean;
+}> = ({ job, isOverlay, onClick, innerRef, style, attributes, listeners, isDragging }) => {
+    const now = Date.now();
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.3 : 1,
-        touchAction: 'none' as const
-    };
-
-    const [now, setNow] = React.useState<number | null>(null);
-    React.useEffect(() => {
-        setNow(Date.now());
-    }, []);
-
-    const daysInStage = now
-        ? Math.floor((now - (job.updatedAt?.toMillis() || now)) / (1000 * 3600 * 24))
-        : 0;
+    const daysInStage = Math.floor((now - (job.updatedAt?.toMillis() || now)) / (1000 * 3600 * 24));
     const isStagnant = daysInStage > 5 && job.status !== 'CLOSEOUT';
 
     return (
         <div
-            ref={setNodeRef}
+            ref={innerRef}
             style={style}
             {...attributes}
             {...listeners}
@@ -48,9 +37,9 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false, 
         >
             <div
                 className={`
-                    relative p-4 rounded-xl border transition-all duration-200
+                    relative p-4 rounded-xl border transition-colors duration-200
                     ${isOverlay
-                        ? 'bg-[#1e293b] shadow-2xl scale-105 border-accent-electric/50 cursor-grabbing'
+                        ? 'bg-[#1e293b] shadow-2xl border-accent-electric/50 cursor-grabbing'
                         : 'bg-[#1e293b] border-white/5 hover:border-white/10 cursor-grab shadow-sm'
                     }
                     ${isStagnant ? 'border-red-500/30' : ''}
@@ -105,5 +94,49 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false, 
                 </div>
             </div>
         </div>
+    );
+};
+
+export const KanbanCard: React.FC<KanbanCardProps> = ({ job, isOverlay = false, onClick }) => {
+    // If overlay is explicitly passed to the main component (legacy check), Render View directly
+    // But typically we should use KanbanCardView for overlay.
+    // However, if we are using useSortable, we must provide the id.
+
+    // For normal sorting usage:
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: job.id, data: { type: 'Job', job } });
+
+    const style = {
+        transform: CSS.Translate.toString(transform),
+        transition,
+        opacity: isDragging ? 0.3 : 1,
+        touchAction: 'none' as const
+    };
+
+    if (isOverlay) {
+        // If someone inadvertently passes isOverlay to this, we probably shouldn't have called useSortable if possible,
+        // but hooks order matters. 
+        // We will just render the View without the dragging props if we want 'overlay' style without 'sortable' logic?
+        // Actually, if isOverlay is true, we should default to the View component.
+        // But to fix the BUG, the component rendered in DragOverlay MUST NOT HAVE useSortable.
+        return <KanbanCardView job={job} isOverlay={true} />;
+    }
+
+    return (
+        <KanbanCardView
+            job={job}
+            innerRef={setNodeRef}
+            style={style}
+            attributes={attributes}
+            listeners={listeners}
+            onClick={onClick}
+            isDragging={isDragging}
+        />
     );
 };

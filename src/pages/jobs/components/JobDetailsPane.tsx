@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { doc, updateDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,8 +95,8 @@ export const JobDetailsPane: React.FC<JobDetailsPaneProps> = ({ jobId, onClose }
     const leadTech = users.find(u => u.uid === job.assignments?.leadTechnicianId);
     const supervisor = users.find(u => u.uid === job.assignments?.supervisorId);
 
-    return (
-        <div className="flex flex-col h-full bg-[#0f172a] shadow-2xl border-l border-white/10 w-full max-w-2xl md:w-[600px] absolute right-0 top-0 bottom-0 z-100 transform transition-transform duration-300">
+    return createPortal(
+        <div className="fixed right-0 top-0 bottom-0 w-full max-w-2xl md:w-[600px] bg-[#0f172a] shadow-2xl border-l border-white/10 z-[100] flex flex-col transform transition-transform duration-300">
             {/* Header */}
             <div className="flex-none p-6 border-b border-white/5 flex items-start justify-between bg-black/20">
                 <div>
@@ -273,6 +274,7 @@ export const JobDetailsPane: React.FC<JobDetailsPaneProps> = ({ jobId, onClose }
                     jobId={job.id}
                 />
             )}
-        </div>
+        </div>,
+        document.body
     );
 };

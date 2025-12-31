@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     DndContext,
     DragOverlay,
-    closestCorners,
+    pointerWithin,
     KeyboardSensor,
     MouseSensor,
     TouchSensor,
@@ -23,7 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { type Job } from '@/types/jobs';
 import { jobService } from '@/pages/jobs/jobService';
-import { KanbanCard } from '@/pages/jobs/components/kanban/KanbanCard';
+import { KanbanCard, KanbanCardView } from '@/pages/jobs/components/kanban/KanbanCard';
 import { KanbanColumn, type Lane, type LaneId } from '@/pages/jobs/components/kanban/KanbanColumn';
 import { JobDetailsPane } from '@/pages/jobs/components/JobDetailsPane';
 
@@ -116,6 +116,7 @@ export const OperationsBoard: React.FC = () => {
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        // console.log('Drag End:', { active: active.id, over: over?.id });
         setActiveDragItem(null);
 
         if (!over) return;
@@ -142,9 +143,9 @@ export const OperationsBoard: React.FC = () => {
                 if (targetLaneId === 'assigned') {
                     updates.status = 'FNOL';
                 } else if (targetLaneId === 'in_progress') {
-                    if (draggedJob.status !== 'MITIGATION' && draggedJob.status !== 'RECONSTRUCTION') {
-                        updates.status = 'MITIGATION';
-                    }
+                    // Always set to MITIGATION when entering Field Ops from another lane
+                    updates.status = 'MITIGATION';
+
                     if ((draggedJob.assignedUserIds?.length || 0) === 0) {
                         updates.assignedUserIds = [profile?.uid || 'placeholder'];
                     }
@@ -233,7 +234,7 @@ export const OperationsBoard: React.FC = () => {
         <div className="relative flex flex-col h-full overflow-hidden">
             <DndContext
                 sensors={sensors}
-                collisionDetection={closestCorners}
+                collisionDetection={pointerWithin}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
@@ -254,7 +255,7 @@ export const OperationsBoard: React.FC = () => {
                         </div>
                     </header>
 
-                    <div className="flex gap-6 overflow-x-auto pb-4 flex-1 min-h-0 pr-[600px]">
+                    <div className="flex gap-6 overflow-x-auto pb-4 flex-1 min-h-0">
                         {lanes.map(lane => (
                             <KanbanColumn
                                 key={lane.id}
@@ -267,8 +268,12 @@ export const OperationsBoard: React.FC = () => {
                     </div>
                 </div>
 
-                <DragOverlay>
-                    {activeDragItem ? <KanbanCard job={activeDragItem} isOverlay /> : null}
+                <DragOverlay dropAnimation={null}>
+                    {activeDragItem ? (
+                        <div style={{ width: '320px' }}>
+                            <KanbanCardView job={activeDragItem} isOverlay />
+                        </div>
+                    ) : null}
                 </DragOverlay>
             </DndContext>
 

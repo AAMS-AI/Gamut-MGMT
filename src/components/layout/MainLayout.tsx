@@ -59,7 +59,7 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const navGroups = groupNavItems(navItems);
 
     return (
-        <div className="flex bg-bg-primary mesh-gradient h-screen w-screen overflow-hidden text-text-primary font-sans selection:bg-accent-electric/30">
+        <div className="flex bg-bg-primary mesh-gradient h-screen w-full overflow-hidden text-text-primary font-sans selection:bg-accent-electric/30">
             <Sidebar
                 profile={profile}
                 organization={organization}
@@ -73,7 +73,7 @@ export const MainLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             />
 
             {/* Main Content */}
-            <main className="ms-72 flex-1 flex flex-col h-full overflow-hidden relative z-10 animate-in">
+            <main className="ms-72 flex-1 flex flex-col h-full overflow-hidden relative z-10">
                 <div className="flex-none p-8 pb-0">
                     <Header
                         activeOfficeId={activeOfficeId}

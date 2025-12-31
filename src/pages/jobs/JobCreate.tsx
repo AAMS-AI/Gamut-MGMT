@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
     collection,
     onSnapshot,
@@ -241,8 +242,8 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
         ? orgUsers.filter(u => !u.officeId || u.officeId === officeId) // Include unassigned or matching
         : orgUsers;
 
-    return (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-100 backdrop-blur-md p-4 md:p-8 overflow-y-auto">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] backdrop-blur-md p-4 md:p-8 overflow-y-auto">
             <div className="glass w-full max-w-7xl relative border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-300 flex flex-col max-h-full">
 
                 {/* Header */}
@@ -577,6 +578,7 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                     background-color: rgba(255, 255, 255, 0.1);
                 }
             `}</style>
-        </div>
+        </div>,
+        document.body
     );
 };
