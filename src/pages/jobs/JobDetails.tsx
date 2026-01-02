@@ -9,12 +9,12 @@ import {
     ArrowLeft,
     Briefcase,
     MapPin,
-    Calendar,
     Users,
     ShieldAlert,
-    Save,
-    Pencil
+    Pencil,
+    BrainCircuit
 } from 'lucide-react';
+import { ClaimAnalysis } from './components/ClaimAnalysis';
 import { JobCreate } from './JobCreate';
 
 export const JobDetails: React.FC = () => {
@@ -141,164 +141,134 @@ export const JobDetails: React.FC = () => {
                 )
             }
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Dashboard Grid Layout */}
+            <div className="space-y-8">
 
-                {/* Left Col: Info */}
-                <div className="lg:col-span-2 space-y-6">
+                {/* Top Statistics & Information Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                    {/* General Info Card */}
-                    <div className="glass p-6 rounded-2xl border border-white/5 space-y-6">
+                    {/* 1. Insurance & Dates Card */}
+                    <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col justify-between">
                         <div className="flex items-center gap-2 text-accent-electric mb-4">
-                            <Briefcase size={20} />
-                            <h3 className="text-sm font-black uppercase tracking-widest">Job Information</h3>
+                            <Briefcase size={18} />
+                            <h3 className="text-xs font-black uppercase tracking-widest">Claim Details</h3>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-text-muted uppercase block mb-1">Insurance Carrier</label>
-                                <div className="text-white text-lg font-medium">{job.insurance.carrier || 'N/A'}</div>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-text-muted uppercase block mb-1">Claim Number</label>
-                                <div className="text-white text-lg font-medium font-mono">{job.insurance.claimNumber || 'N/A'}</div>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-text-muted uppercase block mb-1">Date of Loss</label>
-                                <div className="text-white font-medium flex items-center gap-2">
-                                    <Calendar size={16} className="text-text-muted" />
-                                    {job.dates?.lossDate ? new Date(job.dates.lossDate.seconds * 1000).toLocaleDateString() : 'N/A'}
+                                <label className="text-[10px] font-bold text-text-muted uppercase block">Carrier & Claim #</label>
+                                <div className="text-white font-bold text-lg truncate" title={job.insurance.carrier}>
+                                    {job.insurance.carrier || 'N/A'}
                                 </div>
+                                <div className="text-sm font-mono text-text-secondary">{job.insurance.claimNumber}</div>
                             </div>
-                            <div>
-                                <label className="text-xs font-bold text-text-muted uppercase block mb-1">FNOL Received</label>
-                                <div className="text-white font-medium flex items-center gap-2">
-                                    <Calendar size={16} className="text-text-muted" />
-                                    {job.dates?.fnolReceivedDate ? new Date(job.dates.fnolReceivedDate.seconds * 1000).toLocaleString() : 'N/A'}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] font-bold text-text-muted uppercase block">Loss Date</label>
+                                    <div className="text-white text-sm">
+                                        {job.dates?.lossDate ? new Date(job.dates.lossDate.seconds * 1000).toLocaleDateString() : '-'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-text-muted uppercase block">FNOL</label>
+                                    <div className="text-white text-sm">
+                                        {job.dates?.fnolReceivedDate ? new Date(job.dates.fnolReceivedDate.seconds * 1000).toLocaleDateString() : '-'}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        {job.details.lossDescription && (
-                            <div className="pt-4 border-t border-white/5">
-                                <label className="text-xs font-bold text-text-muted uppercase block mb-2">Description of Loss</label>
-                                <p className="text-text-secondary leading-relaxed bg-black/20 p-4 rounded-xl text-sm">
-                                    {job.details.lossDescription}
-                                </p>
-                            </div>
-                        )}
                     </div>
-                </div>
 
-                {/* Right Col: Team & Actions */}
-                <div className="space-y-6">
+                    {/* 2. Loss Description / Notes Card */}
+                    <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col">
+                        <div className="flex items-center gap-2 text-accent-electric mb-4">
+                            <ShieldAlert size={18} />
+                            <h3 className="text-xs font-black uppercase tracking-widest">Loss Information</h3>
+                        </div>
+                        <div className="flex-1 bg-white/5 rounded-xl p-3">
+                            <label className="text-[10px] font-bold text-text-muted uppercase block mb-1">Description</label>
+                            <p className="text-sm text-text-secondary leading-relaxed line-clamp-4">
+                                {job.details.lossDescription || "No loss description provided."}
+                            </p>
+                        </div>
+                    </div>
 
-                    {/* Team Assignments Card */}
-                    <div className={`glass p-6 rounded-2xl border ${!leadTech ? 'border-red-500/30 ring-1 ring-red-500/20' : 'border-white/5'}`}>
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2 text-accent-primary">
-                                <Users size={20} />
-                                <h3 className="text-sm font-black uppercase tracking-widest">Job Team</h3>
+                    {/* 3. Team & Quick Actions */}
+                    <div className={`glass p-5 rounded-2xl border ${!leadTech ? 'border-red-500/30 ring-1 ring-red-500/20' : 'border-white/5'} flex flex-col`}>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2 text-accent-electric">
+                                <Users size={18} />
+                                <h3 className="text-xs font-black uppercase tracking-widest">Team</h3>
                             </div>
                             {!isEditingAssignments && isManagerOrAdmin && (
                                 <button
                                     onClick={() => setIsEditingAssignments(true)}
-                                    className="text-xs font-bold text-accent-electric hover:underline"
+                                    className="text-[10px] font-bold text-white/50 hover:text-white uppercase transition-colors"
                                 >
-                                    Edit
+                                    Edit Team
                                 </button>
                             )}
                         </div>
 
-                        {/* Assignments View Mode */}
                         {!isEditingAssignments ? (
-                            <div className="space-y-4">
-                                {/* Lead Tech Display */}
-                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                    <label className="text-[10px] font-bold text-text-muted uppercase block mb-2">Lead Technician</label>
-                                    {leadTech ? (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-accent-electric text-black flex items-center justify-center font-bold">
-                                                {leadTech.displayName[0]}
-                                            </div>
-                                            <div>
-                                                <div className="text-white font-bold text-sm">{leadTech.displayName}</div>
-                                                <div className="text-xs text-text-secondary">{leadTech.role}</div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-red-400">
-                                            <ShieldAlert size={16} />
-                                            <span className="text-sm font-bold">Unassigned</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Supervisor Display */}
-                                <div className="flex items-center gap-3 p-2">
-                                    <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs">
-                                        {supervisor?.displayName[0] || '?'}
+                            <div className="flex-1 flex flex-col justify-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-accent-electric text-black flex items-center justify-center font-bold shadow-lg shadow-accent-electric/20">
+                                        {leadTech?.displayName[0] || '?'}
                                     </div>
                                     <div>
-                                        <div className="text-sm font-medium text-text-secondary">Supervisor</div>
-                                        <div className="text-white font-bold text-sm">{supervisor?.displayName || 'N/A'}</div>
+                                        <div className="text-xs text-text-muted uppercase font-bold">Lead Technician</div>
+                                        <div className="text-white font-bold">{leadTech?.displayName || 'Unassigned'}</div>
                                     </div>
+                                </div>
+                                <div className="pl-14">
+                                    <div className="text-xs text-text-muted uppercase font-bold">Supervisor</div>
+                                    <div className="text-white/80 text-sm">{supervisor?.displayName || 'Not Assigned'}</div>
                                 </div>
                             </div>
                         ) : (
-                            /* Assignments Edit Mode */
-                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-text-muted uppercase">Lead Technician</label>
-                                    <select
-                                        value={assignments.leadTechnicianId || ''}
-                                        onChange={(e) => setAssignments(prev => ({ ...prev, leadTechnicianId: e.target.value }))}
-                                        className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-accent-electric outline-none"
-                                    >
-                                        <option value="">Select Lead Tech...</option>
-                                        {users
-                                            .filter(u => !['DEPT_MANAGER', 'OFFICE_ADMIN', 'ORG_ADMIN', 'OWNER'].includes(u.role))
-                                            .map(u => (
-                                                <option key={u.uid} value={u.uid}>{u.displayName}</option>
-                                            ))
-                                        }
-                                    </select>
-                                </div>
-
-                                {/* Add more robust assignment editing here if needed (e.g. team members) */}
-
-                                <div className="flex items-center gap-2 pt-2">
-                                    <button
-                                        onClick={handleSaveAssignments}
-                                        disabled={saving}
-                                        className="flex-1 bg-accent-electric text-black font-bold py-2 rounded-lg text-sm hover:bg-white transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        {saving ? 'Saving...' : <><Save size={14} /> Save Assignment</>}
+                            <div className="flex-1 flex flex-col gap-3 animate-in fade-in">
+                                <label className="text-[10px] font-bold text-text-muted uppercase">Assign Lead Tech</label>
+                                <select
+                                    value={assignments.leadTechnicianId || ''}
+                                    onChange={(e) => setAssignments(prev => ({ ...prev, leadTechnicianId: e.target.value }))}
+                                    className="w-full bg-black/30 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-accent-electric outline-none"
+                                >
+                                    <option value="">Select Lead Tech...</option>
+                                    {users
+                                        .filter(u => !['DEPT_MANAGER', 'OFFICE_ADMIN', 'ORG_ADMIN', 'OWNER'].includes(u.role))
+                                        .map(u => (
+                                            <option key={u.uid} value={u.uid}>{u.displayName}</option>
+                                        ))
+                                    }
+                                </select>
+                                <div className="flex gap-2 mt-auto">
+                                    <button onClick={handleSaveAssignments} disabled={saving} className="flex-1 bg-accent-electric text-black text-xs font-bold py-2 rounded-lg">
+                                        {saving ? '...' : 'Save'}
                                     </button>
-                                    <button
-                                        onClick={() => {
-                                            setIsEditingAssignments(false);
-                                            // Revert local state
-                                            setAssignments(job.assignments || {});
-                                        }}
-                                        className="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-white font-bold text-xs"
-                                    >
+                                    <button onClick={() => setIsEditingAssignments(false)} className="px-3 bg-white/10 text-white text-xs font-bold rounded-lg">
                                         Cancel
                                     </button>
                                 </div>
                             </div>
                         )}
                     </div>
-
-                    {/* Status Actions */}
-                    <div className="glass p-6 rounded-2xl border border-white/5 text-center">
-                        <p className="text-sm text-text-muted mb-4">Job is currently in <strong>{job.status}</strong></p>
-                        <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold transition-all">
-                            Manage Status
-                        </button>
-                    </div>
-
                 </div>
+
+                {/* AI Claim Analysis - Full Width */}
+                {job.claimData ? (
+                    <div className="animate-in slide-in-from-bottom-8 duration-700 fade-in fill-mode-forwards">
+                        <ClaimAnalysis data={job.claimData} />
+                    </div>
+                ) : (
+                    <div className="glass p-10 rounded-2xl border border-white/5 border-dashed flex flex-col items-center justify-center text-center opacity-50">
+                        <BrainCircuit size={48} className="text-white/20 mb-4" />
+                        <h3 className="text-lg font-bold text-white">No AI Analysis Data</h3>
+                        <p className="text-text-muted max-w-md mt-2">
+                            This job has not yet been processed by the AI engine or field data is missing.
+                        </p>
+                    </div>
+                )}
+
             </div>
         </div >
     );

@@ -84,6 +84,53 @@ export interface Job {
     createdBy: string;
     createdAt: any;
     updatedAt: any;
+
+    // AI / Field Tech Claim Data
+    claimData?: ClaimData;
+}
+
+export interface ClaimItem {
+    id: string;
+    description: string;
+    quantity: number;
+    unit: string;
+    unitPrice: number;
+    total: number;
+    category: string;
+    notes?: string;
+}
+
+export interface ClaimPreScan {
+    measurements: {
+        room: string;
+        area: string;
+        perimeter: string;
+        height: string;
+    }[];
+    images: {
+        url: string;
+        caption?: string;
+        timestamp?: any;
+        room?: string;
+    }[];
+    notes: string;
+}
+
+export interface AIAnalysis {
+    summary: string;
+    severityScore: number; // 1-10
+    recommendedActions: string[];
+    referencedStandards: {
+        code: string; // e.g., "S500"
+        description: string;
+        url?: string;
+    }[];
+}
+
+export interface ClaimData {
+    preScan: ClaimPreScan;
+    aiAnalysis: AIAnalysis;
+    lineItems: ClaimItem[];
 }
 
 

@@ -152,6 +152,50 @@ async function seed() {
 
             // North Branch - Recon (Unassigned)
             { id: 'job_north_rec_01', officeId: officeNorthId, deptId: deptNorthRecon, cust: 'North Rec Customer 1', status: 'RECONSTRUCTION', assignedTo: [] },
+
+            // AI Demo Job
+            {
+                id: 'job_demo_ai_01',
+                officeId: officeMainId,
+                deptId: deptMainMit,
+                cust: 'Sarah Connor (AI Demo)',
+                status: 'MITIGATION',
+                assignedTo: ['mem_main_mit_001'],
+                claimData: {
+                    preScan: {
+                        measurements: [
+                            { room: 'Living Room', area: '350 sqft', perimeter: '75 ft', height: '9 ft' },
+                            { room: 'Kitchen', area: '200 sqft', perimeter: '50 ft', height: '9 ft' }
+                        ],
+                        images: [
+                            { url: 'https://placehold.co/600x400/png?text=Living+Room+Damage', caption: 'Standing water in living room. Affected area includes hardwood flooring and baseboards.', timestamp: FieldValue.serverTimestamp() },
+                            { url: 'https://placehold.co/600x400/png?text=Kitchen+Source', caption: 'Source: Dishwasher supply line failure.', timestamp: FieldValue.serverTimestamp() },
+                            { url: 'https://placehold.co/600x400/png?text=Thermal+Image', caption: 'Thermal imaging showing moisture migration under cabinets.', timestamp: FieldValue.serverTimestamp() }
+                        ],
+                        notes: 'Initial scan indicates Class 2 water loss affecting approximately 40% of the ground floor. Source appears to be a burst pipe in the kitchen island.'
+                    },
+                    aiAnalysis: {
+                        summary: 'High probability of Category 2 water loss. Immediate extraction and dehumidification recommended. Microbial growth potential is moderate if not treated within 24 hours.',
+                        severityScore: 7,
+                        recommendedActions: [
+                            'Extract standing water',
+                            'Remove baseboards in affected areas',
+                            'Install 2 LGR Dehumidifiers',
+                            'Apply antimicrobial agent'
+                        ],
+                        referencedStandards: [
+                            { code: 'IICRC S500', description: 'Standard and Reference Guide for Professional Water Damage Restoration' },
+                            { code: 'ANSI/IICRC S520', description: 'Standard for Professional Mold Remediation' }
+                        ]
+                    },
+                    lineItems: [
+                        { id: 'li_001', category: 'Mitigation', description: 'Water Extraction (Clean/Grey)', quantity: 550, unit: 'SF', unitPrice: 0.85, total: 467.50 },
+                        { id: 'li_002', category: 'Mitigation', description: 'Tear out wet non-salvageable drywall', quantity: 120, unit: 'SF', unitPrice: 1.50, total: 180.00 },
+                        { id: 'li_003', category: 'Equipment', description: 'LGR Dehumidifier (Large)', quantity: 3, unit: 'DA', unitPrice: 110.00, total: 330.00 },
+                        { id: 'li_004', category: 'Equipment', description: 'Air Mover (Axial)', quantity: 8, unit: 'DA', unitPrice: 35.00, total: 280.00 }
+                    ]
+                }
+            },
         ];
 
         for (const j of jobs) {
@@ -170,6 +214,8 @@ async function seed() {
                     paid: 0,
                     balance: 0
                 },
+                // @ts-ignore
+                claimData: j.claimData || null,
                 createdBy: 'owner_user_001',
                 createdAt: FieldValue.serverTimestamp(),
                 updatedAt: FieldValue.serverTimestamp()

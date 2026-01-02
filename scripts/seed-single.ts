@@ -94,7 +94,119 @@ async function seed() {
             });
         }
 
-        console.log('\n✅ Single-Office Seeding Complete!');
+
+        // 5. Jobs
+        console.log('💼 Creating Demo Jobs...');
+
+        // Generate massive line items
+        const generatedLineItems = [];
+        const categories = ['Mitigation', 'Contents', 'Structural-Demolition', 'Structural-Framing', 'Drywall', 'Painting', 'Flooring', 'Electrical', 'Plumbing', 'HVAC'];
+
+        for (let i = 1; i <= 75; i++) {
+            const cat = categories[Math.floor(Math.random() * categories.length)];
+            generatedLineItems.push({
+                id: `li_gen_${i}`,
+                category: cat,
+                description: `Standard line item description for ${cat} work step #${i} - Remove and replace per industry standard`,
+                quantity: Math.floor(Math.random() * 500) + 10,
+                unit: 'SF',
+                unitPrice: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
+                total: 0 // Will recalc below
+            });
+        }
+        // Calc totals
+        generatedLineItems.forEach(i => i.total = parseFloat((i.quantity * i.unitPrice).toFixed(2)));
+
+        // Generate multiple images
+        const generatedImages = [];
+        const rooms = ['Living Room', 'Kitchen', 'Master Bath', 'Guest Bed', 'Hallway', 'Basement'];
+        for (let i = 1; i <= 24; i++) {
+            const room = rooms[i % rooms.length];
+            generatedImages.push({
+                url: `https://placehold.co/600x400/png?text=${room.replace(' ', '+')}+Photo+${i}`,
+                caption: `Photo ${i} of ${room}: Documenting pre-existing conditions and initial water damage extent. Timestamp verified.`,
+                timestamp: new Date(),
+                room: room
+            });
+        }
+
+        const jobs = [
+            // AI Demo Job
+            {
+                id: 'job_demo_ai_single',
+                officeId: officeMainId,
+                deptId: deptMainMit,
+                cust: 'Sarah Connor (AI Demo - Large)',
+                status: 'MITIGATION',
+                assignedTo: ['mem_mit_s'],
+                claimData: {
+                    preScan: {
+                        measurements: [
+                            { room: 'Living Room', area: '350 sqft', perimeter: '75 ft', height: '9 ft' },
+                            { room: 'Kitchen', area: '200 sqft', perimeter: '50 ft', height: '9 ft' },
+                            { room: 'Master Bedroom', area: '280 sqft', perimeter: '68 ft', height: '10 ft' },
+                            { room: 'Master Bath', area: '120 sqft', perimeter: '42 ft', height: '10 ft' },
+                            { room: 'Hallway', area: '85 sqft', perimeter: '30 ft', height: '9 ft' },
+                            { room: 'Guest Bedroom', area: '180 sqft', perimeter: '54 ft', height: '9 ft' }
+                        ],
+                        images: generatedImages,
+                        notes: 'LARGE LOSS: Initial scan indicates Class 3 water loss affecting >60% of the structure. Source: Main line rupture in slab. Extensive mitigation required.'
+                    },
+                    aiAnalysis: {
+                        summary: 'CRITICAL ALERT: Class 3 Water Loss detected across multiple zones. High risk of secondary damage to structural components. Immediate stabilization required.',
+                        severityScore: 9,
+                        recommendedActions: [
+                            'Emergency Water Extraction (Truck Mount)',
+                            'Remove all floating flooring (1200 SF)',
+                            'Flood cut drywall 2ft/4ft in affected zones',
+                            'Deploy 12+ Axial Air Movers',
+                            'Deploy 4 XL LGR Dehumidifiers',
+                            'Containment barriers for Master Suite'
+                        ],
+                        referencedStandards: [
+                            { code: 'IICRC S500', description: 'Standard and Reference Guide for Professional Water Damage Restoration' },
+                            { code: 'ANSI/IICRC S520', description: 'Standard for Professional Mold Remediation' },
+                            { code: 'OSHA 1910', description: 'Occupational Safety and Health Standards' }
+                        ]
+                    },
+                    lineItems: generatedLineItems
+                }
+            }
+        ];
+
+        for (const j of jobs) {
+            await db.collection('jobs').doc(j.id).set({
+                id: j.id,
+                orgId,
+                officeId: j.officeId,
+                departmentId: j.deptId,
+                status: j.status,
+                customer: { name: j.cust, phone: '555-0100', email: 'cust@example.com' },
+                property: { address: '742 Evergreen Tce', city: 'Metro City', state: 'NY', zip: '10001' },
+                insurance: { carrier: 'State Farm', claimNumber: `CLM-${j.id}` },
+                assignedUserIds: j.assignedTo,
+                financials: {
+                    revenue: 15000,
+                    paid: 0,
+                    balance: 15000
+                },
+                details: {
+                    propertyType: 'Residential',
+                    lossCategory: 'Water',
+                    lossDescription: 'Water damage from burst pipe in kitchen.'
+                },
+                assignments: {
+                    leadTechnicianId: j.assignedTo[0]
+                },
+                // @ts-ignore
+                claimData: j.claimData || null,
+                createdBy: 'owner_single',
+                createdAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp()
+            });
+        }
+
+
         process.exit(0);
     } catch (error) {
         console.error('\n❌ Fatal Seeding Error:', error);
