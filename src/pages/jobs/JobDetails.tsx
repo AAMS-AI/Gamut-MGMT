@@ -250,13 +250,52 @@ export const JobDetails: React.FC = () => {
                                     <Activity size={14} className="text-accent-electric animate-pulse" />
                                 </div>
                                 <select
-                                    value={job.status}
+                                    value={(() => {
+                                        // Display effective status if historical for this user
+                                        if (profile?.departmentId && job.departmentId !== profile.departmentId) {
+                                            const phase = job.phases?.find(p => p.departmentId === profile.departmentId);
+                                            // Map phase stage to status options
+                                            if (phase?.stage === 'BILLING') return 'BILLING';
+                                            if (phase?.stage === 'REVIEW') return 'REVIEW';
+                                            // Fallback/Default for historical
+                                            return 'REVIEW';
+                                        }
+                                        return job.status;
+                                    })()}
                                     onChange={async (e) => {
+                                        const newStatus = e.target.value;
                                         try {
-                                            await updateDoc(doc(db, 'jobs', jobId!), {
-                                                status: e.target.value,
-                                                updatedAt: serverTimestamp()
-                                            });
+                                            // Context-Aware Update Logic
+                                            if (profile?.departmentId && job.departmentId !== profile.departmentId) {
+                                                // 1. Updating Historical Phase (e.g. moving from Review to Billing)
+                                                const phaseIndex = job.phases?.findIndex(p => p.departmentId === profile.departmentId);
+                                                if (phaseIndex !== undefined && phaseIndex !== -1 && job.phases) {
+                                                    const newPhases = [...job.phases];
+
+                                                    // Only map supported Kanban stages for phases
+                                                    let newStage: 'REVIEW' | 'BILLING' | undefined;
+                                                    if (newStatus === 'BILLING' || newStatus === 'COMPLETED') newStage = 'BILLING';
+                                                    else if (newStatus === 'REVIEW') newStage = 'REVIEW';
+
+                                                    if (newStage) {
+                                                        newPhases[phaseIndex] = { ...newPhases[phaseIndex], stage: newStage };
+                                                        await updateDoc(doc(db, 'jobs', jobId!), {
+                                                            phases: newPhases,
+                                                            updatedAt: serverTimestamp()
+                                                        });
+                                                    } else {
+                                                        // If they try to set it to Active/Pending, it's invalid for a historical phase
+                                                        // But maybe they want to "Revert" it? For now, let's just warn or handle commonly
+                                                        console.warn("Cannot set historical phase to non-final/review status");
+                                                    }
+                                                }
+                                            } else {
+                                                // 2. Updating Standard Active Job
+                                                await updateDoc(doc(db, 'jobs', jobId!), {
+                                                    status: newStatus,
+                                                    updatedAt: serverTimestamp()
+                                                });
+                                            }
                                         } catch (err) {
                                             console.error("Failed to update status", err);
                                         }
@@ -267,8 +306,6 @@ export const JobDetails: React.FC = () => {
                                     <option value="IN_PROGRESS" className="bg-[#111] text-blue-400 font-bold">Work in Progress</option>
                                     <option value="REVIEW" className="bg-[#111] text-yellow-500 font-bold">Manager Review</option>
                                     <option value="BILLING" className="bg-[#111] text-orange-400 font-bold">Billing</option>
-                                    <option value="COMPLETED" className="bg-[#111] text-green-500 font-bold">Completed</option>
-                                    <option value="CANCELLED" className="bg-[#111] text-red-500 font-bold">Cancelled</option>
                                 </select>
                                 <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-accent-electric">
                                     <ArrowLeft size={10} className="-rotate-90" />
