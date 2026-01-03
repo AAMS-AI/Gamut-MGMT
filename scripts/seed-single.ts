@@ -63,7 +63,13 @@ interface ScenarioFinding {
     user: string;
     time: string;
     aiReasoning: string;
-    photos: { url: string; caption: string }[];
+    photos: {
+        url: string;
+        caption?: string;
+        aiAnalysis?: string;
+        humanNote?: string;
+        timestamp?: string;
+    }[];
     lineItems: { id: string; category: string; description: string; quantity: number; unit: string; unitPrice: number; total: number }[];
 }
 

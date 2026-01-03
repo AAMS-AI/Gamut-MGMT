@@ -145,10 +145,35 @@ export interface AIAnalysis {
     }[];
 }
 
+
+export interface FindingPhoto {
+    url: string;
+    caption?: string;
+    aiAnalysis?: string;
+    humanNote?: string;
+    timestamp?: string;
+}
+
+export interface Finding {
+    id: number;
+    phase: 'Mitigation' | 'Restoration';
+    iconName: string;
+    color: string;
+    bg: string;
+    border: string;
+    text: string;
+    user: string;
+    time: string;
+    aiReasoning?: string;
+    photos: FindingPhoto[];
+    lineItems: ClaimItem[];
+}
+
 export interface ClaimData {
     preScan: ClaimPreScan;
     aiAnalysis: AIAnalysis;
     lineItems: ClaimItem[];
+    findings?: Finding[];
 }
 
 
