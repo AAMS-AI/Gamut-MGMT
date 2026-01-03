@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { type Office, type Department } from '@/types/org';
 import { type JobStatus, type JobAssignments, type Job } from '@/types/jobs';
 import { type UserProfile } from '@/types/team';
-import { ShieldAlert, Info, Users, Building, X, FileText } from 'lucide-react';
+import { ShieldAlert, Info, Users, Building, X, FileText, Pencil } from 'lucide-react';
 
 interface JobCreateProps {
     onClose: () => void;
@@ -184,7 +184,7 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                 },
 
                 details: {
-                    type: lossCategory,
+                    lossCategory: lossCategory,
                     lossDescription,
                     notes
                 },
@@ -255,11 +255,11 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                 <header className="flex items-center justify-between p-6 border-b border-white/10 flex-none bg-surface-elevation-1">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-accent-electric/20 flex items-center justify-center text-accent-electric">
-                            <ShieldAlert size={28} />
+                            {jobId ? <Pencil size={24} /> : <ShieldAlert size={28} />}
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white leading-tight">Create Job</h2>
-                            <p className="text-text-secondary text-sm font-medium tracking-wide">Enter Job Details</p>
+                            <h2 className="text-2xl font-bold text-white leading-tight">{jobId ? 'Edit Job' : 'Create Job'}</h2>
+                            <p className="text-text-secondary text-sm font-medium tracking-wide">{jobId ? 'Update Job Details' : 'Enter Job Details'}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -559,7 +559,7 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                         disabled={loading}
                         className="px-8 py-3 rounded-xl bg-accent-electric text-black font-bold shadow-[0_0_20px_rgba(0,242,255,0.2)] hover:shadow-[0_0_30px_rgba(0,242,255,0.4)] hover:bg-white transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:transform-none"
                     >
-                        {loading ? 'Creating Project...' : 'Create Job Project'}
+                        {loading ? 'Saving...' : (jobId ? 'Save Changes' : 'Create Job Project')}
                     </button>
                 </footer>
 

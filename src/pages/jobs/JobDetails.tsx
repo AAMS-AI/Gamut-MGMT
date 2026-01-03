@@ -405,6 +405,7 @@ export const JobDetails: React.FC = () => {
                                     {activeTab === 'OVERVIEW' && (
                                         <JobOverviewTab
                                             job={job}
+                                            classification={claimData.classification}
                                             leadTech={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.leadTechnicianId)}
                                             supervisor={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.supervisorId)}
                                         />

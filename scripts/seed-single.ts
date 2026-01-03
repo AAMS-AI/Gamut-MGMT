@@ -567,6 +567,11 @@ async function seed() {
                 cust: 'Sarah Connor (Burst Pipe)',
                 status: 'PENDING',
                 assignedTo: ['mgr_mit_s', 'mem_mit_s'],
+                details: {
+                    propertyType: 'Residential',
+                    lossCategory: 'Water',
+                    lossDescription: 'Sudden pipe burst in kitchen ceiling affecting multiple areas.'
+                },
                 phases: [
                     {
                         id: 'phase_mit_01',
@@ -590,6 +595,11 @@ async function seed() {
                 cust: 'John Wick (Kitchen Fire)',
                 status: 'IN_PROGRESS',
                 assignedTo: ['mgr_rec_s', 'mem_rec_s'],
+                details: {
+                    propertyType: 'Residential',
+                    lossCategory: 'Fire',
+                    lossDescription: 'Kitchen fire with suppression damage.'
+                },
                 phases: [
                     {
                         id: 'phase_mit_02',
@@ -637,11 +647,8 @@ async function seed() {
                     paid: 0,
                     balance: 0
                 },
-                details: {
-                    propertyType: 'Residential',
-                    lossCategory: 'Fire',
-                    lossDescription: 'Kitchen fire with suppression damage.'
-                },
+                // @ts-ignore
+                details: j.details,
                 // @ts-ignore
                 phases: j.phases || [],
                 // @ts-ignore
