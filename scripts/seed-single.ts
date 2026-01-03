@@ -230,6 +230,110 @@ function generateBurstPipeScenario() {
     return { findings, allLineItems };
 }
 
+function generateRestorationScenario() {
+    console.log('🎬 Generating "Kitchen Put-Back" Scenario...');
+
+    // Shared Assets
+    const photos = {
+        cabinets: "https://placehold.co/600x400/png?text=Swollen+Cabinets",
+        floor: "https://placehold.co/600x400/png?text=Cupped+Hardwood",
+        paint: "https://placehold.co/600x400/png?text=Wall+Prep+Paint",
+    };
+
+    const findings: ScenarioFinding[] = [];
+    let lineItemCounter = 1;
+
+    // --- RESTORATION FINDINGS ---
+
+    // 1. Cabinets Ruined
+    findings.push({
+        id: 1, // Reset ID for clarity in this phase's context
+        phase: 'Restoration',
+        iconName: 'Hammer',
+        color: 'text-green-400',
+        bg: 'bg-green-400/10',
+        border: 'border-green-400/20',
+        text: "Kitchen lower cabinets non-salvageable (swollen MDF). Full replacement required.",
+        user: "Field Tech",
+        time: "11:10 AM",
+        aiReasoning: "Material analysis: Particle board saturation causing irreversible swelling >15%.",
+        photos: [
+            {
+                url: photos.cabinets,
+                caption: "Swollen cabinet toe kick",
+                aiAnalysis: "Surface Defect: Expansion of MDF core visible at joints. Non-recoverable moisture damage.",
+                humanNote: "Matching uppers is impossible due to age. Quoting full replacement for lowers, check if uppers need to go too.",
+                timestamp: "11:05 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_r_${lineItemCounter++}`, category: "Cabinetry", description: "R&R Lower Cabinetry (Standard)", quantity: 18, unit: "LF", unitPrice: 210.00, total: 3780.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Cabinetry", description: "Countertop Detach & Reset", quantity: 18, unit: "LF", unitPrice: 45.00, total: 810.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Plumbing", description: "Plumbing Disconnect/Reconnect (Sink)", quantity: 1, unit: "EA", unitPrice: 250.00, total: 250.00 }
+        ]
+    });
+
+    // 2. Hardwood Cupping
+    findings.push({
+        id: 2,
+        phase: 'Restoration',
+        iconName: 'Hammer',
+        color: 'text-green-400',
+        bg: 'bg-green-400/10',
+        border: 'border-green-400/20',
+        text: "Hardwood flooring in Hallway shows cupping. Sand & Refinish required.",
+        user: "Field Tech",
+        time: "11:30 AM",
+        aiReasoning: "Surface topography scan detects 3mm cupping deviation. Subfloor drying verified.",
+        photos: [
+            {
+                url: photos.floor,
+                caption: "Cupped hardwood in hallway",
+                aiAnalysis: "Topography Analysis: Periodic undulation detected consistent with moisture-induced cupping. Amplitude: 3.2mm.",
+                humanNote: "Homeowner wants to try refinishing before replacing. Added line items for sanding.",
+                timestamp: "11:28 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_r_${lineItemCounter++}`, category: "Flooring", description: "Sand & Refinish Hardwood Floor", quantity: 180, unit: "SF", unitPrice: 4.50, total: 810.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Flooring", description: "Apply Polyurethane Finish (3 coats)", quantity: 180, unit: "SF", unitPrice: 1.20, total: 216.00 }
+        ]
+    });
+
+    // 3. Drywall & Paint (Kitchen Walls)
+    findings.push({
+        id: 3,
+        phase: 'Restoration',
+        iconName: 'Hammer',
+        color: 'text-green-400',
+        bg: 'bg-green-400/10',
+        border: 'border-green-400/20',
+        text: "Kitchen walls require insulation replacement, drywall installation, and painting.",
+        user: "Field Tech",
+        time: "11:45 AM",
+        aiReasoning: "Structural integrity verified. Studs dry. Ready for close-in.",
+        photos: [
+            {
+                url: photos.paint,
+                caption: "Kitchen wall ready for paint",
+                aiAnalysis: "Surface Analysis: Level 4 finish detected on new drywall. Primer coat absent.",
+                humanNote: "Insulation and drywall are up. Need to tape, texture, and paint.",
+                timestamp: "11:40 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_r_${lineItemCounter++}`, category: "Insulation", description: "Install R-13 Kraft Face Insulation", quantity: 380, unit: "SF", unitPrice: 1.10, total: 418.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Drywall", description: "Hang, Tape, Float Drywall (5/8\")", quantity: 380, unit: "SF", unitPrice: 2.85, total: 1083.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Painting", description: "Seal/Prime Drywall", quantity: 380, unit: "SF", unitPrice: 0.65, total: 247.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Painting", description: "Paint Walls (2 coats, Latex)", quantity: 380, unit: "SF", unitPrice: 1.25, total: 475.00 },
+            { id: `li_r_${lineItemCounter++}`, category: "Painting", description: "Paint Baseboards/Trim", quantity: 65, unit: "LF", unitPrice: 1.50, total: 97.50 }
+        ]
+    });
+
+    const allLineItems = findings.flatMap(f => f.lineItems);
+    return { findings, allLineItems };
+}
+
 
 async function seed() {
     try {
@@ -363,6 +467,18 @@ async function seed() {
             findings: scenario.findings // <--- NEW LINKED FIELD
         };
 
+        const reconScenario = generateRestorationScenario();
+        const demoReconData = {
+            preScan: { ...demoClaimData.preScan, notes: "RESTORATION PHASE: Mitigation complete. Containment removed. Drying goals met." }, // Reuse assets for now
+            aiAnalysis: {
+                summary: 'Reconstruction Scope Generated: Cabinetry replacement and flooring refinishing approved.',
+                recommendedActions: ['Order Cabinetry', 'Schedule Sanding', 'Final Paint Touch-up'],
+                referencedStandards: [{ code: 'AWI 100', description: 'Architectural Woodwork Standards' }]
+            },
+            lineItems: reconScenario.allLineItems,
+            findings: reconScenario.findings
+        };
+
         const jobs = [
             // AI Demo Job (Multi-Phase)
             {
@@ -386,6 +502,41 @@ async function seed() {
                         }
                     }
                 ]
+            },
+            // Reformation Job (Mitigation Done -> Restoration Active)
+            {
+                id: 'job_demo_rec_single',
+                officeId: officeMainId,
+                deptId: deptMainRecon, // Active Dept
+                cust: 'John Wick (Kitchen Fire)',
+                status: 'IN_PROGRESS',
+                assignedTo: ['mgr_rec_s', 'mem_rec_s'],
+                phases: [
+                    {
+                        id: 'phase_mit_02',
+                        departmentId: deptMainMit,
+                        name: 'Mitigation',
+                        status: 'COMPLETED',
+                        data: demoClaimData, // Has the water findings
+                        assignments: {
+                            supervisorId: 'mgr_mit_s',
+                            leadTechnicianId: 'mem_mit_s',
+                            teamMemberIds: []
+                        }
+                    },
+                    {
+                        id: 'phase_rec_01',
+                        departmentId: deptMainRecon,
+                        name: 'Restoration',
+                        status: 'ACTIVE',
+                        data: demoReconData, // Has the cabinet findings
+                        assignments: {
+                            supervisorId: 'mgr_rec_s',
+                            leadTechnicianId: 'mem_rec_s',
+                            teamMemberIds: []
+                        }
+                    }
+                ]
             }
         ];
 
@@ -395,21 +546,22 @@ async function seed() {
                 orgId,
                 officeId: j.officeId,
                 departmentId: j.deptId,
-                departmentIds: [deptMainMit],
+                departmentIds: [...new Set(j.phases.map(p => p.departmentId))],
                 status: j.status,
                 customer: { name: j.cust, phone: '555-0100', email: 'cust@example.com' },
                 property: { address: '742 Evergreen Tce', city: 'Metro City', state: 'NY', zip: '10001' },
                 insurance: { carrier: 'State Farm', claimNumber: `CLM-${j.id}` },
                 assignedUserIds: j.assignedTo,
                 financials: {
-                    revenue: scenario.allLineItems.reduce((acc, i) => acc + i.total, 0),
+                    // Sum active phase line items
+                    revenue: (j.phases.find(p => p.status === 'ACTIVE')?.data?.lineItems || []).reduce((acc: any, i: any) => acc + i.total, 0),
                     paid: 0,
-                    balance: scenario.allLineItems.reduce((acc, i) => acc + i.total, 0)
+                    balance: 0
                 },
                 details: {
                     propertyType: 'Residential',
-                    lossCategory: 'Water',
-                    lossDescription: 'Water damage from burst pipe in kitchen.'
+                    lossCategory: 'Fire',
+                    lossDescription: 'Kitchen fire with suppression damage.'
                 },
                 // @ts-ignore
                 phases: j.phases || [],

@@ -8,7 +8,6 @@ import {
     CheckCircle2,
     Activity,
     ShieldAlert,
-    ArrowRight,
     Search,
     Wind
 } from 'lucide-react';
@@ -264,9 +263,6 @@ export const JobIntelligenceTab: React.FC<JobIntelligenceTabProps> = ({ data, de
                                 ))
                             )}
 
-                            <button className="w-full py-3 rounded-xl border border-dashed border-white/10 text-xs font-bold text-text-muted hover:text-white hover:border-white/20 hover:bg-white/5 transition-all flex items-center justify-center gap-2 mt-4">
-                                View Full Scope Item List <ArrowRight size={12} />
-                            </button>
                         </div>
                     </div>
                 )}

@@ -96,7 +96,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
 
                             <div className="grid grid-cols-1 gap-6">
                                 {finding.relatedPhotos.map((photo, idx) => (
-                                    <div key={idx} className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col md:flex-row group hover:border-white/10 transition-colors">
+                                    <div key={idx} className="bg-white/2 border border-white/5 rounded-2xl overflow-hidden flex flex-col md:flex-row group hover:border-white/10 transition-colors">
                                         {/* PHOTO COLUMN */}
                                         <div className="w-full md:w-1/2 aspect-video md:aspect-auto relative bg-black/50 border-b md:border-b-0 md:border-r border-white/5">
                                             <img
@@ -153,7 +153,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
                                 </div>
                             </div>
 
-                            <div className="border border-white/5 rounded-xl overflow-hidden bg-white/[0.02]">
+                            <div className="border border-white/5 rounded-xl overflow-hidden bg-white/2">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-white/5 text-text-muted text-xs uppercase font-medium">
                                         <tr>
@@ -179,7 +179,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
                 </div>
 
                 {/* FOOTER */}
-                <div className="p-4 border-t border-white/5 bg-white/[0.02] flex justify-end gap-3 shrink-0">
+                <div className="p-4 border-t border-white/5 bg-white/2 flex justify-end gap-3 shrink-0">
                     <button
                         onClick={onClose}
                         className="px-4 py-2 rounded-xl text-xs font-bold text-text-muted hover:text-white hover:bg-white/5 transition-all"
