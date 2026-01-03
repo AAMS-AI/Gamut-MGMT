@@ -332,7 +332,7 @@ function generateRestorationScenario() {
     });
 
     const allLineItems = findings.flatMap(f => f.lineItems);
-    return { findings, allLineItems };
+    return { findings, allLineItems, photos };
 }
 
 
@@ -443,20 +443,47 @@ async function seed() {
                     { room: 'Living Room', area: '350 sqft', perimeter: '75 ft', height: '9 ft' },
                     { room: 'Kitchen', area: '200 sqft', perimeter: '50 ft', height: '9 ft' }
                 ],
-                // Photos: Mapped from findings (mostly Kitchen) + Manual Living Room photo
+                // Photos: Mapped from findings + Manual Living Room
                 images: [
+                    // 1. INSPECTION / PRE-DEMO
                     ...scenario.findings.flatMap(f => f.photos.map(p => ({
                         url: p.url,
                         caption: p.humanNote,
-                        timestamp: new Date(),
-                        room: "Kitchen"
+                        timestamp: new Date(Date.now() - 86400000 * 2), // 2 days ago
+                        room: "Kitchen",
+                        category: "Inspection/Pre-Demo"
                     }))),
-                    // Manually added to match 3D Model "Living Room" zone
                     {
-                        url: scenario.photos.room_living || scenario.photos.floor, // Use exposed photos
+                        url: scenario.photos.room_living || scenario.photos.floor,
                         caption: 'Living room overview showing unaffected areas.',
-                        timestamp: new Date(),
-                        room: 'Living Room'
+                        timestamp: new Date(Date.now() - 86400000 * 2),
+                        room: 'Living Room',
+                        category: 'Inspection/Pre-Demo'
+                    },
+
+                    // 2. DEMO / IN-PROGRESS (New)
+                    {
+                        url: scenario.photos.drywall,
+                        caption: 'Flood cuts complete. Insulation removed. Air movers placed.',
+                        timestamp: new Date(Date.now() - 86400000 * 1), // 1 day ago
+                        room: 'Kitchen',
+                        category: 'Demo/In-Progress'
+                    },
+                    {
+                        url: scenario.photos.cabinets,
+                        caption: 'Lower cabinets detached and removed. Containment established.',
+                        timestamp: new Date(Date.now() - 86400000 * 1),
+                        room: 'Kitchen',
+                        category: 'Demo/In-Progress'
+                    },
+
+                    // 3. POST DEMO / COMPLETION (New)
+                    {
+                        url: scenario.photos.floor,
+                        caption: 'Drying check complete. All materials at dry standard. Equipment pulled.',
+                        timestamp: new Date(), // Today
+                        room: 'Kitchen',
+                        category: 'Post Demo/Completion'
                     }
                 ],
                 notes: 'LARGE LOSS: Initial scan indicates Class 3 water loss affecting >60% of the structure. Source: Main line rupture in slab. Extensive mitigation required.'
@@ -488,7 +515,32 @@ async function seed() {
 
         const reconScenario = generateRestorationScenario();
         const demoReconData = {
-            preScan: { ...demoClaimData.preScan, notes: "RESTORATION PHASE: Mitigation complete. Containment removed. Drying goals met." }, // Reuse assets for now
+            preScan: {
+                ...demoClaimData.preScan,
+                notes: "RESTORATION PHASE: Mitigation complete. Containment removed. Drying goals met.",
+                images: [
+                    // 0. HISTORICAL: MITIGATION PHASE (Pre-Demo, In-Progress, Post-Demo)
+                    ...demoClaimData.preScan.images,
+
+                    // 1. INSPECTION / PRE-RECON (Mitigation is Post-Demo)
+                    ...reconScenario.findings.flatMap(f => f.photos.map(p => ({
+                        url: p.url,
+                        caption: p.humanNote,
+                        timestamp: new Date(Date.now() - 86400000 * 5), // 5 days ago
+                        room: "Kitchen",
+                        category: "Inspection/Pre-Recon"
+                    }))),
+
+                    // 2. COMPLETION / POST-RECON
+                    {
+                        url: reconScenario.photos.paint,
+                        caption: 'Cabinetry installed. Painting continuous. Final walk pending.',
+                        timestamp: new Date(),
+                        room: 'Kitchen',
+                        category: 'Completion/Post-Recon'
+                    }
+                ]
+            }, // Override images for Recon
             aiAnalysis: {
                 summary: 'Reconstruction Scope Generated: Cabinetry replacement and flooring refinishing approved.',
                 recommendedActions: ['Order Cabinetry', 'Schedule Sanding', 'Final Paint Touch-up'],

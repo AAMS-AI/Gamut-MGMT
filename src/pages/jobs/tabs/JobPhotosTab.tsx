@@ -10,17 +10,28 @@ interface JobPhotosTabProps {
 export const JobPhotosTab: React.FC<JobPhotosTabProps> = ({ data, readOnly }) => {
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [activeRoomFilter, setActiveRoomFilter] = useState<string>('All');
+    const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('All');
 
-    // Derived State
+    // Derived State: Unique Rooms (Restored)
     const uniqueRooms = useMemo(() => {
         const rooms = new Set(data.preScan.images.map(img => img.room || 'Uncategorized'));
         return ['All', ...Array.from(rooms)];
     }, [data.preScan.images]);
 
+    // Derived State: Unique Categories (For Top Filter)
+    const uniqueCategories = useMemo(() => {
+        const cats = new Set(data.preScan.images.map(img => img.category || 'Uncategorized'));
+        const defaultOrder = ['Inspection/Pre-Demo', 'Demo/In-Progress', 'Post Demo/Completion', 'Inspection/Pre-Recon', 'Completion/Post-Recon', 'Uncategorized'];
+        return ['All', ...Array.from(cats).sort((a, b) => defaultOrder.indexOf(a) - defaultOrder.indexOf(b))];
+    }, [data.preScan.images]);
+
     const filteredImages = useMemo(() => {
-        if (activeRoomFilter === 'All') return data.preScan.images;
-        return data.preScan.images.filter(img => (img.room || 'Uncategorized') === activeRoomFilter);
-    }, [data.preScan.images, activeRoomFilter]);
+        return data.preScan.images.filter(img => {
+            const roomMatch = activeRoomFilter === 'All' || (img.room || 'Uncategorized') === activeRoomFilter;
+            const catMatch = activeCategoryFilter === 'All' || (img.category || 'Uncategorized') === activeCategoryFilter;
+            return roomMatch && catMatch;
+        });
+    }, [data.preScan.images, activeRoomFilter, activeCategoryFilter]);
 
     // Helper to get global index
     const getGlobalIndex = (filteredIdx: number) => {
@@ -42,17 +53,40 @@ export const JobPhotosTab: React.FC<JobPhotosTabProps> = ({ data, readOnly }) =>
                     <div className="text-xs text-text-muted flex items-center gap-2">
                         <span>{data.preScan.images.length} Total</span>
                         <span>•</span>
-                        <span>{activeRoomFilter === 'All' ? 'All Rooms' : activeRoomFilter}</span>
+                        <span>{activeRoomFilter === 'All' ? 'All Photos' : activeRoomFilter}</span>
+                    </div>
+                    <div className="text-xs text-text-muted flex items-center gap-2">
+                        <span>{filteredImages.length} Shown</span>
+                        <span>•</span>
+                        <span>{data.preScan.images.length} Total</span>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setSelectedImageIndex(null)}
-                        className={`p-1.5 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors ${selectedImageIndex === null ? 'bg-accent-electric text-black' : 'bg-white/5 text-text-muted hover:text-white'}`}
-                    >
-                        <Grid size={14} /> Grid
-                    </button>
+                <div className="flex items-center gap-4">
+                    {/* STAGE FILTER DROPDOWN */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-[10px] font-bold text-text-muted uppercase hidden md:block">Stage:</label>
+                        <select
+                            value={activeCategoryFilter}
+                            onChange={(e) => setActiveCategoryFilter(e.target.value)}
+                            className="bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:border-accent-electric outline-none"
+                        >
+                            {uniqueCategories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="h-4 w-px bg-white/10"></div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setSelectedImageIndex(null)}
+                            className={`p-1.5 rounded-lg flex items-center gap-2 text-xs font-bold transition-colors ${selectedImageIndex === null ? 'bg-accent-electric text-black' : 'bg-white/5 text-text-muted hover:text-white'}`}
+                        >
+                            <Grid size={14} /> Grid
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -68,9 +102,12 @@ export const JobPhotosTab: React.FC<JobPhotosTabProps> = ({ data, readOnly }) =>
                         </label>
                         <div className="space-y-1">
                             {uniqueRooms.map(room => {
-                                const count = room === 'All'
-                                    ? data.preScan.images.length
-                                    : data.preScan.images.filter(img => (img.room || 'Uncategorized') === room).length;
+                                // Count based on CURRENT category filter
+                                const count = data.preScan.images.filter(img => {
+                                    const rMatch = room === 'All' || (img.room || 'Uncategorized') === room;
+                                    const cMatch = activeCategoryFilter === 'All' || (img.category || 'Uncategorized') === activeCategoryFilter;
+                                    return rMatch && cMatch;
+                                }).length;
 
                                 return (
                                     <button
@@ -112,7 +149,7 @@ export const JobPhotosTab: React.FC<JobPhotosTabProps> = ({ data, readOnly }) =>
                                     >
                                         <img src={img.url} alt={`Thumb ${idx}`} loading="lazy" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                                            <span className="text-[10px] font-bold text-accent-electric uppercase mb-0.5">{img.room}</span>
+                                            <span className="text-[10px] font-bold text-accent-electric uppercase mb-0.5">{img.category || 'Uncategorized'}</span>
                                             <p className="text-xs text-white line-clamp-1 font-medium">{img.caption || 'No caption'}</p>
                                         </div>
                                     </div>
@@ -168,6 +205,10 @@ export const JobPhotosTab: React.FC<JobPhotosTabProps> = ({ data, readOnly }) =>
                             {/* Info Block */}
                             <div className="space-y-4">
                                 <div className="bg-white/5 p-4 rounded-xl border border-white/5 space-y-3">
+                                    <div>
+                                        <label className="text-[10px] font-bold text-text-muted uppercase block">Category</label>
+                                        <div className="text-white text-sm font-medium">{data.preScan.images[selectedImageIndex].category || 'Unassigned'}</div>
+                                    </div>
                                     <div>
                                         <label className="text-[10px] font-bold text-text-muted uppercase block">Room</label>
                                         <div className="text-white text-sm font-medium">{data.preScan.images[selectedImageIndex].room || 'Unassigned'}</div>

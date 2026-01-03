@@ -128,6 +128,7 @@ export interface ClaimPreScan {
         caption?: string;
         timestamp?: any;
         room?: string;
+        category?: string; // e.g. "Pre-Demo", "In-Progress"
     }[];
     notes: string;
     sketchUrl?: string;
