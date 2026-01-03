@@ -25,6 +25,7 @@ export interface Department {
     orgId: string;
     officeId: string;
     name: string; // Mitigation, Reconstruction, etc.
+    type: 'MITIGATION' | 'RECONSTRUCTION' | 'GENERAL';
     managerId: string;
     createdAt: any;
 }

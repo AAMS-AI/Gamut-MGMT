@@ -19,10 +19,15 @@ import {
     PlayCircle,
     Send,
     X,
-    Ruler
+    Ruler,
+    Building2,
+    Calendar,
+    Clock,
+    Hash
 } from 'lucide-react';
 
 import { JobOverviewTab } from './tabs/JobOverviewTab';
+import { JobIntelligenceTab } from './tabs/JobIntelligenceTab';
 import { JobSiteModelTab } from './tabs/JobSiteModelTab';
 import { JobScopeTab } from './tabs/JobScopeTab';
 import { JobPhotosTab } from './tabs/JobPhotosTab';
@@ -53,7 +58,7 @@ export const JobDetails: React.FC = () => {
     // Phase Navigation
     const [activePhaseId, setActivePhaseId] = useState<string | null>(null);
     // Tab Navigation for Content
-    type TabType = 'OVERVIEW' | 'MODEL' | 'SCOPE' | 'PHOTOS' | 'DOCS';
+    type TabType = 'OVERVIEW' | 'INTELLIGENCE' | 'MODEL' | 'SCOPE' | 'PHOTOS' | 'DOCS';
     const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
 
     // Initial Phase Selection
@@ -192,263 +197,268 @@ export const JobDetails: React.FC = () => {
     if (loading) return <div className="p-10 text-accent-electric animate-pulse">Loading Job Details...</div>;
     if (!job) return <div className="p-10 text-red-500">Job not found.</div>;
 
+    // Days Open Calculation
+    let daysOpen = 0;
+    if (job.dates?.fnolReceivedDate) {
+        const fnol = new Date(job.dates.fnolReceivedDate.seconds * 1000);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - fnol.getTime());
+        daysOpen = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
 
     return (
-        <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-20">
-            {/* Header Area: Title & Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col h-screen overflow-hidden bg-[#0A0A0A] -m-6 relative">
 
-                {/* Left: Nav & Title */}
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-2 rounded-full hover:bg-white/10 text-text-muted hover:text-white transition-colors"
-                    >
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold text-white">{job.customer.name}</h1>
-                            <span className="hidden">Status</span>
-                            <select
-                                value={
-                                    (profile?.role === 'DEPT_MANAGER' && profile.departmentId && job.departmentId !== profile.departmentId)
-                                        ? (job.phases?.find(p => p.departmentId === profile.departmentId)?.stage || 'REVIEW')
-                                        : job.status
-                                }
-                                onChange={async (e) => {
-                                    const newStatus = e.target.value;
-                                    const isHistorical = profile?.role === 'DEPT_MANAGER' && profile.departmentId && job.departmentId !== profile.departmentId;
+            {/* 1. STICKY COMMAND HEADER */}
+            <div className="bg-[#111] border-b border-white/5 shadow-2xl z-50 shrink-0">
 
-                                    if (isHistorical) {
-                                        // Update Phase Stage
-                                        const phase = job.phases?.find(p => p.departmentId === profile.departmentId);
-                                        if (phase && job.phases) {
-                                            const updatedPhases = [...job.phases];
-                                            const idx = updatedPhases.findIndex(p => p.id === phase.id);
-                                            if (idx !== -1) {
-                                                updatedPhases[idx] = { ...updatedPhases[idx], stage: newStatus as any };
-                                                await updateDoc(doc(db, 'jobs', jobId!), { phases: updatedPhases });
-                                            }
-                                        }
-                                    } else {
-                                        await updateDoc(doc(db, 'jobs', jobId!), { status: newStatus });
-                                    }
-                                }}
-                                className="bg-white/10 text-xs font-bold uppercase tracking-wider text-text-secondary border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-accent-electric cursor-pointer hover:bg-white/20 transition-all"
-                            >
-                                {(profile?.role === 'DEPT_MANAGER' && profile.departmentId && job.departmentId !== profile.departmentId) ? (
-                                    <>
-                                        <option value="REVIEW">Manager Review</option>
-                                        <option value="BILLING">Billing / Done</option>
-                                    </>
-                                ) : (
-                                    <>
-                                        <option value="PENDING">Pending</option>
-                                        <option value="IN_PROGRESS">Work in Progress</option>
-                                        <option value="REVIEW">Manager Review</option>
-                                        <option value="BILLING">Billing</option>
-                                    </>
-                                )}
-                            </select>
+                {/* Top Row: Navigation, Title, Status Actions */}
+                <div className="px-6 py-4 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all border border-white/5"
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-2xl font-black text-white tracking-tight">{job.customer.name}</h1>
+                                {/* Status Chip */}
+                                <div className="bg-accent-electric/10 border border-accent-electric/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase text-accent-electric tracking-wider flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-accent-electric animate-pulse"></span>
+                                    {job.status.replace('_', ' ')}
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4 mt-1 text-xs text-text-muted font-medium">
+                                <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-default">
+                                    <MapPin size={12} className="text-accent-primary" />
+                                    {job.property.address}, {job.property.city}
+                                </span>
+                            </div>
                         </div>
-                        <p className="text-text-muted flex items-center gap-2 mt-1">
-                            <MapPin size={14} className="text-accent-primary" />
-                            {job.property.address}, {job.property.city}, {job.property.state}
-                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {canTransfer && (
+                            <button
+                                onClick={() => setShowHandoffModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-black hover:border-green-500 rounded-lg font-bold transition-all shadow-[0_0_10px_rgba(34,197,94,0.1)] hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] text-xs uppercase tracking-wider"
+                            >
+                                <Send size={14} />
+                                Push Job
+                            </button>
+                        )}
+                        {isManagerOrAdmin && (
+                            <button
+                                onClick={() => setShowEditModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all text-white font-bold text-xs uppercase tracking-wider"
+                            >
+                                <Pencil size={14} />
+                                Edit
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Right: Actions */}
-                <div className="flex items-center gap-3">
-                    {/* Push Action */}
-                    {canTransfer && (
-                        <button
-                            onClick={() => setShowHandoffModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-black hover:border-green-500 rounded-lg font-bold transition-all shadow-[0_0_10px_rgba(34,197,94,0.1)] hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] text-sm"
-                        >
-                            <Send size={16} />
-                            Push Job
-                        </button>
-                    )}
-
-                    {isManagerOrAdmin && (
-                        <button
-                            onClick={() => setShowEditModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all text-white font-bold text-sm"
-                        >
-                            <Pencil size={16} />
-                            Edit Job
-                        </button>
-                    )}
+                {/* INFO BAR: Persistent Context */}
+                <div className="px-6 py-2 bg-black/40 border-t border-white/5 flex items-center gap-8 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Building2 size={14} className="text-text-muted" />
+                        <span className="text-[10px] uppercase font-bold text-text-muted">Carrier</span>
+                        <span className="text-sm font-bold text-white truncate max-w-[150px]">{job.insurance.carrier || 'N/A'}</span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10 shrink-0"></div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Hash size={14} className="text-text-muted" />
+                        <span className="text-[10px] uppercase font-bold text-text-muted">Claim #</span>
+                        <span className="text-sm font-mono text-accent-electric tracking-wide select-all">{job.insurance.claimNumber || 'N/A'}</span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10 shrink-0"></div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Users size={14} className="text-text-muted" />
+                        <span className="text-[10px] uppercase font-bold text-text-muted">Adjuster</span>
+                        <span className="text-sm font-bold text-white truncate">{job.insurance.adjusterName || 'N/A'}</span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10 shrink-0"></div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <Calendar size={14} className="text-text-muted" />
+                        <span className="text-[10px] uppercase font-bold text-text-muted">Loss Date</span>
+                        <span className="text-sm font-bold text-white">{job.dates?.lossDate ? new Date(job.dates.lossDate.seconds * 1000).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10 shrink-0"></div>
+                    <div className="flex items-center gap-2 shrink-0 ml-auto">
+                        <div className="flex flex-col items-end leading-none">
+                            <span className="text-[10px] uppercase font-bold text-text-muted">Open</span>
+                            <span className="text-sm font-bold text-accent-electric">{daysOpen} Days</span>
+                        </div>
+                        <Clock size={20} className="text-accent-electric/50" />
+                    </div>
                 </div>
 
             </div>
+
+
+            {/* 2. MAIN SCROLLABLE CONTENT */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth">
+                <div className="max-w-[1600px] mx-auto p-6 space-y-8">
+
+                    {/* Phase & Scope Navigation */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/5 pb-1">
+
+                        {/* Phase Timeline Refined */}
+                        <div className="flex items-center gap-2 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide -mx-6 px-6 lg:mx-0 lg:px-0">
+                            {effectivePhases.map((phase: any) => {
+                                const isActive = (activePhaseId || activePhase?.id) === phase.id;
+                                const isCompleted = phase.status === 'COMPLETED';
+
+                                return (
+                                    <button
+                                        key={phase.id}
+                                        onClick={() => setActivePhaseId(phase.id)}
+                                        className={`
+                                            group relative flex flex-col items-start min-w-[120px] px-4 py-2 rounded-lg transition-all border
+                                            ${isActive
+                                                ? 'bg-white/5 border-accent-electric/50 shadow-[0_0_20px_rgba(0,242,255,0.1)]'
+                                                : 'bg-transparent border-transparent hover:bg-white/5 hover:border-white/10 text-text-muted'}
+                                        `}
+                                    >
+                                        <div className="flex items-center gap-2 mb-1">
+                                            {isCompleted ? (
+                                                <CheckCircle2 size={14} className="text-green-500" />
+                                            ) : (
+                                                <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-accent-electric animate-pulse' : 'bg-white/20'}`}></div>
+                                            )}
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-electric' : 'text-text-muted'}`}>
+                                                {phase.status}
+                                            </span>
+                                        </div>
+                                        <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-text-muted group-hover:text-white'}`}>
+                                            {phase.name}
+                                        </span>
+
+                                        {/* Active Indicator Line */}
+                                        {isActive && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent-electric shadow-[0_0_10px_#00f2ff]"></div>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Content Tabs */}
+                        <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/5 self-start">
+                            {[
+                                { id: 'OVERVIEW', label: 'Overview', icon: Briefcase },
+                                { id: 'INTELLIGENCE', label: 'Intelligence', icon: BrainCircuit },
+                                { id: 'MODEL', label: '3D Model', icon: BrainCircuit },
+                                { id: 'SCOPE', label: 'Scope', icon: Ruler },
+                                { id: 'PHOTOS', label: 'Photos', icon: Users },
+                            ].map(tab => {
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as TabType)}
+                                        className={`
+                                            px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all
+                                            ${isActive
+                                                ? 'bg-accent-electric text-black shadow-lg shadow-accent-electric/20'
+                                                : 'text-text-muted hover:text-white hover:bg-white/5'}
+                                        `}
+                                    >
+                                        <tab.icon size={14} />
+                                        <span className="hidden md:inline">{tab.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                    </div>
+
+
+                    {/* DYNAMIC CONTENT AREA */}
+                    <div className="min-h-[500px] animate-in slide-in-from-bottom-2 fade-in duration-300">
+                        {(() => {
+                            // Ensure activePhaseId is synced or default to active
+                            if (!activePhaseId && activePhase) {
+                                try { setActivePhaseId(activePhase.id); } catch (e) { }
+                            }
+
+                            const selectedPhase = activePhase || effectivePhases[0];
+                            if (!selectedPhase) return <div className="text-text-muted flex items-center gap-2"><PlayCircle className="animate-spin" /> Loading Phase...</div>;
+
+                            const isPhaseReadOnly = selectedPhase.status === 'COMPLETED';
+
+                            const safeData = (selectedPhase.data as any) || {};
+                            const claimData: any = {
+                                lineItems: safeData.lineItems || [],
+                                preScan: safeData.preScan || { images: [], measurements: [], notes: '' },
+                                aiAnalysis: safeData.aiAnalysis || { summary: '', recommendedActions: [], referencedStandards: [] },
+                                ...safeData
+                            };
+
+                            return (
+                                <>
+                                    {activeTab === 'OVERVIEW' && (
+                                        <JobOverviewTab
+                                            job={job}
+                                            leadTech={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.leadTechnicianId)}
+                                            supervisor={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.supervisorId)}
+                                        />
+                                    )}
+                                    {activeTab === 'INTELLIGENCE' && (
+                                        <JobIntelligenceTab
+                                            data={claimData}
+                                            departmentType={departments.find(d => d.id === selectedPhase.departmentId)?.type || 'GENERAL'}
+                                        />
+                                    )}
+                                    {activeTab === 'MODEL' && (
+                                        <JobSiteModelTab
+                                            data={claimData}
+                                        />
+                                    )}
+                                    {activeTab === 'SCOPE' && (
+                                        <JobScopeTab
+                                            data={claimData}
+                                            readOnly={isPhaseReadOnly}
+                                        />
+                                    )}
+                                    {activeTab === 'PHOTOS' && (
+                                        <JobPhotosTab
+                                            data={claimData}
+                                            readOnly={isPhaseReadOnly}
+                                        />
+                                    )}
+                                </>
+                            );
+                        })()}
+                    </div>
+
+                </div>
+            </div>
+
 
             {/* Edit Modal */}
             {
                 showEditModal && job && (
-                    <JobCreate
-                        onClose={() => setShowEditModal(false)}
-                        initialData={job}
-                        jobId={job.id}
-                    />
+                    <div className="fixed inset-0 z-50 overflow-y-auto">
+                        <div className="min-h-screen px-4 text-center">
+                            <JobCreate
+                                onClose={() => setShowEditModal(false)}
+                                initialData={job}
+                                jobId={job.id}
+                            />
+                        </div>
+                    </div>
+
                 )
             }
 
-            {/* Dashboard Grid Layout */}
-            <div className="space-y-8">
-
-
-
-                {/* AI Claim Analysis - Full Width */}
-                {/* Multi-Phase Analysis Section */}
-                {/* Content Tabs Navigation */}
-                <div className="flex border-b border-white/10">
-                    {[
-                        { id: 'OVERVIEW', label: 'Overview', icon: Briefcase },
-                        { id: 'MODEL', label: 'Site Model', icon: BrainCircuit },
-                        { id: 'SCOPE', label: 'Scope', icon: Ruler },
-                        { id: 'PHOTOS', label: 'Photos', icon: Users }, // Using generic icon if Camera not imported, but best to stick to consistent icons
-                    ].map(tab => {
-                        const isActive = activeTab === tab.id;
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as TabType)}
-                                className={`
-                                    px-6 py-4 text-sm font-bold uppercase tracking-wider border-b-2 transition-all flex items-center gap-2
-                                    ${isActive
-                                        ? 'border-accent-electric text-white'
-                                        : 'border-transparent text-text-muted hover:text-white hover:border-white/20'}
-                                `}
-                            >
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                    <button disabled className="px-6 py-4 text-sm font-bold uppercase tracking-wider text-text-muted/30 cursor-not-allowed">
-                        Documents
-                    </button>
-                </div>
-
-
-                {/* AI Claim Analysis - Full Width */}
-                {/* Multi-Phase Analysis Section (Unified) */}
-                {(() => {
-                    // Use Top-Level Effective Phases
-                    // Ensure activePhaseId is synced or default to active
-                    if (!activePhaseId && activePhase) {
-                        try { setActivePhaseId(activePhase.id); } catch (e) { } // Effect handles this, but safe guard
-                    }
-
-                    const selectedPhase = activePhase || effectivePhases[0];
-                    if (!selectedPhase) return <div>Loading Phase Data...</div>;
-
-                    const isPhaseReadOnly = selectedPhase.status === 'COMPLETED';
-
-                    // Default empty data to satisfy TS ClaimData type
-                    const safeData = (selectedPhase.data as any) || {};
-                    const claimData: any = {
-                        lineItems: safeData.lineItems || [],
-                        preScan: safeData.preScan || { images: [], measurements: [], notes: '' },
-                        aiAnalysis: safeData.aiAnalysis || { summary: '', recommendedActions: [], referencedStandards: [] },
-                        ...safeData
-                    };
-
-                    return (
-                        <div className="space-y-6">
-
-                            {/* Phase Tabs Only (Push moved to header) */}
-                            <div className="flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-2 overflow-x-auto pb-2 flex-1 scrollbar-hide">
-                                    {effectivePhases.map((phase: any) => { // Typing loose here for synthetic phase
-                                        const isActive = selectedPhase.id === phase.id;
-                                        const isCompleted = phase.status === 'COMPLETED';
-
-                                        return (
-                                            <button
-                                                key={phase.id}
-                                                // If it's the synthetic ID, we just keep using it. 
-                                                // For real phases, we switch.
-                                                onClick={() => setActivePhaseId(phase.id)}
-                                                className={`
-                                                    group flex items-center gap-3 px-5 py-3 rounded-xl border transition-all whitespace-nowrap min-w-fit
-                                                    ${isActive
-                                                        ? 'bg-accent-electric text-black border-accent-electric shadow-[0_0_15px_rgba(0,242,255,0.3)]'
-                                                        : 'bg-white/5 border-white/5 text-text-muted hover:bg-white/10 hover:text-white'
-                                                    }
-                                                `}
-                                            >
-                                                {isCompleted ? (
-                                                    <CheckCircle2 size={16} className={isActive ? 'text-black' : 'text-green-500'} />
-                                                ) : (
-                                                    <PlayCircle size={16} className={isActive ? 'text-black' : 'text-accent-electric'} />
-                                                )}
-                                                <div className="text-left">
-                                                    <div className={`text-xs font-bold uppercase tracking-wider ${isActive ? 'text-black/70' : 'text-text-muted group-hover:text-white'}`}>
-                                                        {phase.status}
-                                                    </div>
-                                                    <div className={`font-bold ${isActive ? 'text-black' : 'text-white'}`}>
-                                                        {phase.name}
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Push Action - Only if Active & Authorized */}
-                                {/* {(canTransfer || (!job.phases?.length)) && ( // Allow push for legacy 'active' jobs too
-                                    <button
-                                        onClick={() => setShowHandoffModal(true)}
-                                        className="shrink-0 flex items-center gap-2 px-5 py-3 bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-black hover:border-green-500 rounded-xl font-bold transition-all shadow-[0_0_10px_rgba(34,197,94,0.1)] hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                                    >
-                                        <Send size={18} />
-                                        <span>Push</span>
-                                    </button>
-                                )} */}
-                            </div>
-
-                            {/* Active Phase Content - Tabbed View */}
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {activeTab === 'OVERVIEW' && (
-                                    <JobOverviewTab
-                                        job={job}
-                                        data={claimData}
-                                        leadTech={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.leadTechnicianId)}
-                                        supervisor={users.find(u => u.uid === getEffectiveAssignments(job, profile?.departmentId).assignments?.supervisorId)}
-                                    />
-                                )}
-                                {activeTab === 'MODEL' && (
-                                    <JobSiteModelTab
-                                        data={claimData}
-                                    />
-                                )}
-                                {activeTab === 'SCOPE' && (
-                                    <JobScopeTab
-                                        data={claimData}
-                                        readOnly={isPhaseReadOnly}
-                                    />
-                                )}
-                                {activeTab === 'PHOTOS' && (
-                                    <JobPhotosTab
-                                        data={claimData}
-                                        readOnly={isPhaseReadOnly}
-                                    />
-                                )}
-                            </div>
-
-                        </div>
-                    );
-                })()}
-
-
-
-            </div>
-
             {showHandoffModal && (
-                <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in">
                     <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-bold text-white flex items-center gap-2">

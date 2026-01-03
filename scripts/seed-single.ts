@@ -50,6 +50,181 @@ async function uploadAsset(filename: string, destination: string): Promise<strin
     }
 }
 
+// --- SCENARIO BUILDER ---
+
+interface ScenarioFinding {
+    id: number;
+    phase: 'Mitigation' | 'Restoration';
+    iconName: 'Droplets' | 'AlertTriangle' | 'Hammer' | 'Wind'; // Map to icons in UI
+    color: string;
+    bg: string;
+    border: string;
+    text: string;
+    user: string;
+    time: string;
+    aiReasoning: string;
+    photos: { url: string; caption: string }[];
+    lineItems: { id: string; category: string; description: string; quantity: number; unit: string; unitPrice: number; total: number }[];
+}
+
+function generateBurstPipeScenario() {
+    console.log('🎬 Generating "Burst Pipe in Kitchen" Scenario...');
+
+    // Shared Assets (Placeholders for now, real assets would be better)
+    const photos = {
+        standingWater: "https://placehold.co/600x400/png?text=Standing+Water+Kitchen",
+        moistureMap: "https://placehold.co/600x400/png?text=Moisture+Map+Floor",
+        mold: "https://placehold.co/600x400/png?text=Microbial+Growth+Baseboard",
+        cabinets: "https://placehold.co/600x400/png?text=Swollen+Cabinets",
+        drywall: "https://placehold.co/600x400/png?text=Wet+Drywall+Cut",
+        floor: "https://placehold.co/600x400/png?text=Cupped+Hardwood"
+    };
+
+    const findings: ScenarioFinding[] = [];
+    let lineItemCounter = 1;
+
+    // --- MITIGATION FINDINGS ---
+
+    // 1. Standing Water
+    findings.push({
+        id: 1,
+        phase: 'Mitigation',
+        iconName: 'Droplets',
+        color: 'text-blue-400',
+        bg: 'bg-blue-400/10',
+        border: 'border-blue-400/20',
+        text: "Class 3 Water Loss confirmed. Standing water (~1 inch) present in Kitchen and Hallway.",
+        user: "Field App (Auto)",
+        time: "10:30 AM",
+        aiReasoning: "Visual analysis confirms standing water depth >0.5 inches across >50% of floor area. High saturation risk.",
+        photos: [
+            {
+                url: photos.standingWater,
+                aiAnalysis: "Surface Reflection Analysis: Consistent glare pattern indicates continuous water film >1mm depth. Colorimetric analysis suggests Cat 1 (Clear) water initially.",
+                humanNote: "Water is pooled near the island. Source appears to be the dishwasher supply line.",
+                timestamp: "10:28 AM"
+            },
+            {
+                url: photos.moistureMap,
+                aiAnalysis: "Thermal Gradient: Dark blue zones indicate <10% surface temperature variance from mean, consistent with evaporation cooling of saturated materials.",
+                humanNote: "Mapped the boundary. Water has migrated 15ft into the hallway.",
+                timestamp: "10:32 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_${lineItemCounter++}`, category: "Water Extraction", description: "Water Extraction (Cat 3)", quantity: 350, unit: "SF", unitPrice: 1.25, total: 437.50 },
+            { id: `li_${lineItemCounter++}`, category: "Water Extraction", description: "Apply Antimicrobial Agent", quantity: 350, unit: "SF", unitPrice: 0.35, total: 122.50 }
+        ]
+    });
+
+    // 2. Microbial Growth (Mold)
+    findings.push({
+        id: 2,
+        phase: 'Mitigation',
+        iconName: 'AlertTriangle',
+        color: 'text-orange-400',
+        bg: 'bg-orange-400/10',
+        border: 'border-orange-400/20',
+        text: "Microbial growth detected behind baseboards. Immediate containment required.",
+        user: "AI Vision",
+        time: "10:35 AM",
+        aiReasoning: "Pattern matching identified Stachybotrys-like discoloration with 94% confidence. Risk of spore aerosolization.",
+        photos: [
+            {
+                url: photos.mold,
+                aiAnalysis: "Object Detection: Black spot colonies identified. Density >50% on substrates. High probability of Stachybotrys Chartarum.",
+                humanNote: "Visible growth found when removing toe kick. Setting up containment immediately.",
+                timestamp: "10:34 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_${lineItemCounter++}`, category: "Containment", description: "Containment Barrier (Poly)", quantity: 45, unit: "LF", unitPrice: 2.50, total: 112.50 },
+            { id: `li_${lineItemCounter++}`, category: "Equipment", description: "HEPA Air Scrubber (Large)", quantity: 2, unit: "DA", unitPrice: 125.00, total: 250.00 },
+            { id: `li_${lineItemCounter++}`, category: "Equipment", description: "Negative Air Fan", quantity: 2, unit: "DA", unitPrice: 85.00, total: 170.00 }
+        ]
+    });
+
+    // 3. Wet Drywall
+    findings.push({
+        id: 3,
+        phase: 'Mitigation',
+        iconName: 'Droplets',
+        color: 'text-blue-400',
+        bg: 'bg-blue-400/10',
+        border: 'border-blue-400/20',
+        text: "Drywall saturation >80% up to 2ft height. Flood cut recommended.",
+        user: "Field Tech",
+        time: "10:45 AM",
+        aiReasoning: "Thermal imaging shows wicking up to 22 inches. Standard requires 24 inch flood cut.",
+        photos: [
+            {
+                url: photos.drywall,
+                aiAnalysis: "Thermal Anomaly: Cool vertical gradient indicates capillary action wicking water up the gypsum core. Height ~22 inches.",
+                humanNote: "Walls are soft to the touch up to 18 inches. Cutting at 24 inches to be safe.",
+                timestamp: "10:42 AM"
+            }
+        ],
+        lineItems: [
+            { id: `li_${lineItemCounter++}`, category: "Demolition", description: "Tear Out Wet Drywall (Flood Cut)", quantity: 120, unit: "SF", unitPrice: 1.80, total: 216.00 },
+            { id: `li_${lineItemCounter++}`, category: "Demolition", description: "Tear Out Wet Insulation", quantity: 120, unit: "SF", unitPrice: 0.95, total: 114.00 }
+        ]
+    });
+
+
+    /*
+    // --- RESTORATION FINDINGS ---
+
+    // 4. Cabinets Ruined
+    findings.push({
+        id: 4,
+        phase: 'Restoration',
+        iconName: 'Hammer',
+        color: 'text-green-400',
+        bg: 'bg-green-400/10',
+        border: 'border-green-400/20',
+        text: "Kitchen lower cabinets non-salvageable (swollen MDF). Full replacement required.",
+        user: "Field Tech",
+        time: "11:10 AM",
+        aiReasoning: "Material analysis: Particle board saturation causing irreversible swelling >15%.",
+        photos: [
+            { url: photos.cabinets, caption: "Swollen cabinet toe kick" }
+        ],
+        lineItems: [
+            { id: `li_${lineItemCounter++}`, category: "Cabinetry", description: "R&R Lower Cabinetry (Standard)", quantity: 18, unit: "LF", unitPrice: 210.00, total: 3780.00 },
+            { id: `li_${lineItemCounter++}`, category: "Cabinetry", description: "Countertop Detach & Reset", quantity: 18, unit: "LF", unitPrice: 45.00, total: 810.00 },
+            { id: `li_${lineItemCounter++}`, category: "Plumbing", description: "Plumbing Disconnect/Reconnect (Sink)", quantity: 1, unit: "EA", unitPrice: 250.00, total: 250.00 }
+        ]
+    });
+
+    // 5. Hardwood Cupping
+    findings.push({
+        id: 5,
+        phase: 'Restoration',
+        iconName: 'Hammer',
+        color: 'text-green-400',
+        bg: 'bg-green-400/10',
+        border: 'border-green-400/20',
+        text: "Hardwood flooring in Hallway shows cupping. Sand & Refinish required.",
+        user: "Field Tech",
+        time: "11:30 AM",
+        aiReasoning: "Surface topography scan detects 3mm cupping deviation. Subfloor drying verified.",
+        photos: [
+            { url: photos.floor, caption: "Cupped hardwood in hallway" }
+        ],
+        lineItems: [
+            { id: `li_${lineItemCounter++}`, category: "Flooring", description: "Sand & Refinish Hardwood Floor", quantity: 180, unit: "SF", unitPrice: 4.50, total: 810.00 },
+            { id: `li_${lineItemCounter++}`, category: "Flooring", description: "Apply Polyurethane Finish (3 coats)", quantity: 180, unit: "SF", unitPrice: 1.20, total: 216.00 }
+        ]
+    });
+    */
+
+    // Consolidate all line items from findings for the main list
+    const allLineItems = findings.flatMap(f => f.lineItems);
+
+    return { findings, allLineItems };
+}
+
+
 async function seed() {
     try {
         console.log('🌱 Starting GAMUT Single-Office Seeding...');
@@ -83,8 +258,8 @@ async function seed() {
         // 3. Departments
         console.log('📂 Creating Departments...');
         const departments = [
-            { id: deptMainMit, orgId, officeId: officeMainId, name: 'Mitigation' },
-            { id: deptMainRecon, orgId, officeId: officeMainId, name: 'Reconstruction' }
+            { id: deptMainMit, orgId, officeId: officeMainId, name: 'Mitigation', type: 'MITIGATION' },
+            { id: deptMainRecon, orgId, officeId: officeMainId, name: 'Reconstruction', type: 'RECONSTRUCTION' }
         ];
         for (const d of departments) {
             let managerId = 'owner_single';
@@ -135,40 +310,10 @@ async function seed() {
         }
 
 
-        // 5. Jobs
-        console.log('💼 Creating Demo Jobs...');
+        // 5. Jobs & Scenario
+        console.log('💼 Creating Demo Jobs with SCENARIOS...');
 
-        // Generate massive line items
-        const generatedLineItems = [];
-        const categories = ['Mitigation', 'Contents', 'Structural-Demolition', 'Structural-Framing', 'Drywall', 'Painting', 'Flooring', 'Electrical', 'Plumbing', 'HVAC'];
-
-        for (let i = 1; i <= 75; i++) {
-            const cat = categories[Math.floor(Math.random() * categories.length)];
-            generatedLineItems.push({
-                id: `li_gen_${i}`,
-                category: cat,
-                description: `Standard line item description for ${cat} work step #${i} - Remove and replace per industry standard`,
-                quantity: Math.floor(Math.random() * 500) + 10,
-                unit: 'SF',
-                unitPrice: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
-                total: 0 // Will recalc below
-            });
-        }
-        // Calc totals
-        generatedLineItems.forEach(i => i.total = parseFloat((i.quantity * i.unitPrice).toFixed(2)));
-
-        // Generate multiple images (using placehold.co so no need to upload these particular ones)
-        const generatedImages = [];
-        const rooms = ['Living Room', 'Kitchen', 'Master Bath', 'Guest Bed', 'Hallway', 'Basement'];
-        for (let i = 1; i <= 24; i++) {
-            const room = rooms[i % rooms.length];
-            generatedImages.push({
-                url: `https://placehold.co/600x400/png?text=${room.replace(' ', '+')}+Photo+${i}`,
-                caption: `Photo ${i} of ${room}: Documenting pre-existing conditions and initial water damage extent. Timestamp verified.`,
-                timestamp: new Date(),
-                room: room
-            });
-        }
+        const scenario = generateBurstPipeScenario();
 
         // Upload assets to Storage
         console.log('📦 Uploading Assets to Storage Emulator...');
@@ -185,35 +330,31 @@ async function seed() {
                 model3dUrl: modelUrl,
                 measurements: [
                     { room: 'Living Room', area: '350 sqft', perimeter: '75 ft', height: '9 ft' },
-                    { room: 'Kitchen', area: '200 sqft', perimeter: '50 ft', height: '9 ft' },
-                    { room: 'Master Bedroom', area: '280 sqft', perimeter: '68 ft', height: '10 ft' },
-                    { room: 'Master Bath', area: '120 sqft', perimeter: '42 ft', height: '10 ft' },
-                    { room: 'Hallway', area: '85 sqft', perimeter: '30 ft', height: '9 ft' },
-                    { room: 'Guest Bedroom', area: '180 sqft', perimeter: '54 ft', height: '9 ft' }
+                    { room: 'Kitchen', area: '200 sqft', perimeter: '50 ft', height: '9 ft' }
                 ],
-                images: generatedImages,
+                // Simple placeholder photos for the photos tab
+                images: scenario.findings.flatMap(f => f.photos.map(p => ({
+                    url: p.url,
+                    caption: p.humanNote, // Use human note as caption
+                    timestamp: new Date(),
+                    room: "Kitchen"
+                }))),
                 notes: 'LARGE LOSS: Initial scan indicates Class 3 water loss affecting >60% of the structure. Source: Main line rupture in slab. Extensive mitigation required.'
             },
             aiAnalysis: {
-                summary: 'CRITICAL ALERT: Class 3 Water Loss detected across multiple zones. High risk of secondary damage to structural components. Immediate stabilization required.',
+                summary: 'CRITICAL ALERT: Class 3 Water Loss detected. High risk of secondary damage. Immediate stabilization required.',
                 recommendedActions: [
-                    'Emergency Water Extraction (Truck Mount)',
-                    'Remove all floating flooring (1200 SF)',
-                    'Flood cut drywall 2ft/4ft in affected zones',
-                    'Deploy 12+ Axial Air Movers',
-                    'Deploy 4 XL LGR Dehumidifiers',
-                    'Containment barriers for Master Suite'
+                    'Emergency Water Extraction',
+                    'Remove all floating flooring',
+                    'Flood cut drywall'
                 ],
                 referencedStandards: [
-                    'IICRC S500 - Standard and Reference Guide for Professional Water Damage Restoration',
-                    'ANSI/IICRC S520 - Standard for Professional Mold Remediation',
-                    'OSHA 1910 - Occupational Safety and Health Standards'
-                ].map(s => {
-                    const parts = s.split(' - ');
-                    return { code: parts[0], description: parts[1] };
-                })
+                    { code: 'IICRC S500', description: 'Standard for Professional Water Damage Restoration' },
+                    { code: 'ANSI/IICRC S520', description: 'Standard for Professional Mold Remediation' }
+                ]
             },
-            lineItems: generatedLineItems
+            lineItems: scenario.allLineItems,
+            findings: scenario.findings // <--- NEW LINKED FIELD
         };
 
         const jobs = [
@@ -221,10 +362,10 @@ async function seed() {
             {
                 id: 'job_demo_ai_single',
                 officeId: officeMainId,
-                deptId: deptMainMit, // Fix: Must be in Mitigation Dept
-                cust: 'Sarah Connor (AI Demo - Large)',
+                deptId: deptMainMit, // Start in Mitigation
+                cust: 'Sarah Connor (Burst Pipe)',
                 status: 'PENDING',
-                assignedTo: ['mgr_mit_s', 'mem_mit_s'], // Include Manager in assignments
+                assignedTo: ['mgr_mit_s', 'mem_mit_s'],
                 phases: [
                     {
                         id: 'phase_mit_01',
@@ -248,16 +389,16 @@ async function seed() {
                 orgId,
                 officeId: j.officeId,
                 departmentId: j.deptId,
-                departmentIds: [deptMainMit], // Only starts in Mitigation
+                departmentIds: [deptMainMit],
                 status: j.status,
                 customer: { name: j.cust, phone: '555-0100', email: 'cust@example.com' },
                 property: { address: '742 Evergreen Tce', city: 'Metro City', state: 'NY', zip: '10001' },
                 insurance: { carrier: 'State Farm', claimNumber: `CLM-${j.id}` },
                 assignedUserIds: j.assignedTo,
                 financials: {
-                    revenue: 15000,
+                    revenue: scenario.allLineItems.reduce((acc, i) => acc + i.total, 0),
                     paid: 0,
-                    balance: 15000
+                    balance: scenario.allLineItems.reduce((acc, i) => acc + i.total, 0)
                 },
                 details: {
                     propertyType: 'Residential',
@@ -267,7 +408,7 @@ async function seed() {
                 // @ts-ignore
                 phases: j.phases || [],
                 // @ts-ignore
-                claimData: j.phases ? j.phases.find(p => p.status === 'ACTIVE')?.data : null, // Backwards compat for now
+                claimData: j.phases ? j.phases.find(p => p.status === 'ACTIVE')?.data : null, // Backwards compat
                 createdBy: 'owner_single',
                 createdAt: FieldValue.serverTimestamp(),
                 updatedAt: FieldValue.serverTimestamp()

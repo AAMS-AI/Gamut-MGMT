@@ -61,11 +61,11 @@ async function seed() {
         console.log('📂 Creating Departments...');
         const departments = [
             // Main Branch
-            { id: deptMainMit, orgId, officeId: officeMainId, name: 'Mitigation (Main)' },
-            { id: deptMainRecon, orgId, officeId: officeMainId, name: 'Reconstruction (Main)' },
+            { id: deptMainMit, orgId, officeId: officeMainId, name: 'Mitigation (Main)', type: 'MITIGATION' },
+            { id: deptMainRecon, orgId, officeId: officeMainId, name: 'Reconstruction (Main)', type: 'RECONSTRUCTION' },
             // North Branch
-            { id: deptNorthMit, orgId, officeId: officeNorthId, name: 'Mitigation (North)' },
-            { id: deptNorthRecon, orgId, officeId: officeNorthId, name: 'Reconstruction (North)' }
+            { id: deptNorthMit, orgId, officeId: officeNorthId, name: 'Mitigation (North)', type: 'MITIGATION' },
+            { id: deptNorthRecon, orgId, officeId: officeNorthId, name: 'Reconstruction (North)', type: 'RECONSTRUCTION' }
         ];
         for (const d of departments) {
             await db.collection('departments').doc(d.id).set({ ...d, managerId: 'owner_user_001', createdAt: FieldValue.serverTimestamp() });

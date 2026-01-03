@@ -1,206 +1,180 @@
+
 import React from 'react';
-import { type Job, type ClaimData } from '@/types/jobs';
-import { MapPin, Activity, Droplets, Flame, Wind, Zap, AlertTriangle, Info, Briefcase, Calendar, Clock, ShieldCheck, Users } from 'lucide-react';
+import { type Job } from '@/types/jobs';
+import {
+    Users,
+    MapPin,
+    Activity,
+    AlertCircle
+} from 'lucide-react';
 
 interface JobOverviewTabProps {
     job: Job;
-    data?: ClaimData;
-    leadTech?: { displayName: string };
-    supervisor?: { displayName: string };
+    leadTech?: { displayName: string; photoURL?: string };
+    supervisor?: { displayName: string; photoURL?: string };
 }
 
-// Helper to determine Loss Type Icon & Color
-const getLossTypeConfig = (lossType: string = '') => {
-    const type = lossType.toLowerCase();
-    if (type.includes('water')) return { icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'Water Damage' };
-    if (type.includes('fire') || type.includes('smoke')) return { icon: Flame, color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Fire Loss' };
-    if (type.includes('mold') || type.includes('micro')) return { icon: AlertTriangle, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', label: 'Microbial' };
-    if (type.includes('storm') || type.includes('wind')) return { icon: Wind, color: 'text-cyan-500', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', label: 'Storm Damage' };
-    return { icon: Zap, color: 'text-accent-electric', bg: 'bg-accent-electric/10', border: 'border-accent-electric/20', label: lossType || 'General Loss' };
-};
+export const JobOverviewTab: React.FC<JobOverviewTabProps> = ({ job, leadTech, supervisor }) => {
 
-export const JobOverviewTab: React.FC<JobOverviewTabProps> = ({ job, data, leadTech, supervisor }) => {
-    // Data Extraction
-    const lossConfig = getLossTypeConfig(job.details.lossCategory || (job.details as any)['type'] || 'General');
-    const LossIcon = lossConfig.icon;
-    const actions = data?.aiAnalysis?.recommendedActions?.slice(0, 3) || [];
+    // Mock Activity Feed based on Job Data
+    // In a real app, this would query a 'timeline' or 'audit_logs' collection
+    const activities = [
+        { type: 'created', label: 'Job Created', date: job.createdAt, user: 'System' },
+        ...(job.phases?.filter(p => p.status === 'COMPLETED').map(p => ({
+            type: 'phase_complete',
+            label: `Phase Completed: ${p.name} `,
+            date: p.completedAt,
+            user: 'Team'
+        })) || [])
+    ].sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
 
-    // Days Open Calculation
-    let daysOpen = 0;
-    if (job.dates?.fnolReceivedDate) {
-        const fnol = new Date(job.dates.fnolReceivedDate.seconds * 1000);
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - fnol.getTime());
-        daysOpen = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Fallback if no activity
+    if (activities.length === 0) {
+        activities.push({ type: 'info', label: 'No recent activity', date: null, user: '-' });
     }
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
 
-            {/* LEFT COLUMN: VISUALS & STATUS (40% - 2 cols on xl) */}
-            <div className="xl:col-span-2 flex flex-col gap-6">
-
-                {/* 1. Map Card */}
-                <div className="glass p-1 rounded-2xl border border-white/5 flex flex-col relative group aspect-square overflow-hidden shadow-2xl">
-                    <div className="absolute inset-0 bg-[#151515] rounded-xl z-0">
-                        {/* Mock Map Tiles */}
-                        <div className="absolute inset-0 opacity-30"
-                            style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '15px 15px' }}>
-                        </div>
-                        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M-100,100 Q200,400 600,100" fill="none" stroke="white" strokeWidth="4" />
-                        </svg>
+            {/* CARD 1: MAP (Top Left - 2 cols) */}
+            <div className="md:col-span-2 lg:col-span-2 xl:col-span-2 row-span-2 rounded-3xl border border-white/5 flex flex-col relative group overflow-hidden shadow-2xl min-h-[320px]">
+                <div className="absolute inset-0 bg-[#151515] z-0">
+                    <div className="absolute inset-0 opacity-30"
+                        style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '15px 15px' }}>
                     </div>
-                    {/* Central Pin */}
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                        <div className="relative">
-                            <MapPin size={48} className="text-accent-primary drop-shadow-[0_4px_15px_rgba(0,0,0,0.5)] fill-black/50" />
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-black/50 blur-sm rounded-full"></div>
-                        </div>
+                </div>
+                {/* Central Pin */}
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="relative">
+                        <MapPin size={48} className="text-accent-primary drop-shadow-[0_4px_15px_rgba(0,0,0,0.5)] fill-black/50" />
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-black/50 blur-sm rounded-full"></div>
                     </div>
-                    {/* Address Banner */}
-                    <div className="absolute bottom-4 left-4 right-4 z-20">
-                        <div className="bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-lg">
+                </div>
+                {/* Address Banner */}
+                <div className="absolute bottom-4 left-4 right-4 z-20">
+                    <div className="bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-lg flex justify-between items-center">
+                        <div>
                             <h2 className="text-lg font-black text-white leading-tight">{job.property.address}</h2>
                             <div className="text-text-muted font-medium mt-1 text-xs uppercase">
                                 {job.property.city}, {job.property.state} {job.property.zip}
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* 2. Loss Tech Specs */}
-                <div className={`glass p-5 rounded-2xl border ${lossConfig.border} flex items-center gap-4 relative overflow-hidden`}>
-                    <div className={`absolute inset-0 ${lossConfig.bg} opacity-10`}></div>
-                    <div className={`p-3 rounded-xl ${lossConfig.bg} ${lossConfig.color} border ${lossConfig.border}`}>
-                        <LossIcon size={32} />
-                    </div>
-                    <div className="flex-1">
-                        <div className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-0.5">Loss Type</div>
-                        <div className="text-xl font-black text-white tracking-tight">{lossConfig.label}</div>
-                    </div>
-                </div>
-
-                {/* 3. Team Roster */}
-                <div className="glass p-5 rounded-2xl border border-white/5 flex flex-col gap-4">
-                    <div className="flex items-center gap-2 text-white/50 mb-1">
-                        <Users size={16} />
-                        <h3 className="text-[10px] font-black uppercase tracking-widest">Assigned Team</h3>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Lead Tech */}
-                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                            <div className="text-[10px] text-text-muted uppercase font-bold mb-2">Lead Technician</div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-accent-electric text-black flex items-center justify-center font-bold text-xs shadow-lg shadow-accent-electric/20">
-                                    {(leadTech) ? leadTech.displayName[0] : '?'}
-                                </div>
-                                <div className="text-white font-bold text-sm truncate">{leadTech?.displayName || 'Unassigned'}</div>
-                            </div>
-                        </div>
-                        {/* Supervisor */}
-                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                            <div className="text-[10px] text-text-muted uppercase font-bold mb-2">Supervisor</div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold text-xs border border-white/10">
-                                    {(supervisor) ? supervisor.displayName[0] : '?'}
-                                </div>
-                                <div className="text-white/80 font-bold text-sm truncate">{supervisor?.displayName || 'Unassigned'}</div>
-                            </div>
+                        <div className="bg-white/10 p-2 rounded-lg text-white">
+                            <MapPin size={20} />
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            {/* RIGHT COLUMN: DATA & NARRATIVE (60% - 3 cols on xl) */}
-            <div className="xl:col-span-3 flex flex-col gap-6">
 
-                {/* 1. Identity Header (Insurance & Dates) */}
-                <div className="glass p-6 rounded-2xl border border-white/5 bg-linear-to-br from-white/5 to-transparent">
-                    <div className="flex flex-col md:flex-row gap-8 justify-between items-start">
-
-                        {/* Carrier Info */}
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 text-accent-electric mb-2">
-                                <Briefcase size={18} />
-                                <h3 className="text-xs font-black uppercase tracking-widest">Insurance Information</h3>
-                            </div>
-                            <div className="text-2xl font-black text-white mb-1">{job.insurance.carrier || 'Unknown Carrier'}</div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-text-muted bg-white/10 px-2 py-0.5 rounded">Claim #</span>
-                                <span className="font-mono text-lg text-white/90 tracking-wide select-all">{job.insurance.claimNumber || 'N/A'}</span>
-                            </div>
-                        </div>
-
-                        {/* Critical Dates */}
-                        <div className="flex gap-6 border-l border-white/10 pl-6">
-                            <div>
-                                <div className="flex items-center gap-1.5 text-text-muted text-[10px] font-bold uppercase mb-1">
-                                    <Calendar size={12} /> Loss Date
-                                </div>
-                                <div className="text-white font-bold">
-                                    {job.dates?.lossDate ? new Date(job.dates.lossDate.seconds * 1000).toLocaleDateString() : '-'}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-1.5 text-text-muted text-[10px] font-bold uppercase mb-1">
-                                    <Clock size={12} /> Days Open
-                                </div>
-                                <div className="text-accent-electric font-bold text-lg leading-none">
-                                    {daysOpen} <span className="text-xs text-text-muted font-normal">Days</span>
-                                </div>
-                            </div>
-                        </div>
-
+            {/* CARD 2: ACTIVITY FEED (Top Right - 2 cols) */}
+            <div className="md:col-span-2 lg:col-span-1 xl:col-span-2 row-span-2 rounded-3xl bg-[#111] border border-white/5 relative overflow-hidden flex flex-col">
+                <div className="p-6 border-b border-white/5 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <Activity size={18} className="text-accent-electric" />
+                        <h3 className="text-xs font-black text-white uppercase tracking-widest">Live Activity</h3>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span className="text-[10px] font-bold text-green-500 uppercase">Live</span>
                     </div>
                 </div>
 
-                {/* 2. Loss Description (Primary Narrative) */}
-                <div className="glass p-6 rounded-2xl border border-white/5 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-white/70">
-                            <Info size={18} />
-                            <h3 className="text-xs font-black uppercase tracking-widest">Loss Description</h3>
-                        </div>
-                        {/* Access Info Badges Inline */}
-                        <div className="flex gap-2">
-                            <div className="bg-black/20 px-2.5 py-1 rounded border border-white/10 text-[10px] font-bold text-white/60 flex items-center gap-1.5">
-                                <ShieldCheck size={12} /> Lockbox: <span className="text-white">{job.details.lockBoxCode || 'N/A'}</span>
-                            </div>
-                            <div className="bg-black/20 px-2.5 py-1 rounded border border-white/10 text-[10px] font-bold text-white/60 flex items-center gap-1.5">
-                                <ShieldCheck size={12} /> Gate: <span className="text-white">{job.details.gateEntryCode || 'N/A'}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-5 border border-white/5 flex-1 max-h-[400px] overflow-y-auto custom-scrollbar">
-                        <p className="text-base text-text-secondary leading-relaxed whitespace-pre-wrap">
-                            {job.details.lossDescription ||
-                                "No detailed loss description provided for this claim. Please verify details with the carrier or homeowner upon arrival."}
-                        </p>
-                    </div>
-                </div>
+                <div className="flex-1 overflow-y-auto p-0 custom-scrollbar">
+                    {/* Activity Items */}
+                    <div className="relative">
+                        {/* Vertical Line */}
+                        <div className="absolute left-8 top-0 bottom-0 w-px bg-white/5"></div>
 
-                {/* 3. Quick Actions (Triage) */}
-                <div className="glass p-5 rounded-2xl border border-white/5">
-                    <div className="flex items-center gap-2 mb-3 text-accent-electric">
-                        <Activity size={16} />
-                        <h3 className="text-xs font-black uppercase tracking-widest">Recommended Triage Actions</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {actions.length > 0 ? actions.map((action, idx) => (
-                            <div key={idx} className="bg-white/5 px-3 py-2 rounded-lg border border-white/5 text-xs text-white/80 flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-accent-electric shrink-0"></div>
-                                {action}
+                        {activities.map((act, i) => (
+                            <div key={i} className="relative pl-16 pr-6 py-4 hover:bg-white/5 transition-colors group">
+                                {/* Dot */}
+                                <div className="absolute left-[29px] top-6 w-1.5 h-1.5 rounded-full bg-white/20 border border-[#111] ring-4 ring-[#111] group-hover:bg-accent-electric transition-colors z-10"></div>
+
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-sm font-medium text-white mb-0.5">{act.label}</p>
+                                        <div className="flex items-center gap-2 text-xs text-text-muted">
+                                            <span className="flex items-center gap-1"><Users size={10} /> {act.user}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] font-mono text-text-muted opacity-50 whitespace-nowrap">
+                                        {act.date ? new Date(act.date.seconds * 1000).toLocaleDateString() : 'N/A'}
+                                    </div>
+                                </div>
                             </div>
-                        )) : (
-                            <div className="text-text-muted text-xs italic p-2">Pending AI analysis...</div>
+                        ))}
+
+                        {/* Filler items if empty */}
+                        {activities.length < 3 && (
+                            <div className="p-8 text-center text-text-muted text-xs italic opacity-50">
+                                End of timeline.
+                            </div>
                         )}
                     </div>
                 </div>
-
             </div>
+
+
+            {/* CARD 3: CRITICAL NOTES / ACTION ITEMS (Bottom Left - 1 col) */}
+            <div className="xl:col-span-2 bg-[#1A1A1A] rounded-3xl p-6 border border-white/5 flex flex-col gap-4">
+                <div className="flex items-center justify-between text-accent-secondary mb-2">
+                    <div className="flex items-center gap-2">
+                        <AlertCircle size={18} />
+                        <h3 className="text-xs font-black uppercase tracking-widest">Critical Notes</h3>
+                    </div>
+                    <button className="text-[10px] font-bold bg-white/5 px-2 py-1 rounded hover:bg-white/10 transition-colors">+ Add</button>
+                </div>
+
+                <div className="flex-1 bg-white/5 rounded-xl p-4 border border-white/5 text-sm text-text-secondary italic">
+                    {job.details.notes ? (
+                        <span className="not-italic text-white">{job.details.notes}</span>
+                    ) : "No critical notes pinned."}
+                </div>
+            </div>
+
+
+            {/* CARD 4: TEAM ROSTER (Bottom Right - 2 cols) */}
+            <div className="xl:col-span-2 rounded-3xl bg-[#111] border border-white/5 p-6 flex flex-col hover:border-white/10 transition-colors">
+                <div className="flex items-center gap-2 text-text-muted mb-6">
+                    <Users size={18} />
+                    <h3 className="text-xs font-black uppercase tracking-widest">Assigned Team</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    {/* Supervisor */}
+                    <div className="bg-white/5 p-3 rounded-xl flex items-center gap-3 border border-white/5">
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm border border-white/10 overflow-hidden shrink-0">
+                            {supervisor?.photoURL ?
+                                <img src={supervisor.photoURL} alt="Sup" className="w-full h-full object-cover" /> :
+                                (supervisor?.displayName?.[0] || '?')
+                            }
+                        </div>
+                        <div className="overflow-hidden">
+                            <div className="text-[10px] font-bold text-text-muted uppercase truncate">Supervisor</div>
+                            <div className="text-sm font-bold text-white truncate">{supervisor?.displayName || 'Unassigned'}</div>
+                        </div>
+                    </div>
+
+                    {/* Lead Tech */}
+                    <div className="bg-accent-electric/5 p-3 rounded-xl flex items-center gap-3 border border-accent-electric/10">
+                        <div className="w-10 h-10 rounded-full bg-accent-electric text-black flex items-center justify-center font-bold text-sm shadow-lg shadow-accent-electric/20 overflow-hidden shrink-0">
+                            {leadTech?.photoURL ?
+                                <img src={leadTech.photoURL} alt="Tech" className="w-full h-full object-cover" /> :
+                                (leadTech?.displayName?.[0] || '?')
+                            }
+                        </div>
+                        <div className="overflow-hidden">
+                            <div className="text-[10px] font-bold text-accent-electric uppercase truncate">Lead Tech</div>
+                            <div className="text-sm font-bold text-white truncate">{leadTech?.displayName || 'Unassigned'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };
