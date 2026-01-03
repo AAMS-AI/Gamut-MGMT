@@ -3,7 +3,6 @@ import React from 'react';
 import { type Job, type LossClassification } from '@/types/jobs';
 import {
     Users,
-    MapPin,
     Activity,
     AlertCircle,
     ShieldAlert,
@@ -11,10 +10,10 @@ import {
     Flame,
     Wind,
     CloudRain,
-    Zap,
     HelpCircle,
     Biohazard
 } from 'lucide-react';
+import { JobMap } from '@/components/map/JobMap';
 
 interface JobOverviewTabProps {
     job: Job;
@@ -99,32 +98,12 @@ export const JobOverviewTab: React.FC<JobOverviewTabProps> = ({ job, classificat
 
             {/* CARD 1: MAP (Top Left - 2 cols) */}
             <div className="md:col-span-2 lg:col-span-2 xl:col-span-2 row-span-2 rounded-3xl border border-white/5 flex flex-col relative group overflow-hidden shadow-2xl min-h-[320px]">
-                <div className="absolute inset-0 bg-[#151515] z-0">
-                    <div className="absolute inset-0 opacity-30"
-                        style={{ backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '15px 15px' }}>
-                    </div>
-                </div>
-                {/* Central Pin */}
-                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                    <div className="relative">
-                        <MapPin size={48} className="text-accent-primary drop-shadow-[0_4px_15px_rgba(0,0,0,0.5)] fill-black/50" />
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-black/50 blur-sm rounded-full"></div>
-                    </div>
-                </div>
-                {/* Address Banner */}
-                <div className="absolute bottom-4 left-4 right-4 z-20">
-                    <div className="bg-black/80 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-lg flex justify-between items-center">
-                        <div>
-                            <h2 className="text-lg font-black text-white leading-tight">{job.property.address}</h2>
-                            <div className="text-text-muted font-medium mt-1 text-xs uppercase">
-                                {job.property.city}, {job.property.state} {job.property.zip}
-                            </div>
-                        </div>
-                        <div className="bg-white/10 p-2 rounded-lg text-white">
-                            <MapPin size={20} />
-                        </div>
-                    </div>
-                </div>
+                <JobMap
+                    address={job.property.address}
+                    city={job.property.city}
+                    state={job.property.state}
+                    zip={job.property.zip}
+                />
             </div>
 
 

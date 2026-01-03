@@ -19,10 +19,5 @@ export default defineConfig({
       'three': path.resolve(__dirname, '../node_modules/three/build/three.module.js'),
     },
   },
-  server: {
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-    },
-  },
+
 })

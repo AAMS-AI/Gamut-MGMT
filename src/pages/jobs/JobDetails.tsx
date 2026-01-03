@@ -208,10 +208,10 @@ export const JobDetails: React.FC = () => {
 
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden bg-[#0A0A0A] -m-6 relative">
+        <div className="flex flex-col h-screen overflow-hidden bg-black/40 backdrop-blur-sm -m-6 relative">
 
             {/* 1. STICKY COMMAND HEADER */}
-            <div className="bg-[#111] border-b border-white/5 shadow-2xl z-50 shrink-0">
+            <div className="bg-black/40 backdrop-blur-md border-b border-white/5 shadow-2xl z-50 shrink-0">
 
                 {/* Top Row: Navigation, Title, Status Actions */}
                 <div className="px-6 py-4 flex items-center justify-between gap-6">
@@ -264,7 +264,7 @@ export const JobDetails: React.FC = () => {
                 </div>
 
                 {/* INFO BAR: Persistent Context */}
-                <div className="px-6 py-2 bg-black/40 border-t border-white/5 flex items-center gap-8 overflow-x-auto no-scrollbar">
+                <div className="px-6 py-2 bg-transparent border-t border-white/5 flex items-center gap-8 overflow-x-auto no-scrollbar">
                     <div className="flex items-center gap-2 shrink-0">
                         <Building2 size={14} className="text-text-muted" />
                         <span className="text-[10px] uppercase font-bold text-text-muted">Carrier</span>
