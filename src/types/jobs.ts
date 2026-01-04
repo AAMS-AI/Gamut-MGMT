@@ -105,6 +105,22 @@ export interface Job {
     claimData?: ClaimData; // @deprecated - Use phases[].data instead
 }
 
+export interface ClaimItemRevision {
+    id: string;
+    timestamp: any;
+    editedBy: {
+        uid: string;
+        displayName: string;
+        photoURL?: string | null;
+    };
+    changes: {
+        field: keyof ClaimItem;
+        oldValue: any;
+        newValue: any;
+    }[];
+    previousState: Omit<ClaimItem, 'revisions'> | { [K in keyof Omit<ClaimItem, 'revisions'>]: Omit<ClaimItem, 'revisions'>[K] | null };
+}
+
 export interface ClaimItem {
     id: string;
     description: string;
@@ -114,6 +130,7 @@ export interface ClaimItem {
     total: number;
     category: string;
     notes?: string;
+    revisions?: ClaimItemRevision[];
 }
 
 export interface ClaimPreScan {

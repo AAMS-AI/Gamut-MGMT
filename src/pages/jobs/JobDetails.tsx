@@ -306,6 +306,54 @@ export const JobDetails: React.FC = () => {
                                         <JobScopeTab
                                             data={claimData}
                                             readOnly={isPhaseReadOnly}
+                                            onUpdate={async (updatedLines) => {
+                                                if (!job) {
+                                                    return;
+                                                }
+
+                                                const phaseIndex = job.phases?.findIndex(p => p.id === activePhaseId);
+
+                                                if (phaseIndex === undefined || phaseIndex === -1) {
+                                                    // Fallback for Legacy Jobs (No Phases)
+                                                    if (!job.phases || job.phases.length === 0) {
+                                                        const newClaimData = {
+                                                            ...job.claimData,
+                                                            lineItems: updatedLines
+                                                        };
+
+                                                        try {
+                                                            await updateDoc(doc(db, 'jobs', jobId!), {
+                                                                claimData: newClaimData,
+                                                                updatedAt: serverTimestamp()
+                                                            });
+                                                        } catch (err) {
+                                                            console.error("Failed to update legacy job", err);
+                                                        }
+                                                        return;
+                                                    }
+                                                    return;
+                                                }
+
+                                                const newPhases = [...(job.phases || [])];
+                                                const currentPhase = newPhases[phaseIndex];
+
+                                                newPhases[phaseIndex] = {
+                                                    ...currentPhase,
+                                                    data: {
+                                                        ...currentPhase.data,
+                                                        lineItems: updatedLines,
+                                                    }
+                                                };
+
+                                                try {
+                                                    await updateDoc(doc(db, 'jobs', jobId!), {
+                                                        phases: newPhases,
+                                                        updatedAt: serverTimestamp()
+                                                    });
+                                                } catch (err) {
+                                                    console.error("Failed to update job phases", err);
+                                                }
+                                            }}
                                         />
                                     )}
                                     {activeTab === 'PHOTOS' && (
