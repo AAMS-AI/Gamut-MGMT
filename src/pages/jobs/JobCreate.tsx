@@ -52,6 +52,8 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
     const [lossCategory, setLossCategory] = useState('');
     const [carrier, setCarrier] = useState('');
     const [claimNumber, setClaimNumber] = useState('');
+    const [adjusterName, setAdjusterName] = useState('');
+    const [adjusterEmail, setAdjusterEmail] = useState('');
     const [lossDescription, setLossDescription] = useState('');
     const [notes, setNotes] = useState('');
 
@@ -136,6 +138,8 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
             setCounty(initialData.property.county || '');
             setCarrier(initialData.insurance?.carrier || '');
             setClaimNumber(initialData.insurance?.claimNumber || '');
+            setAdjusterName(initialData.insurance?.adjusterName || '');
+            setAdjusterEmail(initialData.insurance?.adjusterEmail || '');
             setLossCategory(initialData.details?.lossCategory || '');
             setLossDescription(initialData.details?.lossDescription || '');
             setNotes(initialData.details?.notes || '');
@@ -186,6 +190,8 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                 insurance: {
                     carrier,
                     claimNumber,
+                    adjusterName,
+                    adjusterEmail,
                     policyNumber: ''
                 },
 
@@ -278,6 +284,8 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                             lossCategory={lossCategory} setLossCategory={setLossCategory}
                             carrier={carrier} setCarrier={setCarrier}
                             claimNumber={claimNumber} setClaimNumber={setClaimNumber}
+                            adjusterName={adjusterName} setAdjusterName={setAdjusterName}
+                            adjusterEmail={adjusterEmail} setAdjusterEmail={setAdjusterEmail}
                             lossDescription={lossDescription} setLossDescription={setLossDescription}
                         />
 

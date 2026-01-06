@@ -12,6 +12,10 @@ interface JobInsuranceInfoProps {
     setClaimNumber: (val: string) => void;
     lossDescription: string;
     setLossDescription: (val: string) => void;
+    adjusterName: string;
+    setAdjusterName: (val: string) => void;
+    adjusterEmail: string;
+    setAdjusterEmail: (val: string) => void;
 }
 
 export const JobInsuranceInfo: React.FC<JobInsuranceInfoProps> = ({
@@ -19,7 +23,9 @@ export const JobInsuranceInfo: React.FC<JobInsuranceInfoProps> = ({
     lossCategory, setLossCategory,
     carrier, setCarrier,
     claimNumber, setClaimNumber,
-    lossDescription, setLossDescription
+    lossDescription, setLossDescription,
+    adjusterName, setAdjusterName,
+    adjusterEmail, setAdjusterEmail
 }) => {
     return (
         <div className="space-y-6">
@@ -71,6 +77,25 @@ export const JobInsuranceInfo: React.FC<JobInsuranceInfoProps> = ({
                     onChange={(e) => setClaimNumber(e.target.value)}
                     className="input-field"
                 />
+            </div>
+
+            <div className="space-y-2 bg-white/5 p-4 rounded-xl border border-white/5">
+                <label className="text-[10px] font-bold text-text-muted uppercase">Insurance Adjuster</label>
+                <div className="flex flex-col gap-2">
+                    <input
+                        value={adjusterName}
+                        onChange={(e) => setAdjusterName(e.target.value)}
+                        className="input-field"
+                        placeholder="Name (e.g. John Doe)"
+                    />
+                    <input
+                        type="email"
+                        value={adjusterEmail}
+                        onChange={(e) => setAdjusterEmail(e.target.value)}
+                        className="input-field"
+                        placeholder="Email (e.g. john@insurance.com)"
+                    />
+                </div>
             </div>
 
             <div className="space-y-2 pt-4 border-t border-white/5">

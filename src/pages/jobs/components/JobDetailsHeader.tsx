@@ -135,7 +135,9 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                     <Users size={14} className="text-text-muted" />
                     <span className="text-[10px] uppercase font-bold text-text-muted">Adjuster</span>
-                    <span className="text-sm font-bold text-white truncate">{job.insurance.adjusterName || 'N/A'}</span>
+                    <span className="text-sm font-bold text-white truncate" title={`${job.insurance.adjusterName || ''} ${job.insurance.adjusterEmail ? `(${job.insurance.adjusterEmail})` : ''}`}>
+                        {job.insurance.adjusterName || job.insurance.adjusterEmail || 'N/A'}
+                    </span>
                 </div>
                 <div className="w-px h-4 bg-white/10 shrink-0"></div>
                 <div className="flex items-center gap-2 shrink-0">

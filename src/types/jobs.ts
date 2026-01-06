@@ -77,6 +77,7 @@ export interface Job {
         carrier: string;
         claimNumber: string;
         adjusterName?: string;
+        adjusterEmail?: string;
         adjusterPhone?: string;
     };
 
