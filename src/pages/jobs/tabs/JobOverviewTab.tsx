@@ -22,10 +22,10 @@ export const JobOverviewTab: React.FC<JobOverviewTabProps> = ({ job, classificat
             {/* CARD 1: MAP (Top Left - 2 cols) */}
             <div className="md:col-span-2 lg:col-span-2 xl:col-span-2 row-span-2 rounded-3xl border border-white/5 flex flex-col relative group overflow-hidden shadow-2xl min-h-[320px]">
                 <JobMap
-                    address={job.property.address}
-                    city={job.property.city}
-                    state={job.property.state}
-                    zip={job.property.zip}
+                    address={job.fnol?.property.address || job.property?.address || ''}
+                    city={job.fnol?.property.city || job.property?.city || ''}
+                    state={job.fnol?.property.state || job.property?.state || ''}
+                    zip={job.fnol?.property.zip || job.property?.zip || ''}
                 />
             </div>
 
@@ -43,8 +43,8 @@ export const JobOverviewTab: React.FC<JobOverviewTabProps> = ({ job, classificat
                 </div>
 
                 <div className="flex-1 bg-white/5 rounded-xl p-4 border border-white/5 text-sm text-text-secondary italic">
-                    {job.details.notes ? (
-                        <span className="not-italic text-white">{job.details.notes}</span>
+                    {(job.fnol?.notes || job.details?.notes) ? (
+                        <span className="not-italic text-white">{job.fnol?.notes || job.details?.notes}</span>
                     ) : "No critical notes pinned."}
                 </div>
             </div>

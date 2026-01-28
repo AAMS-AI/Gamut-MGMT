@@ -52,7 +52,10 @@ const getLossIcon = (type: string) => {
 };
 
 export const JobLossCard: React.FC<JobLossCardProps> = ({ job, classification }) => {
-    const lossStyle = getLossIcon(job.details.lossCategory);
+    const lossCategory = job.fnol?.lossCategory || job.details?.lossCategory || '';
+    const lossDescription = job.fnol?.lossDescription || job.details?.lossDescription || '';
+
+    const lossStyle = getLossIcon(lossCategory);
 
     return (
         <div className="xl:col-span-1 bg-[#111] rounded-3xl p-6 border border-white/5 flex flex-col justify-between group hover:border-white/10 transition-all relative overflow-hidden">
@@ -69,14 +72,14 @@ export const JobLossCard: React.FC<JobLossCardProps> = ({ job, classification })
                     </div>
                     <div>
                         <div className="text-[10px] uppercase font-bold text-text-muted mb-0.5 tracking-wider">Loss Type</div>
-                        <div className="text-lg font-black text-white leading-none">{job.details.lossCategory}</div>
+                        <div className="text-lg font-black text-white leading-none">{lossCategory}</div>
                     </div>
                 </div>
             </div>
 
             {/* Description - Cleaner */}
             <div className="text-sm text-text-secondary leading-relaxed mb-6 font-medium relative z-10">
-                "{job.details.lossDescription}"
+                "{lossDescription}"
             </div>
 
             {/* IICRC Data - Simplified Pill Design */}

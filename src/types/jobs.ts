@@ -44,6 +44,45 @@ export interface JobDetails {
     notes?: string;
 }
 
+export interface FNOL {
+    // Dates
+    receivedDate?: any;
+    lossDate?: any;
+
+    // Loss Details
+    lossCategory: string;
+    lossDescription?: string;
+    notes?: string;
+
+    // Insurance
+    insurance: {
+        carrier: string;
+        claimNumber: string;
+        adjuster?: {
+            name: string;
+            email: string;
+            phone?: string;
+        };
+        policyNumber?: string;
+    };
+
+    // Customer
+    customer: {
+        name: string;
+        phone: string;
+        email: string;
+    };
+
+    // Property
+    property: {
+        address: string;
+        city: string;
+        state: string;
+        zip: string;
+        county?: string;
+    };
+}
+
 export interface Job {
     id: string;
     orgId: string;
@@ -56,15 +95,19 @@ export interface Job {
     jobName: string;
     isCustomJobName: boolean;
 
-    // Customer Info
-    customer: {
+    // New Struct
+    fnol?: FNOL;
+
+    // --- DEPRECATED FIELDS (Kept for backward compatibility) ---
+    /** @deprecated Use fnol.customer */
+    customer?: {
         name: string;
         phone: string;
         email: string;
     };
 
-    // Property Info
-    property: {
+    /** @deprecated Use fnol.property */
+    property?: {
         address: string;
         city: string;
         state: string;
@@ -72,8 +115,8 @@ export interface Job {
         county?: string;
     };
 
-    // Insurance Info
-    insurance: {
+    /** @deprecated Use fnol.insurance */
+    insurance?: {
         carrier: string;
         claimNumber: string;
         adjusterName?: string;
@@ -81,14 +124,19 @@ export interface Job {
         adjusterPhone?: string;
     };
 
+    /** @deprecated Use fnol.dates */
     dates?: {
         lossDate?: any;
         fnolReceivedDate?: any;
     };
 
+    /** @deprecated Use fnol.lossCategory / fnol.lossDescription */
+    details?: JobDetails;
+    // -------------------------------------------------------------
+
     // New Blocks
     assignments: JobAssignments;
-    details: JobDetails;
+    // details: JobDetails; // Removed duplicate, handled in deprecated block
 
     // Financials (Optional for now)
     financials?: {

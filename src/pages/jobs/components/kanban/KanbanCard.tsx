@@ -66,7 +66,7 @@ export const KanbanCardView: React.FC<{
                         </span>
                     ) : (
                         <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-white/5 text-text-muted border border-white/5">
-                            {job.insurance.carrier}
+                            {job.fnol?.insurance.carrier || job.insurance?.carrier}
                         </span>
                     )}
                     {daysInStage > 2 && (
@@ -78,12 +78,12 @@ export const KanbanCardView: React.FC<{
 
                 {/* Title */}
                 <h4 className="text-sm font-semibold text-white mb-1 group-hover:text-accent-electric transition-colors line-clamp-2">
-                    {job.customer.name}
+                    {job.fnol?.customer.name || job.customer?.name}
                 </h4>
 
                 {/* Subtitle / Address */}
                 <div className="text-xs text-text-muted mb-4 truncate leading-relaxed">
-                    {job.property.address}
+                    {job.fnol?.property.address || job.property?.address}
                 </div>
 
                 {/* Footer: Assignees & ID */}

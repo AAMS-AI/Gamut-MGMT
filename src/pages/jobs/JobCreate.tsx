@@ -129,30 +129,42 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
         if (initialData) {
             setOfficeId(initialData.officeId);
             setDepartmentId(initialData.departmentId);
-            setCustomerName(initialData.customer.name);
-            setCustomerPhone(initialData.customer.phone);
-            setAddress(initialData.property.address);
-            setCity(initialData.property.city);
-            setState(initialData.property.state);
-            setZip(initialData.property.zip);
-            setCounty(initialData.property.county || '');
-            setCarrier(initialData.insurance?.carrier || '');
-            setClaimNumber(initialData.insurance?.claimNumber || '');
-            setAdjusterName(initialData.insurance?.adjusterName || '');
-            setAdjusterEmail(initialData.insurance?.adjusterEmail || '');
-            setLossCategory(initialData.details?.lossCategory || '');
-            setLossDescription(initialData.details?.lossDescription || '');
-            setNotes(initialData.details?.notes || '');
-            if (initialData.dates?.lossDate) {
-                setLossDate(new Date(initialData.dates.lossDate.seconds * 1000).toISOString().split('T')[0]);
+
+            const fnol = initialData.fnol;
+
+            // Prefer FNOL, fallback to legacy
+            setCustomerName(fnol?.customer?.name || initialData.customer?.name || '');
+            setCustomerPhone(fnol?.customer?.phone || initialData.customer?.phone || '');
+
+            setAddress(fnol?.property?.address || initialData.property?.address || '');
+            setCity(fnol?.property?.city || initialData.property?.city || '');
+            setState(fnol?.property?.state || initialData.property?.state || '');
+            setZip(fnol?.property?.zip || initialData.property?.zip || '');
+            setCounty(fnol?.property?.county || initialData.property?.county || '');
+
+            setCarrier(fnol?.insurance?.carrier || initialData.insurance?.carrier || '');
+            setClaimNumber(fnol?.insurance?.claimNumber || initialData.insurance?.claimNumber || '');
+            setAdjusterName(fnol?.insurance?.adjuster?.name || initialData.insurance?.adjusterName || '');
+            setAdjusterEmail(fnol?.insurance?.adjuster?.email || initialData.insurance?.adjusterEmail || '');
+
+            setLossCategory(fnol?.lossCategory || initialData.details?.lossCategory || '');
+            setLossDescription(fnol?.lossDescription || initialData.details?.lossDescription || '');
+            setNotes(fnol?.notes || initialData.details?.notes || '');
+
+            // Dates
+            const lDate = fnol?.lossDate || initialData.dates?.lossDate;
+            if (lDate) {
+                setLossDate(new Date(lDate.seconds * 1000).toISOString().split('T')[0]);
             }
-            if (initialData.dates?.fnolReceivedDate) {
-                const d = new Date(initialData.dates.fnolReceivedDate.seconds * 1000);
-                // Adjust for timezone offset to display correctly in datetime-local
+
+            const fDate = fnol?.receivedDate || initialData.dates?.fnolReceivedDate;
+            if (fDate) {
+                const d = new Date(fDate.seconds * 1000);
                 const offset = d.getTimezoneOffset();
                 const localDate = new Date(d.getTime() - (offset * 60 * 1000));
                 setFnolReceivedDate(localDate.toISOString().slice(0, 16));
             }
+
             if (initialData.assignments) {
                 setAssignments(initialData.assignments);
             }
@@ -170,40 +182,38 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                 departmentId,
                 // departmentIds handled in create/update blocks below
 
-                // Customer
-                customer: {
-                    name: customerName,
-                    phone: customerPhone,
-                    email: ''
-                },
-
-                // Property
-                property: {
-                    address,
-                    city,
-                    state,
-                    zip,
-                    county
-                },
-
-                // Insurance / Loss
-                insurance: {
-                    carrier,
-                    claimNumber,
-                    adjusterName,
-                    adjusterEmail,
-                    policyNumber: ''
-                },
-
-                details: {
-                    lossCategory: lossCategory,
-                    lossDescription,
-                    notes
-                },
-
-                dates: {
+                // FNOL Object
+                fnol: {
+                    receivedDate: fnolReceivedDate ? new Date(fnolReceivedDate) : null,
                     lossDate: lossDate ? new Date(lossDate) : null,
-                    fnolReceivedDate: fnolReceivedDate ? new Date(fnolReceivedDate) : null
+                    lossCategory,
+                    lossDescription,
+                    notes,
+
+                    insurance: {
+                        carrier,
+                        claimNumber,
+                        adjuster: {
+                            name: adjusterName,
+                            email: adjusterEmail,
+                            phone: '' // We haven't collected phone in form yet
+                        },
+                        policyNumber: ''
+                    },
+
+                    customer: {
+                        name: customerName,
+                        phone: customerPhone,
+                        email: ''
+                    },
+
+                    property: {
+                        address,
+                        city,
+                        state,
+                        zip,
+                        county
+                    }
                 },
 
                 // Status
@@ -215,7 +225,12 @@ export const JobCreate: React.FC<JobCreateProps> = ({ onClose, initialData, jobI
                     assignments.supervisorId,
                     assignments.leadTechnicianId,
                     ...(assignments.teamMemberIds || [])
-                ].filter(Boolean)
+                ].filter(Boolean),
+
+                // Fields that must remain at root for indexing/display (jobName)
+                // Note: customer/property/etc are effectively REMOVED from root on new writes/updates
+                // unless we want to keep them for backward compat querying.
+                // Assuming we move to full FNOL model, we stop writing root fields.
             };
 
             if (jobId) {

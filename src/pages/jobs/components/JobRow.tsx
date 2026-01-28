@@ -72,7 +72,7 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
                 {/* Header Row: Name & Status */}
                 <div className="flex items-center gap-3 mb-2">
                     <h4 className="text-lg font-bold text-white group-hover:text-accent-electric transition-colors truncate">
-                        {job.customer.name}
+                        {job.fnol?.customer.name || job.customer?.name || 'Unknown Customer'}
                     </h4>
                     <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-md bg-white/5 text-text-secondary uppercase tracking-widest border border-white/10">
                         {displayStatus === 'REVIEW' ? 'Manager Review' : displayStatus.replace('_', ' ')}
@@ -85,7 +85,7 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
                     {/* Address */}
                     <div className="flex items-center gap-2 text-text-muted">
                         <MapPin size={14} className="text-accent-primary shrink-0" />
-                        <span className="truncate">{job.property.address}</span>
+                        <span className="truncate">{job.fnol?.property.address || job.property?.address || 'No Address'}</span>
                     </div>
 
                     {/* Department */}
@@ -105,7 +105,7 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
                     {/* Carrier */}
                     <div className="flex items-center gap-2 text-text-muted">
                         <FileText size={14} className="text-text-secondary shrink-0" />
-                        <span className="truncate">{job.insurance.carrier || 'No Carrier'}</span>
+                        <span className="truncate">{job.fnol?.insurance.carrier || job.insurance?.carrier || 'No Carrier'}</span>
                     </div>
 
                 </div>
@@ -114,7 +114,9 @@ export const JobRow: React.FC<JobRowProps> = ({ job, departments, users }) => {
             {/* Right Side / Footer (Mobile) */}
             <div className="text-left md:text-right mt-2 md:mt-0 font-sans min-w-[120px] flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
                 <div className="text-sm font-semibold text-text-secondary mb-0 md:mb-1">
-                    {job.insurance.claimNumber ? `#${job.insurance.claimNumber}` : <span className="italic text-xs opacity-50">No Claim #</span>}
+                    {(job.fnol?.insurance.claimNumber || job.insurance?.claimNumber) ?
+                        `#${job.fnol?.insurance.claimNumber || job.insurance?.claimNumber}` :
+                        <span className="italic text-xs opacity-50">No Claim #</span>}
                 </div>
                 <div className="text-[0.65rem] text-text-muted flex items-center gap-1.5 font-medium">
                     <Clock size={12} />

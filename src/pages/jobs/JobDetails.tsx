@@ -229,8 +229,10 @@ export const JobDetails: React.FC = () => {
 
     // Days Open Calculation
     let daysOpen = 0;
-    if (job.dates?.fnolReceivedDate) {
-        const fnol = new Date(job.dates.fnolReceivedDate.seconds * 1000);
+    const receivedDate = job.fnol?.receivedDate || job.dates?.fnolReceivedDate;
+
+    if (receivedDate) {
+        const fnol = new Date(receivedDate.seconds * 1000);
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - fnol.getTime());
         daysOpen = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

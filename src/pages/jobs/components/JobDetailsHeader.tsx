@@ -41,7 +41,7 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
 
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-black text-white tracking-tight">{job.customer.name}</h1>
+                            <h1 className="text-2xl font-black text-white tracking-tight">{job.fnol?.customer.name || job.customer?.name}</h1>
                             {/* Status Chip */}
                             <div className="bg-accent-electric/10 border border-accent-electric/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase text-accent-electric tracking-wider flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-accent-electric animate-pulse"></span>
@@ -58,7 +58,7 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
                         <div className="flex items-center gap-4 mt-1 text-xs text-text-muted font-medium">
                             <span className="flex items-center gap-1.5 hover:text-white transition-colors cursor-default">
                                 <MapPin size={12} className="text-accent-primary" />
-                                {job.property.address}, {job.property.city}
+                                {job.fnol?.property.address || job.property?.address}, {job.fnol?.property.city || job.property?.city}
                             </span>
                         </div>
                     </div>
@@ -123,27 +123,27 @@ export const JobDetailsHeader: React.FC<JobDetailsHeaderProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                     <Building2 size={14} className="text-text-muted" />
                     <span className="text-[10px] uppercase font-bold text-text-muted">Carrier</span>
-                    <span className="text-sm font-bold text-white truncate max-w-[150px]">{job.insurance.carrier || 'N/A'}</span>
+                    <span className="text-sm font-bold text-white truncate max-w-[150px]">{job.fnol?.insurance.carrier || job.insurance?.carrier || 'N/A'}</span>
                 </div>
                 <div className="w-px h-4 bg-white/10 shrink-0"></div>
                 <div className="flex items-center gap-2 shrink-0">
                     <Hash size={14} className="text-text-muted" />
                     <span className="text-[10px] uppercase font-bold text-text-muted">Claim #</span>
-                    <span className="text-sm font-mono text-accent-electric tracking-wide select-all">{job.insurance.claimNumber || 'N/A'}</span>
+                    <span className="text-sm font-mono text-accent-electric tracking-wide select-all">{job.fnol?.insurance.claimNumber || job.insurance?.claimNumber || 'N/A'}</span>
                 </div>
                 <div className="w-px h-4 bg-white/10 shrink-0"></div>
                 <div className="flex items-center gap-2 shrink-0">
                     <Users size={14} className="text-text-muted" />
                     <span className="text-[10px] uppercase font-bold text-text-muted">Adjuster</span>
-                    <span className="text-sm font-bold text-white truncate" title={`${job.insurance.adjusterName || ''} ${job.insurance.adjusterEmail ? `(${job.insurance.adjusterEmail})` : ''}`}>
-                        {job.insurance.adjusterName || job.insurance.adjusterEmail || 'N/A'}
+                    <span className="text-sm font-bold text-white truncate" title={`${job.fnol?.insurance.adjuster?.name || job.insurance?.adjusterName || ''} ${job.fnol?.insurance.adjuster?.email || job.insurance?.adjusterEmail ? `(${job.fnol?.insurance.adjuster?.email || job.insurance?.adjusterEmail})` : ''}`}>
+                        {job.fnol?.insurance.adjuster?.name || job.insurance?.adjusterName || job.fnol?.insurance.adjuster?.email || job.insurance?.adjusterEmail || 'N/A'}
                     </span>
                 </div>
                 <div className="w-px h-4 bg-white/10 shrink-0"></div>
                 <div className="flex items-center gap-2 shrink-0">
                     <Calendar size={14} className="text-text-muted" />
                     <span className="text-[10px] uppercase font-bold text-text-muted">Loss Date</span>
-                    <span className="text-sm font-bold text-white">{job.dates?.lossDate ? new Date(job.dates.lossDate.seconds * 1000).toLocaleDateString() : 'N/A'}</span>
+                    <span className="text-sm font-bold text-white">{(job.fnol?.lossDate || job.dates?.lossDate) ? new Date((job.fnol?.lossDate || job.dates?.lossDate).seconds * 1000).toLocaleDateString() : 'N/A'}</span>
                 </div>
                 <div className="w-px h-4 bg-white/10 shrink-0"></div>
                 <div className="flex items-center gap-2 shrink-0 ml-auto">
