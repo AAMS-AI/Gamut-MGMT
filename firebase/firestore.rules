@@ -118,6 +118,10 @@ service cloud.firestore {
         match /roomSessions/{sessionId} {
            allow read, write: if isOrgMember(orgId);
         }
+        // Allow access to all claims data (scope, line items, etc.)
+        match /claims/{claimData=**} {
+           allow read, write: if isOrgMember(orgId);
+        }
       }
 
       // Departments: Only accessible by org members
